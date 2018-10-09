@@ -12,14 +12,22 @@
         android:id="@+id/edit_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/hint_search_string"
+        android:hint="@string/hint_msg_string"
         android:textAlignment="center" />
 
+
+
     <Button
-        android:id="@+id/btn_search"
+        android:id="@+id/btn_send"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/button_search"/>
+        android:text="@string/button_send_msg"/>
+
+    <Button
+        android:id="@+id/btn_get"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/button_get_msg"/>
 
     <TextView
         android:layout_width="match_parent"
