@@ -16,7 +16,7 @@
     />
     <TextView
             android:id="@+id/oefeningText_beschrijving"
-            android:text="Text"
+            android:text="@string/loremIpsum"
             android:layout_width="match_parent"
             android:layout_height="417dp"
             android:layout_marginTop="50sp"
