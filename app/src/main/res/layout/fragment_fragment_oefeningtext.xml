@@ -5,21 +5,12 @@
              android:layout_height="match_parent"
              tools:context=".FragmentOefeningText">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-            android:id="@+id/fragment_oefeningtext"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/hello_blank_fragment"
-            android:textSize="30sp"
-            android:gravity="center"
-    />
     <TextView
             android:id="@+id/oefeningText_beschrijving"
             android:text="@string/loremIpsum"
             android:layout_width="match_parent"
-            android:layout_height="417dp"
-            android:layout_marginTop="50sp"
+            android:layout_height="420dp"
+            android:layout_margin="15sp"
             android:scrollbars="vertical"
             tools:textSize="30sp"/>
 

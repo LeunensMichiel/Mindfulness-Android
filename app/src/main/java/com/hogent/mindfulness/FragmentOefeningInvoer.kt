@@ -28,6 +28,5 @@ class FragmentOefeningInvoer : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        fragment_oefeningbeschrijving.text = "Oefening - Invoer"
     }
 }

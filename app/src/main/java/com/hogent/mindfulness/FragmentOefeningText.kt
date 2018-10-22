@@ -30,7 +30,6 @@ class FragmentOefeningText : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        fragment_oefeningtext.text = "Oefening - Beschrijving"
         oefeningText_beschrijving.setMovementMethod(ScrollingMovementMethod())
     }
 }

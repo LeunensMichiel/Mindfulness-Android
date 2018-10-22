@@ -1,22 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             tools:context=".FragmentOefeningAudio"
-             android:gravity="center_horizontal"
-             android:orientation="vertical"
-            >
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              tools:context=".FragmentOefeningAudio"
+>
 
-    <TextView
-            android:id="@+id/fragment_oefeningaudio"
+    <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content">
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/hello_blank_fragment"
-            android:textSize="30sp"
-            android:gravity="center"
-    />
-
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+    >
     <ImageView
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
@@ -53,4 +49,6 @@
             android:background="@drawable/play"
             android:layout_marginTop="30dp"
     />
+    </LinearLayout>
+    </ScrollView>
 </LinearLayout>

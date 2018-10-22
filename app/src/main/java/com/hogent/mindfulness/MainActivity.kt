@@ -14,15 +14,16 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val adapter = MyViewPagerAdapter(supportFragmentManager)
-        adapter.addFragment(FragmentOefeningText())
-        adapter.addFragment(FragmentOefeningAudio())
-        adapter.addFragment(FragmentOefeningInvoer())
+        adapter.addFragment(FragmentOefeningText(),"Beschrijving")
+        adapter.addFragment(FragmentOefeningAudio(), "Audio")
+        adapter.addFragment(FragmentOefeningInvoer(), "Invoer")
         viewPager.adapter = adapter
     }
 
     class MyViewPagerAdapter(manager: FragmentManager): FragmentPagerAdapter(manager)
     {
         private var fragmentList:MutableList<Fragment> = ArrayList()
+        private var titles:MutableList<String> = ArrayList()
 
         override fun getItem(position: Int): Fragment {
             return fragmentList[position]
@@ -32,8 +33,11 @@ class MainActivity : AppCompatActivity() {
             return fragmentList.size
         }
 
-        fun addFragment(fragment: Fragment){
+        fun addFragment(fragment: Fragment,title:String){
             fragmentList.add(fragment)
+            titles.add(title)
         }
+
+        override fun getPageTitle(position: Int): CharSequence? = titles.get(position)
     }
 }
