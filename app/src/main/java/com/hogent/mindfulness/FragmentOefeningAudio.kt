@@ -16,6 +16,12 @@ import kotlinx.android.synthetic.main.fragment_fragment_oefeningaudio.*
 class FragmentOefeningAudio : Fragment() {
 
     /**
+     * variabele mp van type MediaPlayer declareren
+     * https://developer.android.com/reference/android/media/MediaPlayer
+     */
+    var mp: MediaPlayer? = null
+
+    /**
      * in de onCreateView-methode inflaten we onze layout fragment_fragment_oefeningaudio
      */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -25,11 +31,41 @@ class FragmentOefeningAudio : Fragment() {
     }
 
     /**
-     * Deze methode wordt direct na de onCreateView-methode uitgevoerd, we zetten hier de tekst "Oefening - Audio' in de TextView fragment_oefeningaudio
+     * Deze methode wordt direct na de onCreateView-methode uitgevoerd
+     * we zetten hier de tekst "Oefening - Audio' in de TextView fragment_oefeningaudio
+     * er wordt een nieuwe MediaPlayer gecreeerd en dit steken we in variabele mp
+     * in de create-methode geven we de context en de audiofile mee als parameters
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fragment_oefeningaudio.text = "Oefening - Audio"
+        mp = MediaPlayer.create(activity, R.raw.testaudio);
     }
 
+    /**
+     * Als de onResume-methode uitgevoerd wordt, setten we de click listener van de playbutton:
+     * als de mediaplayer niet aan het spelen is starten we het nu, anders pauzeren we het
+     */
+    override fun onResume() {
+        super.onResume()
+        playButn.setOnClickListener {
+            if (!mp!!.isPlaying) {
+                // Stopping
+                mp!!.start()
+                //playButn.setBackgroundResource()
+
+            } else {
+                // Playing
+                mp!!.pause()
+            }
+        }
+    }
+
+    /**
+     * Als de onPause-methode uitgevoerd wordt, zorgen we dat de playbutton niet meer luistert, dus geen click listener meer heeft
+     */
+    override fun onPause() {
+        super.onPause()
+        playButn.setOnClickListener (null)
+    }
 }

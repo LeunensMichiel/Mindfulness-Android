@@ -35,6 +35,5 @@ class MainActivity : AppCompatActivity() {
         fun addFragment(fragment: Fragment){
             fragmentList.add(fragment)
         }
-
     }
 }
