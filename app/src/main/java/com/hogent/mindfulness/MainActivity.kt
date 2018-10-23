@@ -17,6 +17,7 @@ class MainActivity : AppCompatActivity() {
         adapter.addFragment(FragmentOefeningText(),"Beschrijving")
         adapter.addFragment(FragmentOefeningAudio(), "Audio")
         adapter.addFragment(FragmentOefeningInvoer(), "Invoer")
+        adapter.addFragment(FragmentOefeningText(),"Beschrijving")
         viewPager.adapter = adapter
     }
 

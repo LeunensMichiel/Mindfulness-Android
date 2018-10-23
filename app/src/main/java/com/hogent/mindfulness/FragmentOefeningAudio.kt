@@ -15,7 +15,13 @@ import android.widget.SeekBar
 import android.widget.Toast
 import com.hogent.mindfulness.R.id.*
 import kotlinx.android.synthetic.main.fragment_fragment_oefeningaudio.*
-
+import android.R.attr.orientation
+import android.R.attr.textEditSideNoPasteWindowLayout
+import android.content.res.Configuration
+import android.util.Log
+import android.app.Activity
+import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 
 /**
  * Deze klasse is een Fragment die het audioscherm van de oefeningdetails toont
@@ -41,7 +47,12 @@ class FragmentOefeningAudio : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_fragment_oefeningaudio, container, false)
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            return inflater.inflate(R.layout.fragment_fragment_oefeningaudio, container, false)
+        }
+        else{
+            return inflater.inflate(R.layout.fragment_fragment_oefeningaudio, container, false)
+        }
     }
 
     /**
@@ -59,43 +70,7 @@ class FragmentOefeningAudio : Fragment() {
             }
         }
         else {
-            mp = MediaPlayer.create(activity, R.raw.testaudio)
-            mp!!.isLooping = false
-            mp!!.seekTo(0)
-            totalTime = mp!!.duration
-
-            positionBar.max = totalTime
-            positionBar.setOnSeekBarChangeListener(
-                object : SeekBar.OnSeekBarChangeListener {
-                    override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                        if (fromUser) {
-                            mp!!.seekTo(progress)
-                            positionBar.progress = progress
-                        }
-                    }
-
-                    override fun onStartTrackingTouch(seekBar: SeekBar) {
-
-                    }
-
-                    override fun onStopTrackingTouch(seekBar: SeekBar) {
-
-                    }
-                })
-
-            // Thread (Update positionBar & timeLabel)
-            Thread(Runnable {
-                while (mp != null) {
-                    try {
-                        val msg = Message()
-                        msg.what = mp!!.currentPosition
-                        handler.sendMessage(msg)
-                        Thread.sleep(1000)
-                    } catch (e: InterruptedException) {
-                    }
-
-                }
-            }).start()
+            audioVoorbereiden()
        }
     }
 
@@ -105,7 +80,11 @@ class FragmentOefeningAudio : Fragment() {
      */
     override fun onResume() {
         super.onResume()
+
         if(hasAudio()) {
+            if(mp == null){
+                audioVoorbereiden()
+            }
             playButn.setOnClickListener {
                 if (!mp!!.isPlaying) {
                     // Stopping
@@ -179,5 +158,70 @@ class FragmentOefeningAudio : Fragment() {
         else{
             return false
         }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
+        checkOrientation(newConfig!!)
+    }
+
+    private fun checkOrientation(newConfig: Configuration) {
+        // Checks the orientation of the screen
+        if (newConfig.orientation === Configuration.ORIENTATION_LANDSCAPE) {
+            Log.d("OrientationMyApp", "Current Orientation : Landscape")
+            val ft = fragmentManager!!.beginTransaction()
+            ft.detach(this).attach(this).commit()
+        } else if (newConfig.orientation === Configuration.ORIENTATION_PORTRAIT) {
+            Log.d("OrientationMyApp", "Current Orientation : Portrait")
+            val ft = fragmentManager!!.beginTransaction()
+            ft.detach(this).attach(this).commit()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mp?.release();
+        mp = null;
+        playButn.setBackgroundResource(R.drawable.play)
+    }
+
+    fun audioVoorbereiden(){
+        mp = MediaPlayer.create(activity, R.raw.testaudio)
+        mp!!.isLooping = false
+        mp!!.seekTo(0)
+        totalTime = mp!!.duration
+
+        positionBar.max = totalTime
+        positionBar.setOnSeekBarChangeListener(
+            object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                    if (fromUser) {
+                        mp!!.seekTo(progress)
+                        positionBar.progress = progress
+                    }
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar) {
+
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar) {
+
+                }
+            })
+
+        // Thread (Update positionBar & timeLabel)
+        Thread(Runnable {
+            while (mp != null) {
+                try {
+                    val msg = Message()
+                    msg.what = mp!!.currentPosition
+                    handler.sendMessage(msg)
+                    Thread.sleep(1000)
+                } catch (e: InterruptedException) {
+                }
+
+            }
+        }).start()
     }
 }
