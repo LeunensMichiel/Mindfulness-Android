@@ -13,6 +13,9 @@ interface MindfulnessApiService {
     @GET("/API/sessionmap/{id}")
     fun getSessionmap(@Path("id") id: String): Observable<Model.Sessionmap>
 
+    @GET("/API/exercise/{id}")
+    fun getExercise(@Path("id")id:String):Observable<List<Model.Page>>
+
 //    @POST("/API/mindfulness")
 //    fun sendResponse(@Body response: com.hogent.mindfulness.domain.Model.Response) : Observable<com.hogent.mindfulness.domain.Model.Result>
 

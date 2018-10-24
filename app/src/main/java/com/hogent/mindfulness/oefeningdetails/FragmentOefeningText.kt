@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_fragment_oefeningtext.*
 import android.text.method.ScrollingMovementMethod
 import com.hogent.mindfulness.R
+import com.hogent.mindfulness.domain.Model
 
 
 /**
@@ -16,6 +17,9 @@ import com.hogent.mindfulness.R
  * De layout die hiermee gelinkt is is fragment_fragment_oefeningtext
  */
 class FragmentOefeningText : Fragment() {
+
+    var page: Model.Page = Model.Page("","","","","","")
+
 
     /**
      * in de onCreateView-methode inflaten we onze layout fragment_fragment_oefeningtext
@@ -32,5 +36,17 @@ class FragmentOefeningText : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         oefeningText_beschrijving.setMovementMethod(ScrollingMovementMethod())
+        if(this.arguments!!.containsKey("description")){
+            oefeningText_beschrijving.text = this.arguments!!.getString("description", "check")
+        }
+
     }
+
+
+    override fun onResume() {
+        super.onResume()
+        //oefeningText_beschrijving.text = page.description
+    }
+
+
 }

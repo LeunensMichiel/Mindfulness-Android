@@ -1,6 +1,7 @@
 package com.hogent.mindfulness.exercises_List_display
 
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -12,7 +13,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model.Exercise
+import com.hogent.mindfulness.oefeningdetails.OefeningDetailsActivity
 import kotlinx.android.synthetic.main.fragment_exercises_pane.*
+import kotlinx.android.synthetic.main.fragment_fragment_oefeningtext.*
 
 class ExercisesListFragment : Fragment(),
     ExerciseAdapter.ExerciseAdapterOnClickHandler {
@@ -46,6 +49,9 @@ class ExercisesListFragment : Fragment(),
     override fun onClick(exercise: Exercise) {
         Log.d("test", "onclick")
         Toast.makeText(activity, exercise.title, Toast.LENGTH_SHORT).show()
+        val intent = Intent(activity, OefeningDetailsActivity::class.java)
+        intent.putExtra(Intent.EXTRA_TEXT, exercise.id)
+        startActivity(intent)
     }
 
 }
