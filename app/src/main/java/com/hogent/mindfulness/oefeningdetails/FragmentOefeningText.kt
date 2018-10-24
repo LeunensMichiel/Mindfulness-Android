@@ -1,4 +1,4 @@
-package com.hogent.mindfulness
+package com.hogent.mindfulness.oefeningdetails
 
 
 import android.os.Bundle
@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_fragment_oefeningtext.*
 import android.text.method.ScrollingMovementMethod
+import com.hogent.mindfulness.R
 
 
 /**

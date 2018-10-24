@@ -1,4 +1,4 @@
-package com.hogent.mindfulness
+package com.hogent.mindfulness.oefeningdetails
 
 
 import android.os.Bundle
@@ -6,7 +6,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.android.synthetic.main.fragment_fragment_oefeninginvoer.*
+import com.hogent.mindfulness.R
 
 /**
  * Deze klasse is een Fragment die het invoerscherm van de oefeningdetails toont

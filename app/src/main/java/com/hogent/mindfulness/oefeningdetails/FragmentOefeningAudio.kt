@@ -1,4 +1,4 @@
-package com.hogent.mindfulness
+package com.hogent.mindfulness.oefeningdetails
 
 import android.content.Context
 import android.content.pm.PackageManager
@@ -13,15 +13,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import android.widget.Toast
-import com.hogent.mindfulness.R.id.*
 import kotlinx.android.synthetic.main.fragment_fragment_oefeningaudio.*
-import android.R.attr.orientation
-import android.R.attr.textEditSideNoPasteWindowLayout
 import android.content.res.Configuration
 import android.util.Log
-import android.app.Activity
-import android.view.WindowManager
-import android.view.inputmethod.InputMethodManager
+import com.hogent.mindfulness.R
 
 /**
  * Deze klasse is een Fragment die het audioscherm van de oefeningdetails toont
