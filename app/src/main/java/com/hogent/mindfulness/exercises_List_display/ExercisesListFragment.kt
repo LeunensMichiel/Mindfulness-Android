@@ -1,4 +1,4 @@
-package com.hogent.mindfulness.exercisesdisplay.exercises_List_display
+package com.hogent.mindfulness.exercises_List_display
 
 
 import android.os.Bundle
@@ -11,10 +11,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.exercisesdisplay.Model.Exercise
+import com.hogent.mindfulness.Model.Exercise
 import kotlinx.android.synthetic.main.fragment_exercises_pane.*
 
-class ExercisesListFragment : Fragment(), ExerciseAdapter.ExerciseAdapterOnClickHandler {
+class ExercisesListFragment : Fragment(),
+    ExerciseAdapter.ExerciseAdapterOnClickHandler {
 
     private lateinit var viewAdapter: RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder>
     private lateinit var viewManager: RecyclerView.LayoutManager

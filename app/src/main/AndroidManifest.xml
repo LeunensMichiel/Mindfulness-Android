@@ -11,7 +11,7 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             android:usesCleartextTraffic="true">
-        <activity android:name=".exercisesdisplay.exercises_List_display.MainActivity">
+        <activity android:name=".exercises_List_display.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

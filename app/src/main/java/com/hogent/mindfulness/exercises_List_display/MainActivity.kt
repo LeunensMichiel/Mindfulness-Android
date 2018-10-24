@@ -1,12 +1,12 @@
-package com.hogent.mindfulness.exercisesdisplay.exercises_List_display
+package com.hogent.mindfulness.exercises_List_display
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.exercisesdisplay.Model
-import com.hogent.mindfulness.exercisesdisplay.data.MindfulnessApiService
+import com.hogent.mindfulness.Model
+import com.hogent.mindfulness.data.MindfulnessApiService
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers

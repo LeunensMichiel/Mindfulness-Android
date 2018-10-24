@@ -1,6 +1,6 @@
-package com.hogent.mindfulness.exercisesdisplay.data
+package com.hogent.mindfulness.data
 
-import com.hogent.mindfulness.exercisesdisplay.Model
+import com.hogent.mindfulness.Model
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -14,7 +14,7 @@ interface MindfulnessApiService {
     fun getSessionmap(@Path("id") id: String): Observable<Model.Sessionmap>
 
 //    @POST("/API/mindfulness")
-//    fun sendResponse(@Body response: Model.Response) : Observable<Model.Result>
+//    fun sendResponse(@Body response: com.hogent.mindfulness.Model.Response) : Observable<com.hogent.mindfulness.Model.Result>
 
     companion object {
         fun create(): MindfulnessApiService {
@@ -23,7 +23,7 @@ interface MindfulnessApiService {
                     RxJava2CallAdapterFactory.create())
                 .addConverterFactory(
                     GsonConverterFactory.create())
-                .baseUrl("http://projecten3studserver03.westeurope.cloudapp.azure.com:3000") // TODO Change IP to local IP
+                .baseUrl("http://projecten3studserver03.westeurope.cloudapp.azure.com:3000")
                 .build()
 
             return retrofit.create(MindfulnessApiService::class.java)

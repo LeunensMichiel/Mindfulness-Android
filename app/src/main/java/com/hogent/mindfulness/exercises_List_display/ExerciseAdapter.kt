@@ -1,4 +1,4 @@
-package com.hogent.mindfulness.exercisesdisplay.exercises_List_display
+package com.hogent.mindfulness.exercises_List_display
 
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.exercisesdisplay.Model.Exercise
+import com.hogent.mindfulness.Model.Exercise
 import kotlinx.android.synthetic.main.exercise_list_item.view.*
 
 class ExerciseAdapter(
