@@ -7,22 +7,13 @@
     android:padding="16dp">
 
     <TextView
-        android:id="@+id/tv_item_number"
+        android:id="@+id/tv_session_title"
         style="@style/TextAppearance.AppCompat.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical|start"
+        android:layout_gravity="center"
         android:fontFamily="monospace"
         android:textSize="42sp"
         tools:text="#42" />
 
-    <TextView
-        android:id="@+id/tv_view_holder_instance"
-        style="@style/TextAppearance.AppCompat.Title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical|end"
-        android:fontFamily="monospace"
-        android:textColor="#000"
-        tools:text="ViewHolder instance: 7" />
 </FrameLayout>

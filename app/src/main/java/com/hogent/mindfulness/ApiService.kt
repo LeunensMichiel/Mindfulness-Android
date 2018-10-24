@@ -11,7 +11,7 @@ import retrofit2.http.POST
 
 interface ApiService {
 
-    @GET("/API/mindfulness")
+    @GET("/API/sessionmap/5bcf59077fc71d412c348b55")
     fun getResult(): Observable<Model.Result>
 
     @POST("/API/mindfulness")
@@ -24,7 +24,7 @@ interface ApiService {
                     RxJava2CallAdapterFactory.create())
                 .addConverterFactory(
                     GsonConverterFactory.create())
-                .baseUrl("projecten3studserver03.westeurope.cloudapp.azure.com:5000") // TODO Change IP to local IP
+                .baseUrl("projecten3studserver03.westeurope.cloudapp.azure.com:3000") // TODO Change IP to local IP
                 .build()
 
             return retrofit.create(ApiService::class.java)
