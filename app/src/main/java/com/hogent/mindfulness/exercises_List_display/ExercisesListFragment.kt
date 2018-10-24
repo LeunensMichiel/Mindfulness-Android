@@ -11,7 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.Model.Exercise
+import com.hogent.mindfulness.domain.Model.Exercise
 import kotlinx.android.synthetic.main.fragment_exercises_pane.*
 
 class ExercisesListFragment : Fragment(),

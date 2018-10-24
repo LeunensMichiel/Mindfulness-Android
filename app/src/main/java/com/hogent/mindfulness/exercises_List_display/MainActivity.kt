@@ -5,12 +5,12 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.Model
+import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.data.MindfulnessApiService
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.ExerciseList.*
+import kotlinx.android.synthetic.main.exercise_list.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.ExerciseList)
+        setContentView(R.layout.exercise_list)
 
         beginRetrieveSessionmap()
 

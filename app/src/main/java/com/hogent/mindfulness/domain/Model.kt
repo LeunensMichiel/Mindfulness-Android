@@ -1,4 +1,4 @@
-package com.hogent.mindfulness
+package com.hogent.mindfulness.domain
 
 object Model {
     data class Sessionmap(val _id: String,

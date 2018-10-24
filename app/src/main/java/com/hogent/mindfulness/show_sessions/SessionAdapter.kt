@@ -7,16 +7,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.domain.Session
-import kotlinx.android.synthetic.main.number_list_item.view.*
+import com.hogent.mindfulness.domain.Model
+import kotlinx.android.synthetic.main.session_item_list.view.*
 
-class SessionAdapter(private val mSessionData: Array<Session>,
+class SessionAdapter(private val mSessionData: Array<Model.Session>,
                      private val mClickHandler: SessionAdapterOnClickHandler) : RecyclerView.Adapter<SessionAdapter.SessionViewHolder>() {
 
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): SessionViewHolder {
         val context = viewGroup.context
-        val layoutIdForListItem = R.layout.number_list_item
+        val layoutIdForListItem = R.layout.session_item_list
         val inflater = LayoutInflater.from(context)
 
         val view = inflater.inflate(layoutIdForListItem, viewGroup, false)
@@ -27,7 +27,7 @@ class SessionAdapter(private val mSessionData: Array<Session>,
 
     override fun onBindViewHolder(holder: SessionViewHolder, position: Int) {
         val sessionTitle = mSessionData[position]
-        holder.title.text = sessionTitle.sessionId.toString()
+        holder.title.text = sessionTitle.title
 
     }
 
@@ -57,6 +57,6 @@ class SessionAdapter(private val mSessionData: Array<Session>,
     }
 
     interface SessionAdapterOnClickHandler {
-        fun onClick(session: Session)
+        fun onClick(session: Model.Session)
     }
 }

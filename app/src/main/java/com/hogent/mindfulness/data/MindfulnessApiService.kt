@@ -1,6 +1,6 @@
 package com.hogent.mindfulness.data
 
-import com.hogent.mindfulness.Model
+import com.hogent.mindfulness.domain.Model
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -14,7 +14,7 @@ interface MindfulnessApiService {
     fun getSessionmap(@Path("id") id: String): Observable<Model.Sessionmap>
 
 //    @POST("/API/mindfulness")
-//    fun sendResponse(@Body response: com.hogent.mindfulness.Model.Response) : Observable<com.hogent.mindfulness.Model.Result>
+//    fun sendResponse(@Body response: com.hogent.mindfulness.domain.Model.Response) : Observable<com.hogent.mindfulness.domain.Model.Result>
 
     companion object {
         fun create(): MindfulnessApiService {
