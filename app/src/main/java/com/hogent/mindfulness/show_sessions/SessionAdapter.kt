@@ -8,12 +8,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
-import com.thoughtbot.expandablerecyclerview.viewholders.GroupViewHolder
 import kotlinx.android.synthetic.main.session_item_list.view.*
 
 class SessionAdapter(
     private val mSessionData: Array<Model.Session>,
-    //private val mActivity: MainActivity
     private val mClickHandler: SessionAdapterOnClickHandler
 ) : RecyclerView.Adapter<SessionAdapter.SessionViewHolder>() {
 

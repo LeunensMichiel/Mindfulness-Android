@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHa
     }
 
     private fun showResult(sessionmaps: Model.Sessionmap) {
-        Log.d("sessions", sessionmaps.titleCourse)
+//        Log.d("sessions", sessionmaps.titleCourse)
         sessionFragment = SessionFragment()
 
         sessionFragment.sessions = sessionmaps.sessions
@@ -69,13 +69,13 @@ class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHa
     }
 
     private fun showResultExercises(exercises: Array<Model.Exercise>) {
-        Toast.makeText(this, exercises[0].title, Toast.LENGTH_SHORT).show()
+//        Toast.makeText(this, exercises[0].title, Toast.LENGTH_SHORT).show()
 
         exerciseFragment = ExercisesListFragment()
 
         exerciseFragment.mExercisesList = exercises
 
-        Log.d("exer", exerciseFragment.mExercisesList[0].title)
+//        Log.d("exer", exerciseFragment.mExercisesList[0].title)
 
         supportFragmentManager.beginTransaction()
             .remove(sessionFragment).add(R.id.session_container, exerciseFragment)
@@ -84,35 +84,10 @@ class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHa
 
     }
 
-//    private fun beginRetrieveExercises(session_id: String) {
-//        disposable = mindfulnessApiService.getExercises(session_id)
-//            .subscribeOn(Schedulers.io())
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe(
-//                { result -> showResultExercises(result) },
-//                { error -> showError(error.message) }
-//            )
-//    }
-
-//    private fun showResultExercises(exercises: Array<Model.Exercise>) {
-//        val fragment = ExercisesListFragment()
-//
-//        fragment.mExercisesList = exercises
-//        supportFragmentManager.beginTransaction()
-//            .add(R.id.rv_exercises, fragment)
-//            .commit()
-//    }
-
     private fun showError(errMsg: String?) {
-        Toast.makeText(this, errMsg, Toast.LENGTH_SHORT).show()
+//        Toast.makeText(this, errMsg, Toast.LENGTH_SHORT).show()
     }
-//
-//    override fun onClick(session: Model.Session) {
-//        beginRetrieveExercises(session._id)
-//        Log.d("test", "onclick")
-//        Toast.makeText(this, session.title, Toast.LENGTH_SHORT).show()
-//
-//    }
+
 
     override fun onClick(session: Model.Session) {
         beginRetrieveExercises(session._id)

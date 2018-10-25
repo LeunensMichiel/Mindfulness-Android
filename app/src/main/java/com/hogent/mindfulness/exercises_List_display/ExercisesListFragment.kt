@@ -44,8 +44,8 @@ class ExercisesListFragment : Fragment(),
     }
 
     override fun onClick(exercise: Exercise) {
-        Log.d("test", "onclick")
-        Toast.makeText(activity, exercise.title, Toast.LENGTH_SHORT).show()
+//        Log.d("test", "onclick")
+//        Toast.makeText(activity, exercise.title, Toast.LENGTH_SHORT).show()
     }
 
 

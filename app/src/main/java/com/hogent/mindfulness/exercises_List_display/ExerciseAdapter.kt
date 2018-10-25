@@ -50,7 +50,7 @@ class ExerciseAdapter(
             val adapterPosition = adapterPosition
             val exercise = mExercisesData[adapterPosition]
 
-            Log.d("test", "onclick2")
+//            Log.d("test", "onclick2")
             mClickHandler.onClick(exercise)
 
         }
