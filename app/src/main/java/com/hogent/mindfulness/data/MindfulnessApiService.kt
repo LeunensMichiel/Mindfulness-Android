@@ -10,11 +10,18 @@ import retrofit2.http.Path
 
 interface MindfulnessApiService {
 
+    // REST API Call for retrieving one sessionmap from the given id
     @GET("/API/sessionmap/{id}")
     fun getSessionmap(@Path("id") id: String): Observable<Model.Sessionmap>
 
+    // REST API Call for retrieving all exercises from the given sessionid
     @GET("/API/exercises/{id}")
     fun getExercises(@Path("id") id: String): Observable<Array<Model.Exercise>>
+
+    // REST API Call for retrieving all pages from the given exercisesid
+    @GET("/API/pages/{id}")
+    fun getPages(@Path("id") id: String): Observable<Array<Model.Page>>
+
 //    @POST("/API/mindfulness")
 //    fun sendResponse(@Body response: com.hogent.mindfulness.domain.Model.Response) : Observable<com.hogent.mindfulness.domain.Model.Result>
 

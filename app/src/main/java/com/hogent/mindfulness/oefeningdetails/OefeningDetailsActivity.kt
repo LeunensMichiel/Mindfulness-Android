@@ -33,7 +33,7 @@ class OefeningDetailsActivity : AppCompatActivity() {
 
         val intentThatStartedThisActivity = getIntent()
         if (intentThatStartedThisActivity.hasExtra(Intent.EXTRA_TEXT)) {
-            var exercise_id = intentThatStartedThisActivity.getStringExtra(Intent.EXTRA_TEXT)
+            val exercise_id = intentThatStartedThisActivity.getStringExtra(Intent.EXTRA_TEXT)
 
             beginRetrieveExercise(exercise_id)
 
@@ -64,7 +64,7 @@ class OefeningDetailsActivity : AppCompatActivity() {
     }
 
     private fun beginRetrieveExercise(exerciseId: String) {
-        disposable = mindfulnessApiService.getExercise(exerciseId)
+        disposable = mindfulnessApiService.getPages(exerciseId)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
@@ -73,7 +73,7 @@ class OefeningDetailsActivity : AppCompatActivity() {
             )
     }
 
-    private fun showResult(pages: List<Model.Page>) {
+    private fun showResult(pages: Array<Model.Page>) {
 
 
         setContentView(R.layout.activity_oefeningdetail)

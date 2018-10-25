@@ -75,12 +75,9 @@ class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHa
 
         exerciseFragment.mExercisesList = exercises
 
-//        Log.d("exer", exerciseFragment.mExercisesList[0].title)
-
         supportFragmentManager.beginTransaction()
             .remove(sessionFragment).add(R.id.session_container, exerciseFragment)
             .commit()
-
 
     }
 

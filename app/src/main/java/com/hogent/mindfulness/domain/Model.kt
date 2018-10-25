@@ -13,7 +13,7 @@ object Model {
                       )
 
 
-    data class Exercise(val id: String,
+    data class Exercise(val _id: String,
                         val title: String)
 
     data class Page(val pathaudio:String,

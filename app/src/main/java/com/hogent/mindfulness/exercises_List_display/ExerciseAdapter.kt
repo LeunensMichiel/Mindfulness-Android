@@ -12,11 +12,11 @@ import com.thoughtbot.expandablerecyclerview.viewholders.ChildViewHolder
 import kotlinx.android.synthetic.main.exercise_list_item.view.*
 
 class ExerciseAdapter(
+    // This array has the data for the recyclerview adapter
     private val mExercisesData: Array<Exercise>,
+    // mClickHandler is for communicating whit the activity when item clicked
     private val mClickHandler: ExerciseAdapterOnClickHandler
 ) : RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder>() {
-
-
 
     // This function loads in the item view
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExerciseViewHolder {
@@ -42,20 +42,22 @@ class ExerciseAdapter(
     inner class ExerciseViewHolder(view: View) : ChildViewHolder(view), View.OnClickListener {
         val title: TextView = view.tv_exercise_title
 
+        // Add clicklistener on the item from the recyclerview
         init {
             view.setOnClickListener(this)
         }
 
         override fun onClick(view: View) {
+            // Get the correct exercise out of the data array
             val adapterPosition = adapterPosition
             val exercise = mExercisesData[adapterPosition]
 
-//            Log.d("test", "onclick2")
             mClickHandler.onClick(exercise)
 
         }
     }
 
+    // Implement this interface for passing click event through
     interface ExerciseAdapterOnClickHandler {
         fun onClick(exercise: Exercise)
     }
