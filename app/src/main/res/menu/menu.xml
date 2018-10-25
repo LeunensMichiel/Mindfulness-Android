@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/sessies"
+          android:title="sessies"
+    />
+    <item android:id="@+id/feedback"
+          android:title="feedback"/>
+    <item android:id="@+id/instellingen"
+          android:title="instellingen"/>
+</menu>

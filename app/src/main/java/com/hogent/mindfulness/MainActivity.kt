@@ -3,6 +3,8 @@ package com.hogent.mindfulness
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import com.hogent.mindfulness.data.MindfulnessApiService
 import com.hogent.mindfulness.domain.Model
@@ -88,6 +90,11 @@ class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHa
 
     override fun onClick(session: Model.Session) {
         beginRetrieveExercises(session._id)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu, menu)
+        return true
     }
 
 }
