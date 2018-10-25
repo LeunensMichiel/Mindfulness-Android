@@ -10,9 +10,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.R.id.rv_exercises
+import com.hogent.mindfulness.data.MindfulnessApiService
+import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.Model.Exercise
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 
 class ExercisesListFragment : Fragment(),
     ExerciseAdapter.ExerciseAdapterOnClickHandler {
@@ -21,6 +27,8 @@ class ExercisesListFragment : Fragment(),
     private lateinit var layoutManager: RecyclerView.LayoutManager
 
     lateinit var mExercisesList: Array<Exercise>
+
+
 
     // I used this resource: https://developer.android.com/guide/topics/ui/layout/recyclerview
     override fun onCreateView(
@@ -47,5 +55,9 @@ class ExercisesListFragment : Fragment(),
         Log.d("test", "onclick")
         Toast.makeText(activity, exercise.title, Toast.LENGTH_SHORT).show()
     }
+
+
+
+
 
 }
