@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model.Exercise
+import com.thoughtbot.expandablerecyclerview.viewholders.ChildViewHolder
 import kotlinx.android.synthetic.main.exercise_list_item.view.*
 
 class ExerciseAdapter(
@@ -38,7 +39,7 @@ class ExerciseAdapter(
         holder.title.text = exerciseTitle.title
     }
 
-    inner class ExerciseViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
+    inner class ExerciseViewHolder(view: View) : ChildViewHolder(view), View.OnClickListener {
         val title: TextView = view.tv_exercise_title
 
         init {

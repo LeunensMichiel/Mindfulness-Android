@@ -11,14 +11,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.hogent.mindfulness.R
+import com.hogent.mindfulness.R.id.rv_exercises
 import com.hogent.mindfulness.domain.Model.Exercise
-import kotlinx.android.synthetic.main.fragment_exercises_pane.*
 
 class ExercisesListFragment : Fragment(),
     ExerciseAdapter.ExerciseAdapterOnClickHandler {
 
-    private lateinit var viewAdapter: RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder>
-    private lateinit var viewManager: RecyclerView.LayoutManager
+    private lateinit var adapter: RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder>
+    private lateinit var layoutManager: RecyclerView.LayoutManager
 
     lateinit var mExercisesList: Array<Exercise>
 
@@ -34,8 +34,8 @@ class ExercisesListFragment : Fragment(),
 
     override fun onResume() {
         super.onResume()
-        viewAdapter = ExerciseAdapter(mExercisesList, this)
-        viewManager = LinearLayoutManager(activity)
+        val viewAdapter = ExerciseAdapter(mExercisesList, this)
+        val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
 
         rv_exercises.apply {
             layoutManager = viewManager

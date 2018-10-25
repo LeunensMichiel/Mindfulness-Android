@@ -1,34 +1,35 @@
 package com.hogent.mindfulness.show_sessions
 
+
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
+import com.thoughtbot.expandablerecyclerview.viewholders.GroupViewHolder
 import kotlinx.android.synthetic.main.session_item_list.view.*
 
-class SessionAdapter(private val mSessionData: Array<Model.Session>,
-                     private val mClickHandler: SessionAdapterOnClickHandler) : RecyclerView.Adapter<SessionAdapter.SessionViewHolder>() {
+class SessionAdapter(
+    private val mSessionData: Array<Model.Session>,
+    //private val mActivity: MainActivity
+    private val mClickHandler: SessionAdapterOnClickHandler
+) : RecyclerView.Adapter<SessionAdapter.SessionViewHolder>() {
 
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): SessionViewHolder {
         val context = viewGroup.context
         val layoutIdForListItem = R.layout.session_item_list
         val inflater = LayoutInflater.from(context)
-
         val view = inflater.inflate(layoutIdForListItem, viewGroup, false)
 
-        return  SessionViewHolder(view)
+        return SessionViewHolder(view)
 
     }
 
     override fun onBindViewHolder(holder: SessionViewHolder, position: Int) {
-        val sessionTitle = mSessionData[position]
-        holder.title.text = sessionTitle.title
-
+        holder.title.text = (position + 1).toString()
     }
 
 
@@ -37,7 +38,7 @@ class SessionAdapter(private val mSessionData: Array<Model.Session>,
     }
 
 
-    inner class SessionViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
+    inner class SessionViewHolder(view: View) : GroupViewHolder(view), View.OnClickListener {
 
         val title: TextView = view.tv_session_title
 
@@ -49,7 +50,11 @@ class SessionAdapter(private val mSessionData: Array<Model.Session>,
             val adapterPosition = adapterPosition
             val session = mSessionData[adapterPosition]
 
-            Log.d("test", "onclick2")
+            //Log.d("test", "onclick2")
+            //mClickHandler.onClick(session)
+
+
+
             mClickHandler.onClick(session)
 
         }

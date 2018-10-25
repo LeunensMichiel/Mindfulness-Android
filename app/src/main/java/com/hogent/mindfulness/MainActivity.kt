@@ -3,20 +3,42 @@ package com.hogent.mindfulness
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
-import android.util.Log
 import android.widget.Toast
+import com.hogent.mindfulness.R.id.rv_numbers
 import com.hogent.mindfulness.data.MindfulnessApiService
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
 import com.hogent.mindfulness.show_sessions.SessionAdapter
+import com.hogent.mindfulness.show_sessions.SessionFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 
+class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHandler {
+    override fun onClick(session: Model.Session) {
+        beginRetrieveExercises(session._id)
+    }
 
-class MainActivity : AppCompatActivity(),
-    SessionAdapter.SessionAdapterOnClickHandler {
+    private fun beginRetrieveExercises(session_id: String) {
+        disposable = mindfulnessApiService.getExercises(session_id)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> showResultExercises(result) },
+                { error -> showError(error.message) }
+            )
+    }
+
+    private fun showResultExercises(exercises: Array<Model.Exercise>) {
+        val fragment = ExercisesListFragment()
+
+        fragment.mExercisesList = exercises
+
+        supportFragmentManager.beginTransaction()
+            .add(R.id.rv_exercises, fragment)
+            .commit()
+    }
 
     private lateinit var disposable: Disposable
 
@@ -29,48 +51,18 @@ class MainActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        beginRetrieveSessionmap()
+
+        val fragment = SessionFragment()
+
+        this.supportFragmentManager.beginTransaction()
+            .add(R.id.session_container, fragment)
+            .commit()
 
     }
 
-    private fun beginRetrieveSessionmap() {
-        disposable = mindfulnessApiService.getSessionmap(getString(R.string.sessionmap_id))
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                {result -> showResult(result)},
-                {error -> showError(error.message)}
-            )
-    }
-
-    private fun showResult(sessionmap: Model.Sessionmap) {
-
-        val sessionLayoutManager = GridLayoutManager(this, 2)
-        val sessionAdapter = SessionAdapter(sessionmap.sessions, this)
-
-        rv_numbers.apply{
-            layoutManager = sessionLayoutManager
-            setHasFixedSize(false)
-            adapter = sessionAdapter
-        }
-
-
-
-    }
 
     private fun showError(errMsg: String?) {
         Toast.makeText(this, errMsg, Toast.LENGTH_SHORT).show()
     }
 
-
-    override fun onClick(session: Model.Session) {
-        val fragment = ExercisesListFragment()
-        fragment.mExercisesList = session.exercises
-
-        supportFragmentManager .beginTransaction()
-            .add(R.id.fragment_container, fragment)
-            .commit()
-        /*Log.d("test", "onclick")
-        Toast.makeText(this, session.title, Toast.LENGTH_SHORT).show()*/
-    }
 }
