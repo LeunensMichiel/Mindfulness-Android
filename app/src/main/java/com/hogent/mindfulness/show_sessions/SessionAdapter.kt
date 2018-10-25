@@ -32,13 +32,11 @@ class SessionAdapter(
         holder.title.text = (position + 1).toString()
     }
 
-
     override fun getItemCount(): Int {
         return mSessionData.count()
     }
 
-
-    inner class SessionViewHolder(view: View) : GroupViewHolder(view), View.OnClickListener {
+    inner class SessionViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
 
         val title: TextView = view.tv_session_title
 
@@ -52,8 +50,6 @@ class SessionAdapter(
 
             //Log.d("test", "onclick2")
             //mClickHandler.onClick(session)
-
-
 
             mClickHandler.onClick(session)
 

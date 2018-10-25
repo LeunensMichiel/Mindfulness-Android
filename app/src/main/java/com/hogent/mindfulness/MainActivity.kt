@@ -14,16 +14,17 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHandler {
+
+
     private lateinit var disposable: Disposable
+    private lateinit var sessionFragment: SessionFragment
+    private lateinit var exerciseFragment: ExercisesListFragment
 
     private val mindfulnessApiService by lazy {
         MindfulnessApiService.create()
     }
 
-//    override fun onClick(session: Model.Session) {
-//        beginRetrieveExercises(session._id)
-//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,17 +44,19 @@ class MainActivity : AppCompatActivity() {
             )
     }
 
-    private fun showResult(sessionmaps: Model.Sessionmap){
+    private fun showResult(sessionmaps: Model.Sessionmap) {
         Log.d("sessions", sessionmaps.titleCourse)
-        val fragment = SessionFragment()
+        sessionFragment = SessionFragment()
 
-        fragment.sessions = sessionmaps.sessions
+        sessionFragment.sessions = sessionmaps.sessions
+        sessionFragment.ac = this
 
-        this.supportFragmentManager.beginTransaction()
-            .add(R.id.session_container, fragment)
+        supportFragmentManager.beginTransaction()
+            .add(R.id.session_container, sessionFragment)
             .commit()
-    }
 
+
+    }
 
     private fun beginRetrieveExercises(session_id: String) {
         disposable = mindfulnessApiService.getExercises(session_id)
@@ -66,17 +69,53 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showResultExercises(exercises: Array<Model.Exercise>) {
-        val fragment = ExercisesListFragment()
+        Toast.makeText(this, exercises[0].title, Toast.LENGTH_SHORT).show()
 
-        fragment.mExercisesList = exercises
+        exerciseFragment = ExercisesListFragment()
+
+        exerciseFragment.mExercisesList = exercises
+
+        Log.d("exer", exerciseFragment.mExercisesList[0].title)
 
         supportFragmentManager.beginTransaction()
-            .add(R.id.rv_exercises, fragment)
+            .remove(sessionFragment).add(R.id.session_container, exerciseFragment)
             .commit()
+
+
     }
+
+//    private fun beginRetrieveExercises(session_id: String) {
+//        disposable = mindfulnessApiService.getExercises(session_id)
+//            .subscribeOn(Schedulers.io())
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .subscribe(
+//                { result -> showResultExercises(result) },
+//                { error -> showError(error.message) }
+//            )
+//    }
+
+//    private fun showResultExercises(exercises: Array<Model.Exercise>) {
+//        val fragment = ExercisesListFragment()
+//
+//        fragment.mExercisesList = exercises
+//        supportFragmentManager.beginTransaction()
+//            .add(R.id.rv_exercises, fragment)
+//            .commit()
+//    }
 
     private fun showError(errMsg: String?) {
         Toast.makeText(this, errMsg, Toast.LENGTH_SHORT).show()
+    }
+//
+//    override fun onClick(session: Model.Session) {
+//        beginRetrieveExercises(session._id)
+//        Log.d("test", "onclick")
+//        Toast.makeText(this, session.title, Toast.LENGTH_SHORT).show()
+//
+//    }
+
+    override fun onClick(session: Model.Session) {
+        beginRetrieveExercises(session._id)
     }
 
 }

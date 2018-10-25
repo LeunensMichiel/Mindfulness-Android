@@ -4,32 +4,21 @@ package com.hogent.mindfulness.exercises_List_display
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.R.id.rv_exercises
-import com.hogent.mindfulness.data.MindfulnessApiService
-import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.Model.Exercise
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.fragment_exercises_pane.*
 
 class ExercisesListFragment : Fragment(),
     ExerciseAdapter.ExerciseAdapterOnClickHandler {
 
-    private lateinit var adapter: RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder>
-    private lateinit var layoutManager: RecyclerView.LayoutManager
+
 
     lateinit var mExercisesList: Array<Exercise>
-
-
-
     // I used this resource: https://developer.android.com/guide/topics/ui/layout/recyclerview
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,10 +31,13 @@ class ExercisesListFragment : Fragment(),
 
     override fun onResume() {
         super.onResume()
+
+
         val viewAdapter = ExerciseAdapter(mExercisesList, this)
-        val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
+        val viewManager = LinearLayoutManager(activity)
 
         rv_exercises.apply {
+
             layoutManager = viewManager
             adapter = viewAdapter
         }
