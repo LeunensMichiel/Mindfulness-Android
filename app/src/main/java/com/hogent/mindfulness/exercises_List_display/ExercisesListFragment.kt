@@ -36,7 +36,7 @@ class ExercisesListFragment : Fragment(),
         super.onViewCreated(view, savedInstanceState)
 
         val viewAdapter = ExerciseAdapter(mExercisesList, this)
-        val viewManager = LinearLayoutManager(activity)
+        val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
 
         rv_exercises.apply {
 

@@ -28,6 +28,7 @@ class ExerciseAdapter(
 
         return ExerciseViewHolder(view)
     }
+
     //  This function gives the size back of the data list
     override fun getItemCount(): Int {
         return mExercisesData.size
@@ -36,25 +37,26 @@ class ExerciseAdapter(
     //  This function attaches the data to item view
     override fun onBindViewHolder(holder: ExerciseViewHolder, position: Int) {
         val exerciseTitle = mExercisesData[position]
-        holder.title.text = exerciseTitle.title
+        holder.exercise.text = exerciseTitle.title
     }
 
-    inner class ExerciseViewHolder(view: View) : ChildViewHolder(view), View.OnClickListener {
-        val title: TextView = view.tv_exercise_title
+    inner class ExerciseViewHolder(view: View) : ChildViewHolder(view) {
+        val exercise = view.btn_exercise
 
         // Add clicklistener on the item from the recyclerview
         init {
-            view.setOnClickListener(this)
+            exercise.setOnClickListener {
+
+                    // Get the correct exercise out of the data array
+                    val adapterPosition = adapterPosition
+                    val exercise = mExercisesData[adapterPosition]
+
+                    mClickHandler.onClick(exercise)
+
+            }
         }
 
-        override fun onClick(view: View) {
-            // Get the correct exercise out of the data array
-            val adapterPosition = adapterPosition
-            val exercise = mExercisesData[adapterPosition]
 
-            mClickHandler.onClick(exercise)
-
-        }
     }
 
     // Implement this interface for passing click event through

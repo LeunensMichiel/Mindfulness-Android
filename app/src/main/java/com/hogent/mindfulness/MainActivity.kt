@@ -45,7 +45,6 @@ class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHa
     }
 
     private fun showResult(sessionmaps: Model.Sessionmap) {
-//        Log.d("sessions", sessionmaps.titleCourse)
         sessionFragment = SessionFragment()
 
         sessionFragment.sessions = sessionmaps.sessions
@@ -69,7 +68,6 @@ class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHa
     }
 
     private fun showResultExercises(exercises: Array<Model.Exercise>) {
-//        Toast.makeText(this, exercises[0].title, Toast.LENGTH_SHORT).show()
 
         exerciseFragment = ExercisesListFragment()
 
@@ -82,7 +80,7 @@ class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHa
     }
 
     private fun showError(errMsg: String?) {
-//        Toast.makeText(this, errMsg, Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, errMsg, Toast.LENGTH_SHORT).show()
     }
 
 
