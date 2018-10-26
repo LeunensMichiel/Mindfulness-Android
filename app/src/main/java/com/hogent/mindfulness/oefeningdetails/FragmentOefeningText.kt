@@ -1,6 +1,7 @@
 package com.hogent.mindfulness.oefeningdetails
 
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -42,6 +43,15 @@ class FragmentOefeningText : Fragment() {
 
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
+
+        val ft = fragmentManager!!.beginTransaction()
+        ft.detach(this).attach(this).commit()
+        if(this.arguments!!.containsKey("description")){
+            oefeningText_beschrijving.text = this.arguments!!.getString("description", "check")
+        }
+    }
 
     override fun onResume() {
         super.onResume()

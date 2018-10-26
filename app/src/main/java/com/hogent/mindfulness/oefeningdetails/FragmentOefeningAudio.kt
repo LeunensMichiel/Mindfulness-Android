@@ -181,7 +181,7 @@ class FragmentOefeningAudio : Fragment() {
     }
 
     fun audioVoorbereiden(){
-        mp = MediaPlayer.create(activity, R.raw.testaudio)
+        mp = MediaPlayer.create(activity, R.raw.mindfulnesssample)
         mp!!.isLooping = false
         mp!!.seekTo(0)
         totalTime = mp!!.duration

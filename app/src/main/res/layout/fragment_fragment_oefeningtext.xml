@@ -12,6 +12,6 @@
             android:layout_height="420dp"
             android:layout_margin="15sp"
             android:scrollbars="vertical"
-            tools:textSize="30sp"/>
+            android:textSize="20sp"/>
 
 </FrameLayout>
