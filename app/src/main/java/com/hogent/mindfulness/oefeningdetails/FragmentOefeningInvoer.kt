@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import com.hogent.mindfulness.R
 
 /**
- * Deze klasse is een Fragment die het invoerscherm van de oefeningdetails toont
+ * Deze klasse is een Fragment die verantwoordelijk is voor de invoerpagina van de oefening
  * De layout die hiermee gelinkt is is fragment_fragment_oefeninginvoer
  */
 class FragmentOefeningInvoer : Fragment() {
@@ -24,7 +24,7 @@ class FragmentOefeningInvoer : Fragment() {
     }
 
     /**
-     * Deze methode wordt direct na de onCreateView-methode uitgevoerd, we zetten hier de tekst "Oefening - Invoer' in de TextView fragment_oefeningbeschrijving
+     * Deze methode wordt direct na de onCreateView-methode uitgevoerd
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
