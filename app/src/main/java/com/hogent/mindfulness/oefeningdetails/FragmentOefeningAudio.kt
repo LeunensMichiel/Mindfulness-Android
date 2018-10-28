@@ -17,6 +17,7 @@ import kotlinx.android.synthetic.main.fragment_fragment_oefeningaudio.*
 import android.content.res.Configuration
 import android.util.Log
 import com.hogent.mindfulness.R
+import com.hogent.mindfulness.R.id.playButn
 
 /**
  * Deze klasse is een Fragment die verantwoordelijk is voor de audiopagina van de oefening
@@ -41,13 +42,7 @@ class FragmentOefeningAudio : Fragment() {
      */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
-        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            return inflater.inflate(R.layout.fragment_fragment_oefeningaudio, container, false)
-        }
-        else{
-            return inflater.inflate(R.layout.fragment_fragment_oefeningaudio, container, false)
-        }
+        return inflater.inflate(R.layout.fragment_fragment_oefeningaudio, container, false)
     }
 
     /**
@@ -187,23 +182,9 @@ class FragmentOefeningAudio : Fragment() {
      */
     override fun onConfigurationChanged(newConfig: Configuration?) {
         super.onConfigurationChanged(newConfig)
-        checkOrientation(newConfig!!)
-    }
 
-    /**
-     * we herladen onze fragment
-     */
-    private fun checkOrientation(newConfig: Configuration) {
-        // Checks the orientation of the screen
-        if (newConfig.orientation === Configuration.ORIENTATION_LANDSCAPE) {
-            Log.d("OrientationMyApp", "Current Orientation : Landscape")
-            val ft = fragmentManager!!.beginTransaction()
-            ft.detach(this).attach(this).commit()
-        } else if (newConfig.orientation === Configuration.ORIENTATION_PORTRAIT) {
-            Log.d("OrientationMyApp", "Current Orientation : Portrait")
-            val ft = fragmentManager!!.beginTransaction()
-            ft.detach(this).attach(this).commit()
-        }
+        val ft = fragmentManager!!.beginTransaction()
+        ft.detach(this).attach(this).commit()
     }
 
     /**

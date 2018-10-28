@@ -58,11 +58,4 @@ class FragmentOefeningText : Fragment() {
             oefeningText_beschrijving.text = this.arguments!!.getString("description", "check")
         }
     }
-
-    override fun onResume() {
-        super.onResume()
-        //oefeningText_beschrijving.text = page.description
-    }
-
-
 }
