@@ -126,7 +126,14 @@ class OefeningDetailsActivity : AppCompatActivity() {
         pages.forEach {
             Log.d("page", it.description)
             when (it.type) {
-                "AUDIO" -> adapter.addFragment(FragmentOefeningAudio(), "Audio")
+                "AUDIO" -> //adapter.addFragment(FragmentOefeningAudio(), "Audio")
+                {
+                    val fragment = FragmentOefeningAudio()
+                    val arg = Bundle()
+                    arg.putString("audiopad", it.pathaudio)
+                    fragment.arguments = arg
+                    adapter.addFragment(fragment, "Audio")
+                }
                 "TEXT" -> {
                     val fragment = FragmentOefeningText()
                     val arg = Bundle()
@@ -134,7 +141,14 @@ class OefeningDetailsActivity : AppCompatActivity() {
                     fragment.arguments = arg
                     adapter.addFragment(fragment, "Beschrijving")
                 }
-                "INPUT" -> adapter.addFragment(FragmentOefeningInvoer(), "Invoer")
+                "INPUT" -> // adapter.addFragment(FragmentOefeningInvoer(), "Invoer")
+                {
+                    val fragment = FragmentOefeningInvoer()
+                    val arg = Bundle()
+                    arg.putString("opgave", it.title)
+                    fragment.arguments = arg
+                    adapter.addFragment(fragment, "Invoer")
+                }
 
             }
         }
