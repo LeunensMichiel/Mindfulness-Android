@@ -1,26 +1,30 @@
 package com.hogent.mindfulness.exercises_List_display
 
 
-import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.domain.Model.Exercise
-import com.hogent.mindfulness.oefeningdetails.OefeningDetailsActivity
+import com.hogent.mindfulness.data.MindfulnessApiService
+import com.hogent.mindfulness.domain.Model
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_exercises_pane.*
 
-class ExercisesListFragment : Fragment(),
-    ExerciseAdapter.ExerciseAdapterOnClickHandler {
+class ExercisesListFragment : Fragment() {
 
     // Here will the exercisesData be stored
     // This will be used the populate the data for the ExerciseAdapter
-    lateinit var mExercisesList: Array<Exercise>
+    lateinit var session : Model.Session
+    private lateinit var disposable: Disposable
+    private val mindfulnessApiService by lazy {
+        MindfulnessApiService.create()
+    }
 
     // I used this resource: https://developer.android.com/guide/topics/ui/layout/recyclerview
     override fun onCreateView(
@@ -28,28 +32,35 @@ class ExercisesListFragment : Fragment(),
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        beginRetrieveExercises(session._id)
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_exercises_pane, container, false)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    private fun beginRetrieveExercises(session_id: String) {
+        disposable = mindfulnessApiService.getExercises(session_id)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> showResultExercises(result) },
+                { error -> showError(error.message) }
+            )
+    }
 
-        val viewAdapter = ExerciseAdapter(mExercisesList, this)
-        val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
+    private fun showError(errMsg: String?) {
+        Toast.makeText(activity, errMsg, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showResultExercises(exercises: Array<Model.Exercise>) {
+
+        val viewAdapter = ExerciseAdapter(exercises, activity as ExerciseAdapter.ExerciseAdapterOnClickHandler)
+        val viewManager = LinearLayoutManager(activity)
 
         rv_exercises.apply {
 
             layoutManager = viewManager
             adapter = viewAdapter
         }
-    }
-
-    override fun onClick(exercise: Exercise) {
-        // This intent launches the detail activity of exercise
-        val intent = Intent(activity, OefeningDetailsActivity::class.java)
-        intent.putExtra(Intent.EXTRA_TEXT, exercise._id)
-        startActivity(intent)
     }
 
 
