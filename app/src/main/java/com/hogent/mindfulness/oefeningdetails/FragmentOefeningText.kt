@@ -14,8 +14,7 @@ import com.hogent.mindfulness.domain.Model
 
 
 /**
- * Deze klasse is een Fragment die het tekstscherm van de oefeningdetails toont
- * De layout die hiermee gelinkt is is fragment_fragment_oefeningtext
+ * Deze klasse is een Fragment die verantwoordelijk is voor een tekstpagina van een oefening
  */
 class FragmentOefeningText : Fragment() {
 
@@ -32,7 +31,10 @@ class FragmentOefeningText : Fragment() {
     }
 
     /**
-     * Deze methode wordt direct na de onCreateView-methode uitgevoerd, we zetten hier de tekst "Oefening - Beschrijving' in de TextView fragment_oefeningtext
+     * Deze methode wordt direct na de onCreateView-methode uitgevoerd
+     * oefeningText_beschrijving is een TextView
+     * we zorgen ervoor dat de beschrijving van de oefening scrollbaar is (vb. voor lange teksten)
+     * als in de argumenten van de fragment de key description zit, dan steken we de value van deze key in onze beschrijving van de oefening
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -43,6 +45,10 @@ class FragmentOefeningText : Fragment() {
 
     }
 
+    /**
+     * deze methode wordt bijvoorbeeld aangeroepen als de app verandert van portrait mode naar landscape mode
+     * we moeten dan ook de fragment veranderen, we herladen de fragment en steken opnieuw de beschrijving in onze TextView
+     */
     override fun onConfigurationChanged(newConfig: Configuration?) {
         super.onConfigurationChanged(newConfig)
 
@@ -51,11 +57,6 @@ class FragmentOefeningText : Fragment() {
         if(this.arguments!!.containsKey("description")){
             oefeningText_beschrijving.text = this.arguments!!.getString("description", "check")
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        //oefeningText_beschrijving.text = page.description
     }
 
 
