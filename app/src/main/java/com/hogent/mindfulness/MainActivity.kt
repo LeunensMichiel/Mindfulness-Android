@@ -43,11 +43,6 @@ class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHa
             .commit()
     }
 
-
-
-
-
-
     override fun onClick(session: Model.Session) {
         exerciseFragment = ExercisesListFragment()
         exerciseFragment.session = session
@@ -82,6 +77,8 @@ class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHa
     }
 
 
-
+   public fun creerParagraafFragment(){
+        supportFragmentManager!!.beginTransaction().add(R.id.paragraafContainer, ParagraafTekst()).commit()
+    }
 
 }

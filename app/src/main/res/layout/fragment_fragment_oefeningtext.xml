@@ -14,4 +14,14 @@
             android:scrollbars="vertical"
             android:textSize="20sp"/>
 
+    <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content">
+
+        <LinearLayout android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:id="@+id/paragraafContainer"
+                      android:orientation="vertical"
+        >     </LinearLayout>
+
+    </ScrollView>
+
 </FrameLayout>

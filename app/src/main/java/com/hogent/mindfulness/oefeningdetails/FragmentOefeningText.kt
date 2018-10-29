@@ -1,6 +1,7 @@
 package com.hogent.mindfulness.oefeningdetails
 
 
+import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -9,6 +10,8 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_fragment_oefeningtext.*
 import android.text.method.ScrollingMovementMethod
+import android.util.AttributeSet
+import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 
@@ -42,7 +45,8 @@ class FragmentOefeningText : Fragment() {
         if(this.arguments!!.containsKey("description")){
             oefeningText_beschrijving.text = this.arguments!!.getString("description", "check")
         }
-
+        (activity as MainActivity).creerParagraafFragment()
+        (activity as MainActivity).creerParagraafFragment()
     }
 
     /**
