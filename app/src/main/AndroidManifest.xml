@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.hogent.mindfulness">
+
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
@@ -19,7 +20,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".oefeningdetails.OefeningDetailsActivity">
-
+        </activity>
+        <activity android:name=".Main2Activity">
         </activity>
     </application>
 

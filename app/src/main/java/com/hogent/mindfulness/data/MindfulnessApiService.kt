@@ -11,8 +11,8 @@ import retrofit2.http.Path
 interface MindfulnessApiService {
 
     // REST API Call for retrieving one sessionmap from the given id
-    @GET("/API/sessionmap/{id}")
-    fun getSessionmap(@Path("id") id: String): Observable<Model.Sessionmap>
+    @GET("/API/sessions/{id}")
+    fun getSessionmap(@Path("id") id: String): Observable<Array<Model.Session>>
 
     // REST API Call for retrieving all exercises from the given sessionid
     @GET("/API/exercises/{id}")

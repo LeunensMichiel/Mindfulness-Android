@@ -1,27 +1,31 @@
 package com.hogent.mindfulness
 
 import android.os.Bundle
+import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import android.widget.Toast
 import com.hogent.mindfulness.data.MindfulnessApiService
 import com.hogent.mindfulness.domain.Model
+import com.hogent.mindfulness.exercises_List_display.ExerciseAdapter
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
+import com.hogent.mindfulness.oefeningdetails.*
 import com.hogent.mindfulness.show_sessions.SessionAdapter
 import com.hogent.mindfulness.show_sessions.SessionFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_oefeningdetail.*
 
 
-class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHandler {
+class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHandler, ExerciseAdapter.ExerciseAdapterOnClickHandler {
+
 
 
     private lateinit var disposable: Disposable
     private lateinit var sessionFragment: SessionFragment
     private lateinit var exerciseFragment: ExercisesListFragment
+    private lateinit var oefeningDetailFragment: OefeningDetailFragment
 
     private val mindfulnessApiService by lazy {
         MindfulnessApiService.create()
@@ -31,70 +35,54 @@ class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHa
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
-        beginRetrieveSessionmap()
-    }
-
-
-    private fun beginRetrieveSessionmap() {
-        disposable = mindfulnessApiService.getSessionmap(getString(R.string.sessionmap_id))
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { result -> showResult(result) },
-                { error -> showError(error.message) }
-            )
-    }
-
-    private fun showResult(sessionmaps: Model.Sessionmap) {
-//        Log.d("sessions", sessionmaps.titleCourse)
         sessionFragment = SessionFragment()
-
-        sessionFragment.sessions = sessionmaps.sessions
-        sessionFragment.ac = this
 
         supportFragmentManager.beginTransaction()
             .add(R.id.session_container, sessionFragment)
             .commit()
-
-
     }
 
-    private fun beginRetrieveExercises(session_id: String) {
-        disposable = mindfulnessApiService.getExercises(session_id)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { result -> showResultExercises(result) },
-                { error -> showError(error.message) }
-            )
-    }
 
-    private fun showResultExercises(exercises: Array<Model.Exercise>) {
-//        Toast.makeText(this, exercises[0].title, Toast.LENGTH_SHORT).show()
 
-        exerciseFragment = ExercisesListFragment()
 
-        exerciseFragment.mExercisesList = exercises
-
-        supportFragmentManager.beginTransaction()
-            .remove(sessionFragment).add(R.id.session_container, exerciseFragment)
-            .commit()
-
-    }
-
-    private fun showError(errMsg: String?) {
-//        Toast.makeText(this, errMsg, Toast.LENGTH_SHORT).show()
-    }
 
 
     override fun onClick(session: Model.Session) {
-        beginRetrieveExercises(session._id)
+        exerciseFragment = ExercisesListFragment()
+        exerciseFragment.session = session
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.session_container, exerciseFragment)
+            .commit()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu, menu)
-        return true
+    override fun onClickExercise(exercise: Model.Exercise) {
+        oefeningDetailFragment = OefeningDetailFragment()
+
+        oefeningDetailFragment.manager = supportFragmentManager
+        oefeningDetailFragment.exerciseId = exercise._id
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.session_container, oefeningDetailFragment)
+            .commit()
     }
+
+
+    private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
+        when (item.itemId) {
+            R.id.navigation_home -> {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.session_container, sessionFragment)
+                    .commit()
+                return@OnNavigationItemSelectedListener true
+            }
+        }
+        false
+    }
+
+
+
 
 }
