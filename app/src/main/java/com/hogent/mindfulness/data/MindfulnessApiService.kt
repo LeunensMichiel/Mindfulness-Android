@@ -22,6 +22,11 @@ interface MindfulnessApiService {
     @GET("/API/pages/{id}")
     fun getPages(@Path("id") id: String): Observable<Array<Model.Page>>
 
+
+    // REST API Call for retrieving all paragraphs from the given pageid
+    @GET("/API/paragraphs/{id}")
+    fun getParagraphs(@Path("id") id: String): Observable<Array<Model.Paragraph>>
+
 //    @POST("/API/mindfulness")
 //    fun sendResponse(@Body response: com.hogent.mindfulness.domain.Model.Response) : Observable<com.hogent.mindfulness.domain.Model.Result>
 

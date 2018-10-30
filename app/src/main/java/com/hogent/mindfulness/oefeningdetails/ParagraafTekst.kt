@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 
 import com.hogent.mindfulness.R
+import kotlinx.android.synthetic.main.fragment_paragraaf_tekst.*
 
 class ParagraafTekst : Fragment() {
 
@@ -19,5 +20,10 @@ class ParagraafTekst : Fragment() {
         return inflater.inflate(R.layout.fragment_paragraaf_tekst, container, false)
     }
 
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if(this.arguments!!.containsKey("tekst")){
+            paragraafTekstTextView.text = this.arguments!!.getString("tekst", "check")
+        }
+    }
 }

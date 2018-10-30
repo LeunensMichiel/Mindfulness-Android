@@ -61,6 +61,21 @@ class OefeningDetailFragment(): Fragment(){
             )
     }
 
+    /*
+    private fun beginRetrieveParagraphs(page_id:String){
+        disposable = mindfulnessApiService.getParagraphs(page_id)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> showResultParagraphs(result) },
+                { error -> showError(error.message) }
+            )
+    }
+
+    private fun showResultParagraphs(pages: Array<Model.Paragraph>) {
+
+    } */
+
     /**
      * Dit is een methode om eventuele fouten te tonen
      */
@@ -94,6 +109,9 @@ class OefeningDetailFragment(): Fragment(){
                     val fragment = FragmentOefeningText()
                     val arg = Bundle()
                     arg.putString("description", it.description)
+
+                    fragment.paragraphs = it.paragraphs
+
                     fragment.arguments = arg
                     adapter.addFragment(fragment, "Beschrijving")
                 }

@@ -21,7 +21,10 @@ import com.hogent.mindfulness.domain.Model
  */
 class FragmentOefeningText : Fragment() {
 
-    var page: Model.Page = Model.Page("","","","","","")
+    lateinit var paragraphs:Array<Model.Paragraph>
+
+    //var page: Model.Page = Model.Page("","","","","","",paragraphs = emptyArray())
+    //var page: Model.Page = Model.Page("","","","","","")
 
 
     /**
@@ -45,8 +48,11 @@ class FragmentOefeningText : Fragment() {
         if(this.arguments!!.containsKey("description")){
             oefeningText_beschrijving.text = this.arguments!!.getString("description", "check")
         }
-        (activity as MainActivity).creerParagraafFragment()
-        (activity as MainActivity).creerParagraafFragment()
+
+        paragraphs.forEach {
+            (activity as MainActivity).creerParagraafFragment(it.description)
+
+        }
     }
 
     /**

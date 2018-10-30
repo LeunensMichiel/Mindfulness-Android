@@ -21,5 +21,13 @@ object Model {
                     val _id:String,
                     val title:String,
                     val description:String,
-                    val exercise_id:String)
+                    val exercise_id:String
+                    ,val paragraphs: Array<Paragraph>
+                    )
+
+    data class Paragraph(val _id:String,
+                         val type:String,
+                         val filename:String,
+                         val pathname:String,
+                         val description:String)
 }

@@ -15,6 +15,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_paragraaf_tekst.*
 
 
 class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHandler, ExerciseAdapter.ExerciseAdapterOnClickHandler {
@@ -77,8 +78,15 @@ class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHa
     }
 
 
-   public fun creerParagraafFragment(){
-        supportFragmentManager!!.beginTransaction().add(R.id.paragraafContainer, ParagraafTekst()).commit()
+   public fun creerParagraafFragment(description:String){
+       var fragmentje = ParagraafTekst()
+
+       val arg = Bundle()
+       arg.putString("tekst", description)
+       fragmentje.arguments = arg
+
+       supportFragmentManager!!.beginTransaction().add(R.id.paragraafContainer, fragmentje ).commit()
+       Log.d("testtesttest",description)
     }
 
 }
