@@ -48,18 +48,20 @@ class SessionFragment() : Fragment() {
             )
     }
 
+
+
     private fun showError(errMsg: String?) {
 //        Toast.makeText(this, errMsg, Toast.LENGTH_SHORT).show()
     }
 
     private fun showResult(sessions:Array<Model.Session>){
         val viewAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler)
-        val viewManager = GridLayoutManager(activity, 2)
+        val viewManageri = GridLayoutManager(activity, 2)
 
 
 
         rv_sessions.apply {
-            layoutManager = viewManager
+            layoutManager = viewManageri
             adapter = viewAdapter
         }
     }

@@ -4,7 +4,7 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              android:orientation="horizontal"
-              android:background="@drawable/first_layer"
+              android:background="@color/backgroundColor"
              tools:context=".exercises_List_display.ExercisesListFragment">
 
 

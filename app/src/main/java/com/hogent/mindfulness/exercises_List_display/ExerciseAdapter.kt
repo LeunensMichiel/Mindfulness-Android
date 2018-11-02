@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model.Exercise
@@ -38,11 +39,12 @@ class ExerciseAdapter(
     }
 
     inner class ExerciseViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
-        val title: TextView = view.tv_exercise_title
+        val title: Button = view.btn_exercise
 
         // Add clicklistener on the item from the recyclerview
         init {
             view.setOnClickListener(this)
+
         }
 
         override fun onClick(view: View) {

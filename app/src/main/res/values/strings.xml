@@ -42,10 +42,22 @@
         senectus et netus et malesuada fames ac turpis egestas.
     </string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="sessionmap_id">5bd1989f12bbd66b6c19aa3c</string>
     <string name="title_session">Sessies</string>
     <string name="title_feedback">Feedback</string>
     <string name="title_notifications">Notifications</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- settings for Notifications -->
+    <string name="pref_title_notifications">Notificaties</string>
+    <string name="switch_notifications">switch_notifications</string>
+    <string name="switch_title_notifications">Give notifications</string>
+
+    <string name="timePreference_key">t</string>
+
+    <string name="key_vibrate">key_vibrate</string>
+    <string name="summary_vibrate">Vibrate on new notification</string>
+    <string name="title_vibrate">Vibrate</string>
+
+
 </resources>

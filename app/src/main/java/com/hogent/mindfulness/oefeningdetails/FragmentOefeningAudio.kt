@@ -141,11 +141,10 @@ class FragmentOefeningAudio : Fragment() {
      * de timelabel combineert deze twee variabelen, zodat het voor de gebruiker duidelijk is hoe ver hij in de audiofile zit
      */
     fun createTimeLabel(time: Int): String {
-        var timeLabel = ""
         val min = time / 1000 / 60
         val sec = time / 1000 % 60
 
-        timeLabel = min.toString() + ":"
+        var timeLabel = min.toString() + ":"
         if (sec < 10) timeLabel += "0"
         timeLabel += sec
 

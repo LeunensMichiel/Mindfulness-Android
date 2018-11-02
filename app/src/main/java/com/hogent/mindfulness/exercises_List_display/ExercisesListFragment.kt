@@ -54,7 +54,7 @@ class ExercisesListFragment : Fragment() {
     private fun showResultExercises(exercises: Array<Model.Exercise>) {
 
         val viewAdapter = ExerciseAdapter(exercises, activity as ExerciseAdapter.ExerciseAdapterOnClickHandler)
-        val viewManager = LinearLayoutManager(activity)
+        val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
 
         rv_exercises.apply {
 
