@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model.Exercise
@@ -37,22 +38,20 @@ class ExerciseAdapter(
         holder.title.text = exerciseTitle.title
     }
 
-    inner class ExerciseViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
-        val title: TextView = view.tv_exercise_title
+    inner class ExerciseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val title: Button = view.btn_exercise
 
         // Add clicklistener on the item from the recyclerview
         init {
-            view.setOnClickListener(this)
+            title.setOnClickListener {
+                // Get the correct exercise out of the data array
+                val adapterPosition = adapterPosition
+                val exercise = mExercisesData[adapterPosition]
+
+                mClickHandler.onClickExercise(exercise)
+            }
         }
 
-        override fun onClick(view: View) {
-            // Get the correct exercise out of the data array
-            val adapterPosition = adapterPosition
-            val exercise = mExercisesData[adapterPosition]
-
-            mClickHandler.onClickExercise(exercise)
-
-        }
     }
 
     // Implement this interface for passing click event through
