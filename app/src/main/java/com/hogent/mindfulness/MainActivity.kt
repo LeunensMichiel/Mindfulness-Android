@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHa
         false
     }
 
-
+/*
    public fun creerParagraafFragment(description:String){
        var fragmentje = ParagraafTekst()
 
@@ -87,6 +87,6 @@ class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHa
 
        supportFragmentManager!!.beginTransaction().add(R.id.paragraafContainer, fragmentje ).commit()
        Log.d("testtesttest",description)
-    }
+    } */
 
 }

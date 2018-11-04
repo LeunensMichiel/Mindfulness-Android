@@ -105,6 +105,4 @@ class FragmentOefeningText : Fragment() {
             adapter = viewAdapter
         }
     }
-
-
 }

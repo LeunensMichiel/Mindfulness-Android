@@ -22,8 +22,10 @@ class ParagraafTekst : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        /*
         if(this.arguments!!.containsKey("tekst")){
             paragraafTekstTextView.text = this.arguments!!.getString("tekst", "check")
-        }
+            paragraafFotoImageView.setVisibility(View.INVISIBLE);
+        } */
     }
 }
