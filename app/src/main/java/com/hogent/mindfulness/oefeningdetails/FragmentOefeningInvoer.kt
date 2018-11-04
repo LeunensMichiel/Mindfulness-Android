@@ -1,6 +1,7 @@
 package com.hogent.mindfulness.oefeningdetails
 
 
+import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
@@ -10,6 +11,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.hogent.mindfulness.R
 import kotlinx.android.synthetic.main.fragment_fragment_oefeninginvoer.*
 
@@ -72,7 +74,12 @@ class FragmentOefeningInvoer : Fragment() {
      */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        var bitmap: Bitmap = data!!.extras.get("data") as Bitmap
-        imageView.setImageBitmap(bitmap)
+        if(RESULT_OK == resultCode){
+            var bitmap: Bitmap = data!!.extras.get("data") as Bitmap
+            imageView.setImageBitmap(bitmap)
+        }
+        else{
+            Toast.makeText(activity, "Geen foto genomen", Toast.LENGTH_SHORT).show()
+        }
     }
 }
