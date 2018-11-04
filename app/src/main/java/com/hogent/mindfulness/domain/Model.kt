@@ -21,8 +21,8 @@ object Model {
                     val _id:String,
                     val title:String,
                     val description:String,
-                    val exercise_id:String
-                    ,val paragraphs: Array<Paragraph>
+                    val exercise_id:String,
+                    val paragraphs: Array<Paragraph>
                     )
 
     data class Paragraph(val _id:String,
@@ -30,4 +30,21 @@ object Model {
                          val filename:String,
                          val pathname:String,
                          val description:String)
+
+    data class User(val firstname: String,
+                    val lastname: String,
+                    val email: String,
+                    val current_session_id: String,
+                    val current_exercise_id: String,
+                    var current_session: Session?,
+                    var current_exercise: Exercise?,
+                    val group: Group,
+                    var token: String?)
+
+    data class Group(val name: String,
+                     val sessionmap_id: String,
+                     var sessionmap: Sessionmap?)
+
+    data class Login(val email: String,
+                     val password: String)
 }
