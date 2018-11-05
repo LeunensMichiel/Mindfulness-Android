@@ -2,4 +2,5 @@
 <resources>
     <string name="sharedPreferenceUserDetailsKey">userDetails</string>
     <string name="authTokenKey">authToken</string>
+    <string name="userIdKey">userId</string>
 </resources>
