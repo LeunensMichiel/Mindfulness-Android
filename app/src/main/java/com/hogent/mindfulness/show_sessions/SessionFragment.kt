@@ -4,6 +4,7 @@ package com.hogent.mindfulness.show_sessions
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +15,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.session_fragment.*
+import kotlinx.android.synthetic.main.session_item_list.*
 
 
 class SessionFragment() : Fragment() {
@@ -31,6 +33,8 @@ class SessionFragment() : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         beginRetrieveSessionmap()
+
+
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.session_fragment, container, false)
@@ -54,7 +58,7 @@ class SessionFragment() : Fragment() {
 
     private fun showResult(sessions:Array<Model.Session>){
         val viewAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler)
-        val viewManager = GridLayoutManager(activity, 2)
+        val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
 
 
 
