@@ -1,73 +1,79 @@
 package com.hogent.mindfulness.notificationSettings
 
 import android.content.Context
-import android.preference.DialogPreference
-import android.util.AttributeSet
+import android.support.v7.preference.DialogPreference
 import android.content.res.TypedArray
-import android.text.format.DateFormat
-import android.view.View
-import android.widget.TimePicker
-import java.util.*
+import android.util.AttributeSet
+import com.hogent.mindfulness.R
 
 /*
  * I used this https://github.com/code-troopers/android-betterpickers/issues/236
  */
-class TimePreference(context: Context?, attrs: AttributeSet?) :
-    DialogPreference(context, attrs) {
+class TimePreference(context: Context?, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) :
+    DialogPreference(context, attrs, defStyleAttr) {
 
-    private val calendar = GregorianCalendar()
-    private lateinit var picker: TimePicker
+    var mTime: Int = 0
 
-    override fun onCreateDialogView(): View {
-        picker = TimePicker(context)
-        return picker
+    init {
+
     }
 
-    override fun onBindDialogView(v: View) {
-        super.onBindDialogView(v)
-        picker.currentHour = calendar.get(Calendar.HOUR_OF_DAY)
-        picker.currentMinute = calendar.get(Calendar.MINUTE)
+
+
+//    private val calendar = GregorianCalendar()
+//    private lateinit var picker: TimePicker
+
+//    override fun onCreateDialogView(): View {
+//        picker = TimePicker(context)
+//        return picker
+//    }
+//
+//    override fun onBindDialogView(v: View) {
+//        super.onBindDialogView(v)
+//        picker.currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+//        picker.currentMinute = calendar.get(Calendar.MINUTE)
+//    }
+
+//    override fun onDialogClosed(positiveResult: Boolean) {
+//        super.onDialogClosed(positiveResult)
+//
+//        if (positiveResult) {
+//            calendar.set(Calendar.HOUR_OF_DAY, picker.currentHour)
+//            calendar.set(Calendar.MINUTE, picker.currentMinute)
+//
+//            setSummary(summary)
+//            if (callChangeListener(calendar.timeInMillis)) {
+//                persistLong(calendar.timeInMillis)
+//                notifyChanged()
+//            }
+//        }
+//    }
+
+    override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
+        // Default value from attribute. Fallback value is set to 0.
+        return a.getInt(index, 0)
     }
 
-    override fun onDialogClosed(positiveResult: Boolean) {
-        super.onDialogClosed(positiveResult)
-
-        if (positiveResult) {
-            calendar.set(Calendar.HOUR_OF_DAY, picker.currentHour)
-            calendar.set(Calendar.MINUTE, picker.currentMinute)
-
-            setSummary(summary)
-            if (callChangeListener(calendar.timeInMillis)) {
-                persistLong(calendar.timeInMillis)
-                notifyChanged()
-            }
-        }
+    override fun onSetInitialValue(
+        restorePersistedValue: Boolean,
+        defaultValue: Any
+    ) {
+        // Read the value. Use the default value if it is not possible.
+        mTime = (
+            if (restorePersistedValue)
+                getPersistedInt(mTime)
+            else
+                defaultValue as Int
+        )
     }
 
-    override fun onGetDefaultValue(a: TypedArray, index: Int): Any? {
-        return a.getString(index)
+    override fun getDialogLayoutResource(): Int {
+        return R.layout.pref_dialog_time
     }
 
-    override fun onSetInitialValue(restoreValue: Boolean, defaultValue: Any?) {
 
-        if (restoreValue) {
-            if (defaultValue == null) {
-                calendar.timeInMillis = getPersistedLong(System.currentTimeMillis())
-            } else {
-                calendar.timeInMillis = getPersistedString(defaultValue as String) as Long
-            }
-        } else {
-            if (defaultValue == null) {
-                calendar.timeInMillis = (System.currentTimeMillis())
-            } else {
-                calendar.timeInMillis = defaultValue as Long
-            }
-        }
-        setSummary(summary)
-    }
-
-    override fun getSummary(): CharSequence {
-        return DateFormat.getTimeFormat(context).format(Date(calendar.timeInMillis))
-    }
+//    override fun getSummary(): CharSequence {
+//        return DateFormat.getTimeFormat(context).format(Date(calendar.timeInMillis))
+//    }
 
 }

@@ -54,6 +54,8 @@
     <string name="switch_title_notifications">Give notifications</string>
 
     <string name="timePreference_key">t</string>
+    <string name="timePreference_summary">Stel een tijdstip in van wanneer u een oefening wilt doen.</string>
+    <string name="timePreference_title">Notificatie tijdstip</string>
 
     <string name="key_vibrate">key_vibrate</string>
     <string name="summary_vibrate">Vibrate on new notification</string>

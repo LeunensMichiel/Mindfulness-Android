@@ -1,6 +1,7 @@
 package com.hogent.mindfulness.notificationSettings
 
 import android.os.Bundle
+import android.support.v4.app.DialogFragment
 import com.hogent.mindfulness.R
 import android.support.v7.preference.Preference
 import android.support.v7.preference.PreferenceFragmentCompat
@@ -18,12 +19,22 @@ class NotificationSettingsFragment: PreferenceFragmentCompat()
 
     }
 
-    private fun setPreferenceSummary(preference: Preference, value: Object) {
-        val stringValue = value.toString()
-        val key = preference.key
+    override fun onDisplayPreferenceDialog(preference: Preference?) {
+        lateinit var dialogFragment: DialogFragment
+        if (preference is TimePreference) {
+            dialogFragment = TimePreferenceDialogFragmentCompat.newInstance(preference.key)
+        }
 
+        if (dialogFragment!= null) {
+
+        }else {
+            super.onDisplayPreferenceDialog(preference)
+
+        }
 
     }
+
+
 
 
 }
