@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sharedPreferenceUserDetailsKey">userDetails</string>
+    <string name="authTokenKey">authToken</string>
+    <string name="userIdKey">userId</string>
+</resources>
