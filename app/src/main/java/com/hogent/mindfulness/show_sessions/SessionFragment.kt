@@ -73,30 +73,34 @@ class SessionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        view.viewTreeObserver.addOnGlobalLayoutListener {
-            sessionFragment.post {
+        view.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener{
+            override fun onGlobalLayout() {
+                sessionFragment.post {
 
-                val height = view.height
-                val width = view.width
+                    val height = view.height
+                    val width = view.width
 
-                val centerx = (progress_img.width.toFloat() / 2.0).toFloat()
-                val bottomy = progress_img.height
+                    val centerx = (progress_img.width.toFloat() / 2.0).toFloat()
+                    val bottomy = progress_img.height
 
-                val currentSession = 15.0 - 1
-                val sessionSize = 15.0
-                val coPoint = (currentSession / sessionSize.toFloat()) * coordinations.size.toFloat()
-                val point = coordinations[coPoint.toInt()]
-                val newHeight = (point.y.toFloat() / imgHeight) * height.toFloat()
-                val newWidth = (point.x.toFloat() / imgWidth) * width.toFloat()
+                    val currentSession = 1.0 - 1
+                    val sessionSize = 15.0
+                    val coPoint = (currentSession / sessionSize.toFloat()) * coordinations.size.toFloat()
+                    val point = coordinations[coPoint.toInt()]
+                    val newHeight = (point.y.toFloat() / imgHeight) * height.toFloat()
+                    val newWidth = (point.x.toFloat() / imgWidth) * width.toFloat()
 
-                progress_img.x = newWidth.toFloat() - centerx
-                progress_img.y = newHeight.toFloat() - bottomy
+                    progress_img.x = newWidth.toFloat() - centerx
+                    progress_img.y = newHeight.toFloat() - bottomy
 
-                Log.d("ventje_x", progress_img.x.toString())
-                Log.d("ventje_y", width.toString())
+                    Log.d("ventje_x", progress_img.x.toString())
+                    Log.d("ventje_y", width.toString())
+
+                    view.viewTreeObserver.removeOnGlobalLayoutListener(this)
+
+                }
             }
-
-        }
+        })
 
     }
 
