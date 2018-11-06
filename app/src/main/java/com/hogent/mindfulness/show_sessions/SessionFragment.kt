@@ -2,12 +2,15 @@ package com.hogent.mindfulness.show_sessions
 
 
 import android.os.Bundle
+import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.Fragment
-import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import android.widget.Toast
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.data.MindfulnessApiService
 import com.hogent.mindfulness.domain.Model
@@ -15,33 +18,38 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.session_fragment.*
-import kotlinx.android.synthetic.main.session_item_list.*
+import kotlinx.android.synthetic.main.session_item_list.view.*
 
 
 class SessionFragment() : Fragment() {
 
 
+    /**
+     * Here will the sessionData be stored
+     * Disposable used for calling api calls
+     */
     private lateinit var disposable: Disposable
     private val mindfulnessApiService by lazy {
         MindfulnessApiService.create()
     }
 
-    // I used this resource: https://developer.android.com/guide/topics/ui/layout/recyclerview
-    override fun onCreateView(
+    /**
+     * I used this resource: https://developer.android.com/guide/topics/ui/layout/recyclerview
+     */
+     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         beginRetrieveSessionmap()
-
-
-
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.session_fragment, container, false)
     }
 
 
-    //this function retrieves a sessionmap from the database
+    /**
+     * this function retrieves a sessionmap from the database
+     */
     private fun beginRetrieveSessionmap() {
         disposable = mindfulnessApiService.getSessionmap(getString(R.string.sessionmap_id))
             .subscribeOn(Schedulers.io())
@@ -53,9 +61,14 @@ class SessionFragment() : Fragment() {
     }
 
     private fun showError(errMsg: String?) {
-//        Toast.makeText(this, errMsg, Toast.LENGTH_SHORT).show()
+       Toast.makeText(activity, errMsg, Toast.LENGTH_SHORT).show()
     }
 
+    /**
+     * Initialize SessionAdapter
+     * Initialize LayoutManager
+     * Add Manager and Adapter to recyclerview
+     */
     private fun showResult(sessions:Array<Model.Session>){
         val viewAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler)
         val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
@@ -68,5 +81,75 @@ class SessionFragment() : Fragment() {
         }
     }
 
+    /***********************************************************************************************
+     * Adapter
+     *
+     ***********************************************************************************************
+     */
 
+    class SessionAdapter(
+        // This array has the data for the recyclerview adapter
+        private val mSessionData: Array<Model.Session>,
+        //mClickHandler is for communicating whit the activity when item clicked
+        private val mClickHandler: SessionAdapterOnClickHandler
+    ) : RecyclerView.Adapter<SessionAdapter.SessionViewHolder>() {
+
+
+        /**
+         * This function loads in the item view
+         */
+        override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): SessionViewHolder {
+            val context = viewGroup.context
+            val layoutIdForListItem = R.layout.session_item_list
+            val inflater = LayoutInflater.from(context)
+            val view = inflater.inflate(layoutIdForListItem, viewGroup, false)
+            return SessionViewHolder(view)
+
+        }
+
+        /**
+         * This function attaches the data to item view
+         */
+        override fun onBindViewHolder(holder: SessionViewHolder, position: Int) {
+            holder.title.text = (position + 1).toString()
+        }
+
+        /**
+         * This function gives the size back of the data list
+         */
+        override fun getItemCount(): Int {
+            return mSessionData.count()
+        }
+
+
+        inner class SessionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+
+            // Initialize Floating Action Button
+            val button: FloatingActionButton = view.fab
+            // Initialize TextView title
+            val title: TextView = view.tv_session_title
+
+            /**
+             * Add clicklistener on the Button from the recyclerview
+             */
+            init {
+                button.setOnClickListener {
+                    val adapterPosition = adapterPosition
+                    val session = mSessionData[adapterPosition]
+
+                    //Log.d("test", "onclick2")
+                    //mClickHandler.onClick(session)
+
+                    mClickHandler.onClick(session)
+                }
+            }
+
+        }
+
+        // Implement this interface for passing click event
+        interface SessionAdapterOnClickHandler {
+            fun onClick(session: Model.Session)
+        }
+
+    }
 }

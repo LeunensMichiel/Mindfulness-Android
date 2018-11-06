@@ -10,12 +10,8 @@ import android.widget.TextView
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.R.drawable.*
 import com.hogent.mindfulness.domain.Model
-import com.hogent.mindfulness.exercises_List_display.ExerciseAdapter
 import com.hogent.mindfulness.oefeningdetails.ParagraafAdapter.ParagraafViewHolder
-import kotlinx.android.synthetic.main.exercise_list_item.view.*
-import kotlinx.android.synthetic.main.fragment_paragraaf_tekst.view.*
 import kotlinx.android.synthetic.main.paragraaf_list_item.view.*
-import org.jetbrains.anko.image
 import org.jetbrains.anko.imageResource
 
 class ParagraafAdapter(private val mParagrafen: Array<Model.Paragraph>): RecyclerView.Adapter<ParagraafViewHolder>(){

@@ -3,35 +3,35 @@ package com.hogent.mindfulness
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import com.hogent.mindfulness.data.MindfulnessApiService
 import com.hogent.mindfulness.domain.Model
-import com.hogent.mindfulness.exercises_List_display.ExerciseAdapter
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
 import com.hogent.mindfulness.oefeningdetails.*
-import com.hogent.mindfulness.show_sessions.SessionAdapter
 import com.hogent.mindfulness.show_sessions.SessionFragment
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_paragraaf_tekst.*
 
 
-class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHandler, ExerciseAdapter.ExerciseAdapterOnClickHandler {
+class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.SessionAdapterOnClickHandler, ExercisesListFragment.ExerciseAdapter.ExerciseAdapterOnClickHandler {
 
 
-
+    //initializing attributes
     private lateinit var disposable: Disposable
     private lateinit var sessionFragment: SessionFragment
     private lateinit var exerciseFragment: ExercisesListFragment
     private lateinit var oefeningDetailFragment: OefeningDetailFragment
 
+
     private val mindfulnessApiService by lazy {
         MindfulnessApiService.create()
     }
 
-
+    /**
+     * Set view to MainActivity
+     * Set ItemSelectedListener for the navigation
+     * initialize SessionFragment
+     * add SessionFragment to activity
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -44,6 +44,11 @@ class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHa
             .commit()
     }
 
+    /**
+     * Initialize ExercisesListFragment
+     * Initialize session in exerciseFragment
+     * Add exerciseFragment to Activity
+     */
     override fun onClick(session: Model.Session) {
         exerciseFragment = ExercisesListFragment()
         exerciseFragment.session = session
@@ -53,6 +58,12 @@ class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHa
             .commit()
     }
 
+    /**
+     * Initialize OefeningDetailFragment
+     * Initialize manager in oefeningDetailFragment
+     * Initialize exerciseId in oefeningDetailFragment
+     * Add OefeningDetailFragment to Activity
+     */
     override fun onClickExercise(exercise: Model.Exercise) {
         oefeningDetailFragment = OefeningDetailFragment()
 
@@ -65,6 +76,10 @@ class MainActivity : AppCompatActivity(), SessionAdapter.SessionAdapterOnClickHa
     }
 
 
+    /**
+     * Initialize NavigationListener
+     * Specify Fragment to add to Activity via itemId in Navigation
+     */
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_home -> {

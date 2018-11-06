@@ -1,7 +1,6 @@
 package com.hogent.mindfulness.oefeningdetails
 
 
-import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -9,14 +8,8 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.android.synthetic.main.fragment_fragment_oefeningtext.*
-import android.text.method.ScrollingMovementMethod
-import android.util.AttributeSet
-import android.util.Log
-import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
-import com.hogent.mindfulness.exercises_List_display.ExerciseAdapter
 import kotlinx.android.synthetic.main.recyclerview_paragrafen.*
 
 
