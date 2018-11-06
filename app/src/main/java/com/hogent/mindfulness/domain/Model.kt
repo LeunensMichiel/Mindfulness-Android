@@ -69,4 +69,8 @@ object Model {
         val password: String,
         val groups_code: String
     )
+
+    data class Point(val x: Int,
+                      val y: Int,
+                     val orientation: Boolean)
 }
