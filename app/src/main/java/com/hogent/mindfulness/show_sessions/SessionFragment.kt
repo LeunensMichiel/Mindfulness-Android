@@ -27,7 +27,7 @@ import android.view.ViewTreeObserver
 
 class SessionFragment : Fragment() {
 
-    private val coordinations: Array<Point> = arrayOf(
+    private val coordinates: Array<Point> = arrayOf(
         Point(50, 1840, true),
         Point(500, 1860, true),
         Point(910, 1836, true),
@@ -85,8 +85,8 @@ class SessionFragment : Fragment() {
 
                     val currentSession = 1.0 - 1
                     val sessionSize = 15.0
-                    val coPoint = (currentSession / sessionSize.toFloat()) * coordinations.size.toFloat()
-                    val point = coordinations[coPoint.toInt()]
+                    val coPoint = (currentSession / sessionSize.toFloat()) * coordinates.size.toFloat()
+                    val point = coordinates[coPoint.toInt()]
                     val newHeight = (point.y.toFloat() / imgHeight) * height.toFloat()
                     val newWidth = (point.x.toFloat() / imgWidth) * width.toFloat()
 
