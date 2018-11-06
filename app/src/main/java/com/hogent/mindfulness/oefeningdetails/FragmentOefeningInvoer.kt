@@ -14,6 +14,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.hogent.mindfulness.R
 import kotlinx.android.synthetic.main.fragment_fragment_oefeninginvoer.*
+import android.content.pm.PackageManager
+
+
 
 /**
  * Deze klasse is een Fragment die verantwoordelijk is voor de invoerpagina van de oefening
@@ -43,10 +46,19 @@ class FragmentOefeningInvoer : Fragment() {
             inputlayout.hint = this.arguments!!.getString("opgave", "check")
         }
 
-        btnCamera.setOnClickListener {
-            var intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            startActivityForResult(intent,0)
+        val pm = context!!.getPackageManager()
+        if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+            btnCamera.setOnClickListener {
+                var intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                startActivityForResult(intent, 0)
+            }
         }
+        else
+        {
+            btnCamera.setOnClickListener {
+                Toast.makeText(context,"Geen camera gedetecteerd",Toast.LENGTH_SHORT).show()
+            }
+       }
     }
 
     /**
