@@ -9,4 +9,6 @@ interface LoginApiService {
     @POST("/users/login")
     fun login(@Body response: Model.Login): Observable<Model.User>
 
+    @POST("users/register")
+    fun register(@Body response: Model.Register): Observable<Model.User>
 }

@@ -27,7 +27,7 @@ import kotlinx.android.synthetic.main.activity_login.*
 /**
  * A login screen that offers login via email/password.
  */
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : AppCompatActivity(), LoginFragment.LoginFragmentCallBack {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,5 +40,10 @@ class LoginActivity : AppCompatActivity() {
             .commit()
     }
 
+    override fun onclickRegister() {
 
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.login_container, RegisterFragment())
+            .commit()
+    }
 }
