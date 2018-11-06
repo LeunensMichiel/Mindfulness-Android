@@ -1,17 +1,19 @@
 package com.hogent.mindfulness.show_sessions
 
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.DisplayMetrics
+import android.view.*
 import android.widget.TextView
 import android.widget.Toast
+import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
+import com.hogent.mindfulness.ScannerActivity
 import com.hogent.mindfulness.data.MindfulnessApiService
 import com.hogent.mindfulness.domain.Model
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -46,6 +48,23 @@ class SessionFragment() : Fragment() {
         return inflater.inflate(R.layout.session_fragment, container, false)
     }
 
+
+    /**
+     * Starts the Activity
+     * - Allocate resources
+     * - register click listeners
+     * - update UI
+     */
+    override fun onStart() {
+        super.onStart()
+
+
+        fabCamera.setOnClickListener { view ->
+            val intent = Intent(activity, ScannerActivity::class.java)
+            startActivity(intent)
+        }
+
+    }
 
     /**
      * this function retrieves a sessionmap from the database
@@ -124,8 +143,6 @@ class SessionFragment() : Fragment() {
 
         inner class SessionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-            // Initialize Floating Action Button
-            val button: FloatingActionButton = view.fab
             // Initialize TextView title
             val title: TextView = view.tv_session_title
 
@@ -133,7 +150,9 @@ class SessionFragment() : Fragment() {
              * Add clicklistener on the Button from the recyclerview
              */
             init {
-                button.setOnClickListener {
+
+
+                view.fab.setOnClickListener {
                     val adapterPosition = adapterPosition
                     val session = mSessionData[adapterPosition]
 

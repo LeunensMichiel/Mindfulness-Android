@@ -3,12 +3,15 @@
           package="com.hogent.mindfulness">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera"/>
+    <uses-feature android:name="android.hardware.camera.autofocus"/>
 
-    <!--&lt;!&ndash; To auto-complete the email text field in the login form with the user's emails &ndash;&gt;-->
-    <!--<uses-permission android:name="android.permission.GET_ACCOUNTS"/>-->
-    <!--<uses-permission android:name="android.permission.READ_PROFILE"/>-->
-    <!--<uses-permission android:name="android.permission.READ_CONTACTS"/>-->
-    <!---->
+    <!-- &lt;!&ndash; To auto-complete the email text field in the login form with the user's emails &ndash;&gt; -->
+    <!-- <uses-permission android:name="android.permission.GET_ACCOUNTS"/> -->
+    <!-- <uses-permission android:name="android.permission.READ_PROFILE"/> -->
+    <!-- <uses-permission android:name="android.permission.READ_CONTACTS"/> -->
+    <!--  -->
     <application
             android:allowBackup="true"
             android:icon="@mipmap/ic_launcher"
@@ -17,8 +20,10 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             android:usesCleartextTraffic="true">
-        <activity android:name=".MainActivity" android:configChanges="keyboard|orientation|locale|fontScale|screenLayout|screenSize|uiMode|navigation|touchscreen|keyboardHidden|layoutDirection|smallestScreenSize"
-                  android:windowSoftInputMode="adjustPan|adjustResize">
+        <activity
+                android:name=".MainActivity"
+                android:configChanges="keyboard|orientation|locale|fontScale|screenLayout|screenSize|uiMode|navigation|touchscreen|keyboardHidden|layoutDirection|smallestScreenSize"
+                android:windowSoftInputMode="adjustPan|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -28,6 +33,11 @@
         <activity
                 android:name=".login.LoginActivity"
                 android:label="@string/title_activity_login">
+        </activity>
+        <activity
+                android:name=".ScannerActivity"
+                android:label="@string/title_activity_scanner"
+                android:theme="@style/AppTheme.NoActionBar">
         </activity>
     </application>
 

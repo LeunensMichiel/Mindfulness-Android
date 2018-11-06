@@ -1,11 +1,14 @@
 package com.hogent.mindfulness
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
 import com.hogent.mindfulness.data.MindfulnessApiService
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
+import com.hogent.mindfulness.login.LoginActivity
 import com.hogent.mindfulness.oefeningdetails.*
 import com.hogent.mindfulness.show_sessions.SessionFragment
 import io.reactivex.disposables.Disposable
@@ -37,11 +40,22 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         setContentView(R.layout.activity_main)
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
+        if (checkIfLoggedIn()) {
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+        }
+
         sessionFragment = SessionFragment()
 
         supportFragmentManager.beginTransaction()
             .add(R.id.session_container, sessionFragment)
             .commit()
+    }
+
+    private fun checkIfLoggedIn(): Boolean {
+        val token = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+            .getString(getString(R.string.authTokenKey), null)
+        return token == null
     }
 
     /**
@@ -55,6 +69,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
 
         supportFragmentManager.beginTransaction()
             .replace(R.id.session_container, exerciseFragment)
+            .addToBackStack("tag")
             .commit()
     }
 
@@ -72,6 +87,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
 
         supportFragmentManager.beginTransaction()
             .replace(R.id.session_container, oefeningDetailFragment)
+            .addToBackStack("tag")
             .commit()
     }
 
@@ -91,6 +107,20 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         }
         false
     }
+
+    override fun onBackPressed() {
+
+        val count = supportFragmentManager.backStackEntryCount
+
+        if (count == 0) {
+            super.onBackPressed()
+            //additional code
+        } else {
+            supportFragmentManager.popBackStack()
+        }
+
+    }
+
 
 /*
    public fun creerParagraafFragment(description:String){
