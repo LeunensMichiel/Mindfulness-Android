@@ -28,21 +28,6 @@ import kotlinx.android.synthetic.main.fragment_login.*
 class LoginFragment : Fragment() {
     private lateinit var disposable: Disposable
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // Set up the login form.
-//        populateAutoComplete()
-        password.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
-            if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                attemptLogin()
-                return@OnEditorActionListener true
-            }
-            false
-        })
-
-        email_sign_in_button.setOnClickListener { attemptLogin() }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -50,14 +35,13 @@ class LoginFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_login, container, false)
-
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        password.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
+        // Set up the login form.
+//        populateAutoComplete()
+        login_password.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
             if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
                 attemptLogin()
                 return@OnEditorActionListener true
@@ -66,7 +50,18 @@ class LoginFragment : Fragment() {
         })
 
         email_sign_in_button.setOnClickListener { attemptLogin() }
+
+        login_form_register_btn.setOnClickListener {
+            val loginCallback = activity as LoginFragmentCallBack
+            loginCallback.onclickRegister()
+        }
     }
+
+    interface LoginFragmentCallBack {
+        fun onclickRegister()
+    }
+
+
 
 //    private fun populateAutoComplete() {
 //        if (!mayRequestContacts()) {
@@ -128,22 +123,21 @@ class LoginFragment : Fragment() {
 
         // Reset errors.
         email.error = null
-        password.error = null
+        login_password.error = null
 
         // Store values at the time of the login attempt.
         val emailStr = email.text.toString()
-        val passwordStr = password.text.toString()
+        val passwordStr = login_password.text.toString()
 
         var cancel = false
         var focusView: View? = null
 
         // Check for a valid password, if the user entered one.
         if (TextUtils.isEmpty(passwordStr)) {
-            password.error = getString(R.string.error_field_required)
-            focusView = password
+            login_password.error = getString(R.string.error_field_required)
+            focusView = login_password
             cancel = true
 
-            Log.d("logintest", passwordStr)
         }
 
         // Check for a valid email address.
@@ -198,8 +192,9 @@ class LoginFragment : Fragment() {
     }
 
     private fun failedLogin(error: String?) {
-        password.error = getString(R.string.error_incorrect_password)
-        password.requestFocus()
+        // TODO geef hier later een betere foutmelding op mss niet speciefiek op password
+        login_password.error = getString(R.string.error_incorrect_password)
+        login_password.requestFocus()
         showProgress(false)
     }
 
