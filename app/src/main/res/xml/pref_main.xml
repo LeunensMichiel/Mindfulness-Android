@@ -11,12 +11,11 @@
                 android:key="@string/switch_notifications"
                 android:title="@string/switch_title_notifications" />
 
-        <com.hogent.mindfulness.notificationSettings.TimePreference
+        <com.hogent.mindfulness.notification_settings.TimePreference
             android:key="pref_time"
             android:title="@string/timePreference_title"
             android:defaultValue="90"
             android:summary="@string/timePreference_summary"
-            android:dependency="@string/switch_notifications"
             style="@style/AppPreference.DialogPreference"/>
 
         <android.support.v7.preference.SwitchPreferenceCompat

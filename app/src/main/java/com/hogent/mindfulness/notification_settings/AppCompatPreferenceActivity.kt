@@ -1,4 +1,4 @@
-package com.hogent.mindfulness.notificationSettings
+package com.hogent.mindfulness.notification_settings
 
 import android.content.res.Configuration
 import android.os.Bundle

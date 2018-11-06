@@ -1,4 +1,4 @@
-package com.hogent.mindfulness.notificationSettings
+package com.hogent.mindfulness.notification_settings
 
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
@@ -12,11 +12,8 @@ import android.support.v7.preference.PreferenceFragmentCompat
 class NotificationSettingsFragment: PreferenceFragmentCompat()
 {
 
-
     override fun onCreatePreferences(bundle: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.pref_main)
-
-
     }
 
     override fun onDisplayPreferenceDialog(preference: Preference?) {
@@ -25,8 +22,11 @@ class NotificationSettingsFragment: PreferenceFragmentCompat()
             dialogFragment = TimePreferenceDialogFragmentCompat.newInstance(preference.key)
         }
 
-        if (dialogFragment!= null) {
-
+        if (dialogFragment != null) {
+            dialogFragment.setTargetFragment(this, 0);
+            dialogFragment.show(this.getFragmentManager(),
+                "android.support.v7.preference" +
+                        ".PreferenceFragment.DIALOG");
         }else {
             super.onDisplayPreferenceDialog(preference)
 

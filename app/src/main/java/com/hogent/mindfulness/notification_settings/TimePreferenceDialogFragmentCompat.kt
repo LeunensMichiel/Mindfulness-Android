@@ -1,12 +1,9 @@
-package com.hogent.mindfulness.notificationSettings
+package com.hogent.mindfulness.notification_settings
 
 import android.os.Build
 import android.support.v7.preference.PreferenceDialogFragmentCompat
 import android.text.format.DateFormat
-import android.text.format.DateFormat.is24HourFormat
 import android.view.View
-import android.widget.TimePicker
-import com.hogent.mindfulness.R
 import kotlinx.android.synthetic.main.pref_dialog_time.*
 import android.os.Bundle
 
@@ -30,8 +27,8 @@ class TimePreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
             val is24hour = DateFormat.is24HourFormat(context)
 
             edit.setIs24HourView(is24hour)
-            edit.setCurrentHour(hours)
-            edit.setCurrentMinute(minutes)
+            edit.currentHour = hours
+            edit.currentMinute = minutes
         }
     }
 
@@ -53,12 +50,12 @@ class TimePreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
             val minutesAfterMidnight = (hours * 60) + minutes
 
             // Get the related Preference and save the value
-            val dialogPreference = preference
-            if (dialogPreference is TimePreference) {
+            if (preference is TimePreference) {
+                val timePreference: TimePreference = preference as TimePreference
                 // This allows the client to ignore the user value.
-                if (dialogPreference.callChangeListener(minutesAfterMidnight)) {
+                if (preference.callChangeListener(minutesAfterMidnight)) {
                     // Save the value
-                    dialogPreference.mTime = minutesAfterMidnight
+                    timePreference.mTime = minutesAfterMidnight
                 }
             }
         }
@@ -70,7 +67,7 @@ class TimePreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
         ): TimePreferenceDialogFragmentCompat {
             val fragment = TimePreferenceDialogFragmentCompat()
             val b = Bundle(1)
-            b.putString(PreferenceDialogFragmentCompat.ARG_KEY, key)
+            b.putString(ARG_KEY, key)
             fragment.arguments = b
 
             return fragment

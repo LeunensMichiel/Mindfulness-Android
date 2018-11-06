@@ -8,7 +8,7 @@ import com.evernote.android.job.JobManager
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.exercises_List_display.ExerciseAdapter
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
-import com.hogent.mindfulness.notificationSettings.SettingsActivity
+import com.hogent.mindfulness.notification_settings.SettingsActivity
 import com.hogent.mindfulness.oefeningdetails.*
 import com.hogent.mindfulness.services.NotifJobCreator
 import com.hogent.mindfulness.services.PeriodicNotificationJob
