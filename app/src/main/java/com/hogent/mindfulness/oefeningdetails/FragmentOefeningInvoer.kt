@@ -38,7 +38,11 @@ class FragmentOefeningInvoer : Fragment() {
      *
      * we checken of de arguments van de fragment een key opgave heeft, als dit zo is, dan stellen we de hint van input (zie xml) gelijk aan de
      * waarde van de key opgave
+     *
+     * we checken of het device waarop de app gerund wordt wel een camera heeft: als het een camera heeft dan:
+     * setten we een clicklistener op de button:
      * als de button btnCamera gedrukt wordt, openen we de camera via een intent
+     * als het geen camera heeft, dan wordt een toastmessage getoond
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -78,8 +82,12 @@ class FragmentOefeningInvoer : Fragment() {
     /**
      * we gebruiken onActivityResult omdat we een result verwachten van de activity
      * als we dat result krijgen, wordt deze methode uitgevoerd
-     * het result dat we verwachten is genomen foto
+     * het result dat we verwachten is de genomen foto
      *
+     * we checken of we wel een result gekregen hebben, indien ja dan halen we de image op en tonen we het in een imageview
+     * indien niet, dan tonen we een toastmessage
+     *
+     * extra info:
      * de android camera applicatie encodeert de genomen foto in de return intent die meegeleverd wordt aan de onActivityResult() als een bitmap
      * in de extras met als key 'data'
      * we halen dus de image op en tonen het in een imageview
