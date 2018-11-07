@@ -35,7 +35,7 @@
                 android:label="@string/title_activity_login">
         </activity>
         <activity
-                android:name=".ScannerActivity"
+                android:name=".scanner.ScannerActivity"
                 android:label="@string/title_activity_scanner"
                 android:theme="@style/AppTheme.NoActionBar">
         </activity>

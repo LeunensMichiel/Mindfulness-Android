@@ -1,15 +1,12 @@
-package com.hogent.mindfulness
+package com.hogent.mindfulness.scanner
 
 import android.Manifest.permission.CAMERA
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.hardware.Camera
 import android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
@@ -17,17 +14,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log
 import android.widget.Toast
 import com.google.zxing.Result
-import com.hogent.mindfulness.R
-
-import kotlinx.android.synthetic.main.activity_scanner.*
+import com.hogent.mindfulness.MainActivity
 import me.dm7.barcodescanner.zxing.ZXingScannerView
+
 
 class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler{
 
     private val REQUEST_CAMERA = 1
     private var scannerView: ZXingScannerView? = null
     private val camId = CAMERA_FACING_BACK
-
+    private lateinit var code:String
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -36,9 +32,12 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler{
         val currentApiVersion = Build.VERSION.SDK_INT
 
         if (currentApiVersion >= Build.VERSION_CODES.M) {
-            if (checkPermission()) {
-                Toast.makeText(applicationContext, "Permission already granted!", Toast.LENGTH_LONG).show()
-            } else {
+//            if (checkPermission()) {
+//                Toast.makeText(applicationContext, "Permission already granted!", Toast.LENGTH_LONG).show()
+//            } else {
+//                requestPermission()
+//            }
+            if(!checkPermission()){
                 requestPermission()
             }
         }
@@ -121,22 +120,29 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler{
     }
 
     override fun handleResult(result: Result) {
-        val myResult = result.text
-        Log.d("QRCodeScanner", result.text)
-        Log.d("QRCodeScanner", result.barcodeFormat.toString())
-
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Scan Result")
-        builder.setPositiveButton(
-            "OK"
-        ) { dialog, which -> scannerView!!.resumeCameraPreview(this) }
-        builder.setNeutralButton("Visit") { dialog, which ->
-            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(myResult))
-            startActivity(browserIntent)
-        }
-        builder.setMessage(result.text)
-        val alert1 = builder.create()
-        alert1.show()
+//        code = result.text
+//        Log.d("QRCodeScanner", result.text)
+//        Log.d("QRCodeScanner", result.barcodeFormat.toString())
+//
+//        val builder = AlertDialog.Builder(this)
+//        builder.setTitle("Scan Result")
+//        builder.setPositiveButton(
+//            "Unlock"
+//        ) { dialog, which ->
+//            val intent = Intent(this, MainActivity::class.java)
+//            intent.putExtra("code", code)
+//            startActivity(intent)}
+////        builder.setNeutralButton("Visit") { dialog, which ->
+////            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(myResult))
+////            startActivity(browserIntent)
+////        }
+//        builder.setMessage(result.text)
+//        val alert1 = builder.create()
+//        alert1.show()
+        code = result.text
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("code", code)
+        startActivity(intent)
     }
 
 }

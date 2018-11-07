@@ -4,15 +4,19 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
+import android.support.v7.app.ActionBar
 import android.support.v7.app.AppCompatActivity
+import android.widget.Toast
 import com.hogent.mindfulness.data.MindfulnessApiService
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
 import com.hogent.mindfulness.login.LoginActivity
 import com.hogent.mindfulness.oefeningdetails.*
+import com.hogent.mindfulness.scanner.ScannerActivity
 import com.hogent.mindfulness.show_sessions.SessionFragment
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_exercises_pane.*
 
 
 class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.SessionAdapterOnClickHandler, ExercisesListFragment.ExerciseAdapter.ExerciseAdapterOnClickHandler {
@@ -45,6 +49,8 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
             startActivity(intent)
         }
 
+
+
         sessionFragment = SessionFragment()
 
         supportFragmentManager.beginTransaction()
@@ -56,6 +62,11 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         val token = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
             .getString(getString(R.string.authTokenKey), null)
         return token == null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Toast.makeText(this, intent.getStringExtra("code"), Toast.LENGTH_LONG).show()
     }
 
     /**
