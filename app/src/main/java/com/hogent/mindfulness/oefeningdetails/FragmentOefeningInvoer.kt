@@ -15,7 +15,15 @@ import android.widget.Toast
 import com.hogent.mindfulness.R
 import kotlinx.android.synthetic.main.fragment_fragment_oefeninginvoer.*
 import android.content.pm.PackageManager
-
+import android.util.Log
+import com.hogent.mindfulness.data.MindfulnessApiService
+import com.hogent.mindfulness.data.PostInformation
+import com.hogent.mindfulness.domain.Model
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
+import org.jetbrains.anko.textResource
+import retrofit2.http.Body
 
 
 /**
@@ -24,13 +32,59 @@ import android.content.pm.PackageManager
  */
 class FragmentOefeningInvoer : Fragment() {
 
+    private lateinit var disposable: Disposable
+    private val mindfulnessApiService by lazy {
+        MindfulnessApiService.create()
+    }
+
     /**
      * in de onCreateView-methode inflaten we onze layout fragment_fragment_oefeninginvoer
      */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        beginRetrievePost()
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_fragment_oefeninginvoer, container, false)
+    }
+
+    /*
+    private fun beginRetrievePost() {
+        Log.d("Test1","----------test1------------")
+        disposable = mindfulnessApiService.getPost("5bdc9ecbe9bc22054be4a64d","5be2a269e19f6a1b2bf7eaae",
+            "5bd1922012bbd66b6c19aa31", "5bd837fde39837098a7a7c82", "5bdc6f7cd7371903f9c88bc4")
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> showResultPost(result) },
+                { error -> showError(error.message) }
+            )
+        Log.d("Test2","----------test2------------")
+    } */
+    private fun beginRetrievePost() {
+        var info = PostInformation()
+        info.sessionmap_id = "5bdc9ecbe9bc22054be4a64d"
+        info.session_id = "5be2a269e19f6a1b2bf7eaae"
+        info.exercise_id = "5bd1922012bbd66b6c19aa31"
+        info.page_id = "5bd837fde39837098a7a7c82"
+        info.user_id = "5bdc6f7cd7371903f9c88bc4"
+        disposable = mindfulnessApiService.getPost(info)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> showResultPost(result) },
+                { error -> showError(error.message) }
+            )
+    }
+
+    /**
+     * Dit is een methode om eventuele fouten te tonen
+     */
+    fun showError(errMsg: String?) {
+        Toast.makeText(activity, errMsg, Toast.LENGTH_SHORT).show()
+    }
+
+    fun showResultPost(post: Model.Post) {
+        text_edit.setText(post.inhoud)
     }
 
     /**
@@ -77,6 +131,7 @@ class FragmentOefeningInvoer : Fragment() {
         if(this.arguments!!.containsKey("opgave")){
             inputlayout.hint = this.arguments!!.getString("opgave", "check")
         }
+        text_edit.setText("Test")
     }
 
     /**

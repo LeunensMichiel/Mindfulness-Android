@@ -69,4 +69,15 @@ object Model {
         val password: String,
         val groups_code: String
     )
+
+    data class Post(
+        val _id:String,
+        val inhoud:String,
+        val afbeelding:String,
+        val sessionmap_id:String,
+        val session_id:String,
+        val exercise_id:String,
+        val page_id:String,
+        val user_id:String
+    )
 }
