@@ -6,4 +6,5 @@ class PostInformation {
     lateinit var exercise_id:String
     lateinit var page_id:String
     lateinit var user_id:String
+    lateinit var inhoud:String
 }

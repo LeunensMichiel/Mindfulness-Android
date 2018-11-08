@@ -32,6 +32,7 @@ import retrofit2.http.Body
  */
 class FragmentOefeningInvoer : Fragment() {
 
+    private var postId:String? = null
     private lateinit var disposable: Disposable
     private val mindfulnessApiService by lazy {
         MindfulnessApiService.create()
@@ -47,19 +48,6 @@ class FragmentOefeningInvoer : Fragment() {
         return inflater.inflate(R.layout.fragment_fragment_oefeninginvoer, container, false)
     }
 
-    /*
-    private fun beginRetrievePost() {
-        Log.d("Test1","----------test1------------")
-        disposable = mindfulnessApiService.getPost("5bdc9ecbe9bc22054be4a64d","5be2a269e19f6a1b2bf7eaae",
-            "5bd1922012bbd66b6c19aa31", "5bd837fde39837098a7a7c82", "5bdc6f7cd7371903f9c88bc4")
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { result -> showResultPost(result) },
-                { error -> showError(error.message) }
-            )
-        Log.d("Test2","----------test2------------")
-    } */
     private fun beginRetrievePost() {
         var info = PostInformation()
         info.sessionmap_id = "5bdc9ecbe9bc22054be4a64d"
@@ -85,6 +73,10 @@ class FragmentOefeningInvoer : Fragment() {
 
     fun showResultPost(post: Model.Post) {
         text_edit.setText(post.inhoud)
+        if(postId == null){
+            postId = post._id
+            Log.d("PostId","----------"+post._id+"---------")
+        }
     }
 
     /**
@@ -116,12 +108,50 @@ class FragmentOefeningInvoer : Fragment() {
             btnCamera.setOnClickListener {
                 Toast.makeText(context,"Geen camera gedetecteerd",Toast.LENGTH_SHORT).show()
             }
-       }
+        }
 
         btnOpslaan.setOnClickListener {
-            Log.d("btnOpslaan","Test")
+            // TEDOEN: nog een check: als er niets is veranderd, dan moet er geen nieuwe post gemaakt worden of geupdate worden
+            updatePost()
+            Log.d("button","-----------test1--------------")
         }
     }
+
+    private fun updatePost(){
+        var info = PostInformation()
+        info.sessionmap_id = "5bdc9ecbe9bc22054be4a64d"
+        info.session_id = "5be2a269e19f6a1b2bf7eaae"
+        info.exercise_id = "5bd1922012bbd66b6c19aa31"
+        info.page_id = "5bd837fde39837098a7a7c82"
+        info.user_id = "5bdc6f7cd7371903f9c88bc4"
+        info.inhoud = text_edit.text.toString()
+        mindfulnessApiService.updatePost("5be2ad3d9a683c6576fbabe2",info)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> showResultPost(result) },
+                { error -> showError(error.message) }
+            )
+    }
+
+    /*
+ private fun maakPost()
+ {
+     var info = PostInformation()
+     info.sessionmap_id = "5bdc9ecbe9bc22054be4a64d"
+     info.session_id = "5be2a269e19f6a1b2bf7eaae"
+     info.exercise_id = "5bd1922012bbd66b6c19aa31"
+     info.page_id = "5bd837fde39837098a7a7c82"
+     info.user_id = "5bdc6f7cd7371903f9c88bc4"
+     info.inhoud = text_edit.text.toString()
+     mindfulnessApiService.maakPost(info)
+         .subscribeOn(Schedulers.io())
+         .observeOn(AndroidSchedulers.mainThread())
+         .subscribe(
+             { result -> showResultPost(result) },
+             { error -> showError(error.message) }
+         )
+ } */
 
     /**
      * Als de configuratie verandert, wordt deze methode aangeroepen

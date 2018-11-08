@@ -48,6 +48,13 @@ interface MindfulnessApiService {
     fun getPost(@Body postInformation:PostInformation)
             :Observable<Model.Post>
 
+    @PUT("/API/post/{id}")
+    fun updatePost(@Path("id") id:String,@Body postInformation: PostInformation):Observable<Model.Post>
+
+    @POST("/API/post")
+    fun maakPost(@Body postInformation:PostInformation):Observable<Model.Post>
+
+
 //    @POST("/API/mindfulness")
 //    fun sendResponse(@Body response: com.hogent.mindfulness.domain.Model.Response) : Observable<com.hogent.mindfulness.domain.Model.Result>
 
