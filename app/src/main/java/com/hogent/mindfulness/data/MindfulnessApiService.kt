@@ -4,11 +4,8 @@ import com.hogent.mindfulness.domain.Model
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
-import retrofit2.http.POST
 import io.reactivex.Observable
-import retrofit2.http.Body
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface MindfulnessApiService {
 
@@ -40,6 +37,9 @@ interface MindfulnessApiService {
     @POST("/API/getpost")
     fun getPost(@Body postInformation:PostInformation)
             :Observable<Model.Post>
+
+    @PUT("/API/post/{id}")
+    fun updatePost(@Path("id") id:String,@Body postInformation: PostInformation):Observable<Model.Post>
 
 //    @POST("/API/mindfulness")
 //    fun sendResponse(@Body response: com.hogent.mindfulness.domain.Model.Response) : Observable<com.hogent.mindfulness.domain.Model.Result>

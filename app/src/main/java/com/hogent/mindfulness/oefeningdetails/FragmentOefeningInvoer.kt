@@ -87,6 +87,18 @@ class FragmentOefeningInvoer : Fragment() {
         text_edit.setText(post.inhoud)
     }
 
+    private fun updatePost(){
+        var info = PostInformation()
+        info.sessionmap_id = "5bdc9ecbe9bc22054be4a64d"
+        info.session_id = "5be2a269e19f6a1b2bf7eaae"
+        info.exercise_id = "5bd1922012bbd66b6c19aa31"
+        info.page_id = "5bd837fde39837098a7a7c82"
+        info.user_id = "5bdc6f7cd7371903f9c88bc4"
+        info.inhoud = text_edit.text.toString()
+        Log.d("InhoudInput",text_edit.text.toString())
+        mindfulnessApiService.updatePost("5be2ad3d9a683c6576fbabe2",info)
+    }
+
     /**
      * Deze methode wordt direct na de onCreateView-methode uitgevoerd
      *
@@ -119,6 +131,7 @@ class FragmentOefeningInvoer : Fragment() {
        }
 
         btnOpslaan.setOnClickListener {
+            updatePost()
             Log.d("btnOpslaan","Test")
         }
     }
