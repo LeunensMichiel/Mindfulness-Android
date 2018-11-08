@@ -1,5 +1,9 @@
 package com.hogent.mindfulness.domain
 
+import android.arch.persistence.room.ColumnInfo
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.PrimaryKey
+
 
 object Model {
 
@@ -12,6 +16,7 @@ object Model {
 
     data class Session(
         val _id: String,
+        val position: Int,
         val title: String
     )
 
@@ -39,18 +44,32 @@ object Model {
         val description: String
     )
 
+//    @Entity
     data class User(
+//        @PrimaryKey
         val _id: String,
+//        @ColumnInfo(name = "firstname")
         val firstname: String,
+//        @ColumnInfo(name = "lastname")
         val lastname: String,
+//        @ColumnInfo(name = "email")
         val email: String,
+//        @ColumnInfo(name = "current_session_id")
         val current_session_id: String,
+//        @ColumnInfo(name = "current_exercise_id")
         val current_exercise_id: String,
+//        @ColumnInfo(name = "current_session")
         var current_session: Session?,
+//        @ColumnInfo(name = "current_exercise")
         var current_exercise: Exercise?,
+//        @ColumnInfo(name = "unlocked_sessions")
+        var unlocked_sessions: Array<String>,
+//        @ColumnInfo(name = "group")
         val group: Group,
+//        @ColumnInfo(name = "token")
         var token: String?
     )
+
 
     data class Group(
         val _id: String,
@@ -68,5 +87,14 @@ object Model {
         val email: String,
         val password: String,
         val groups_code: String
+    )
+
+    data class Result(
+        val result: String
+    )
+
+    data class unlock_session (
+        val id: String,
+        val session_id: String
     )
 }

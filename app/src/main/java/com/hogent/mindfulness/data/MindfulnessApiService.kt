@@ -4,9 +4,8 @@ import com.hogent.mindfulness.domain.Model
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
 import io.reactivex.Observable
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface MindfulnessApiService {
 
@@ -26,6 +25,12 @@ interface MindfulnessApiService {
     // REST API Call for retrieving all paragraphs from the given pageid
     @GET("/API/paragraphs/{id}")
     fun getParagraphs(@Path("id") id: String): Observable<Array<Model.Paragraph>>
+
+    @GET("/users/API/user/{id}")
+    fun getUser(@Path("id") id:String?): Observable<Model.User>
+
+    @POST("/users/API/user")
+    fun updateUser(@Body unlocksession: Model.unlock_session) : Observable<Model.Result>
 
 //    @POST("/API/mindfulness")
 //    fun sendResponse(@Body response: com.hogent.mindfulness.domain.Model.Response) : Observable<com.hogent.mindfulness.domain.Model.Result>

@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
-import android.support.v7.app.ActionBar
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.widget.Toast
 import com.hogent.mindfulness.data.MindfulnessApiService
 import com.hogent.mindfulness.domain.Model
@@ -14,9 +14,12 @@ import com.hogent.mindfulness.login.LoginActivity
 import com.hogent.mindfulness.oefeningdetails.*
 import com.hogent.mindfulness.scanner.ScannerActivity
 import com.hogent.mindfulness.show_sessions.SessionFragment
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_exercises_pane.*
+import kotlinx.android.synthetic.main.session_fragment.*
 
 
 class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.SessionAdapterOnClickHandler, ExercisesListFragment.ExerciseAdapter.ExerciseAdapterOnClickHandler {
@@ -50,12 +53,12 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         }
 
 
-
         sessionFragment = SessionFragment()
 
         supportFragmentManager.beginTransaction()
             .add(R.id.session_container, sessionFragment)
             .commit()
+
     }
 
     private fun checkIfLoggedIn(): Boolean {
@@ -64,9 +67,38 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         return token == null
     }
 
+
+
     override fun onResume() {
         super.onResume()
-        Toast.makeText(this, intent.getStringExtra("code"), Toast.LENGTH_LONG).show()
+
+        if (intent.hasExtra("code")){
+            Log.d("code", intent.getStringExtra("code"))
+            val sharedPref = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+                .getString(getString(R.string.userIdKey), "")
+            Log.d("user", sharedPref)
+            val unlock_session = Model.unlock_session(sharedPref, intent.getStringExtra("code"))
+            disposable = mindfulnessApiService.updateUser(unlock_session)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    { result -> showResult(result) },
+                    { error -> showError(error.message) }
+                )
+        }
+
+    }
+
+    private fun showResult(result: Model.Result) {
+        sessionFragment = SessionFragment()
+
+        supportFragmentManager.beginTransaction()
+            .add(R.id.session_container, sessionFragment)
+            .commit()
+    }
+
+    private fun showError(errMsg: String?) {
+        Toast.makeText(this, errMsg, Toast.LENGTH_SHORT).show()
     }
 
     /**

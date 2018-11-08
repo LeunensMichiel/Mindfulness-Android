@@ -17,10 +17,10 @@ import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.data.LoginApiService
-import com.hogent.mindfulness.data.ServiceGenerator
+import com.hogent.mindfulness.data.*
 import com.hogent.mindfulness.domain.Model
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_login.*
@@ -60,7 +60,6 @@ class LoginFragment : Fragment() {
     interface LoginFragmentCallBack {
         fun onclickRegister()
     }
-
 
 
 //    private fun populateAutoComplete() {
@@ -163,7 +162,7 @@ class LoginFragment : Fragment() {
         }
     }
 
-    private fun doLogin( loginDetails: Model.Login) {
+    private fun doLogin(loginDetails: Model.Login) {
         val loginService = ServiceGenerator.createService(LoginApiService::class.java)
         showProgress(true)
 
@@ -186,6 +185,8 @@ class LoginFragment : Fragment() {
             .putString(getString(R.string.authTokenKey), user.token)
             .putString(getString(R.string.userIdKey), user._id)
             .apply()
+//        val repository = UserRepository(AppDatabase.getDatabase(activity!!.applicationContext))
+//        repository.insertUser(user)
 
         val intent = Intent(activity, MainActivity::class.java)
         startActivity(intent)
