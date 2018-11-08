@@ -117,6 +117,10 @@ class FragmentOefeningInvoer : Fragment() {
                 Toast.makeText(context,"Geen camera gedetecteerd",Toast.LENGTH_SHORT).show()
             }
        }
+
+        btnOpslaan.setOnClickListener {
+            Log.d("btnOpslaan","Test")
+        }
     }
 
     /**
