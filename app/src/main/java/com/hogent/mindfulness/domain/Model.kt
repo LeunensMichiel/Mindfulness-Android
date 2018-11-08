@@ -44,19 +44,12 @@ object Model {
         val description: String
     )
 
-//    @Entity
     data class User(
-//        @PrimaryKey
         val _id: String,
-//        @ColumnInfo(name = "firstname")
         val firstname: String,
-//        @ColumnInfo(name = "lastname")
         val lastname: String,
-//        @ColumnInfo(name = "email")
         val email: String,
-//        @ColumnInfo(name = "current_session_id")
         val current_session_id: String,
-//        @ColumnInfo(name = "current_exercise_id")
         val current_exercise_id: String,
 //        @ColumnInfo(name = "current_session")
         var current_session: Session?,
@@ -96,5 +89,16 @@ object Model {
     data class unlock_session (
         val id: String,
         val session_id: String
+    )
+
+    data class Post(
+        val _id:String,
+        val inhoud:String,
+        val afbeelding:String,
+        val sessionmap_id:String,
+        val session_id:String,
+        val exercise_id:String,
+        val page_id:String,
+        val user_id:String
     )
 }

@@ -27,7 +27,8 @@ import com.hogent.mindfulness.R.id.positionBar
 class FragmentOefeningAudio : Fragment() {
 
     /**
-     * we declareren hier de variabele mp van het type MediaPlayer
+     * de variabele mp is van het type MediaPlayer
+     * we gebruiken MediaPlayer om het audiobestand te laten afspelen
      * android documentatie: https://developer.android.com/reference/android/media/MediaPlayer
      * bron voor mediaplayer: https://www.youtube.com/watch?v=zCYQBIcePaw
      */
@@ -178,7 +179,7 @@ class FragmentOefeningAudio : Fragment() {
 
     /**
      * Als de configuratie verandert (vb. van portrait mode naar landscape mode veranderen), wordt deze methode aangeroepen
-     * we roepen de functie checkOrientation() aan
+     * we herladen het fragment
      */
     override fun onConfigurationChanged(newConfig: Configuration?) {
         super.onConfigurationChanged(newConfig)

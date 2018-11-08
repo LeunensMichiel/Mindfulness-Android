@@ -12,16 +12,34 @@
         <android.support.design.widget.TextInputLayout
                 android:id="@+id/inputlayout"
                 android:layout_width="match_parent"
-                android:layout_height="180sp"
+                android:layout_height="120sp"
                 android:layout_marginTop="30sp"
                 android:padding="10sp">
 
             <android.support.design.widget.TextInputEditText
+                    android:id="@+id/text_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingBottom="20sp"
             />
         </android.support.design.widget.TextInputLayout>
+
+        <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+        >
+        <Button
+                android:id="@+id/btnOpslaan"
+                android:layout_height="wrap_content"
+                android:layout_width="120sp"
+                android:text="Opslaan"
+                android:layout_centerInParent="true"
+                android:background="@drawable/ovalebutton"
+                android:textColor="@android:color/white"
+
+        >
+        </Button>
+        </RelativeLayout>
 
         <ImageView
                 android:id="@+id/imageView"
