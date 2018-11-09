@@ -63,7 +63,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
     <string name="action_login_form_register">Registreer</string>
     <string name="action_register">Registreer</string>
-
+    <string name="logout">Uitloggen</string>
     <!-- Strings related to register -->
     <string name="prompt_groupcode">Groepscode</string>
     <string name="prompt_repeat_password">Herhaal wachtwoord</string>

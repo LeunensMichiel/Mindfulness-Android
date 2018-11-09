@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import com.hogent.mindfulness.data.MindfulnessApiService
 import com.hogent.mindfulness.domain.Model
@@ -162,6 +164,28 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
             supportFragmentManager.popBackStack()
         }
 
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // COMPLETED (9) Within onCreateOptionsMenu, use getMenuInflater().inflate to inflate the menu
+        menuInflater.inflate(R.menu.logout_menu, menu)
+        // COMPLETED (10) Return true to display your menu
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val itemThatWasClickedId = item.getItemId()
+        if (itemThatWasClickedId == R.id.logout) {
+            getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+                .edit()
+                .remove(getString(R.string.userIdKey))
+                .remove(getString(R.string.authTokenKey))
+                .apply()
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
 
