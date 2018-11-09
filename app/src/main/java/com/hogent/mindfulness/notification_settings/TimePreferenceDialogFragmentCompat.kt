@@ -6,6 +6,7 @@ import android.text.format.DateFormat
 import android.view.View
 import kotlinx.android.synthetic.main.pref_dialog_time.*
 import android.os.Bundle
+import kotlinx.android.synthetic.main.pref_dialog_time.view.*
 
 
 class TimePreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
@@ -26,9 +27,9 @@ class TimePreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
             val minutes = minutesAfterMidnight % 60
             val is24hour = DateFormat.is24HourFormat(context)
 
-            edit.setIs24HourView(is24hour)
-            edit.currentHour = hours
-            edit.currentMinute = minutes
+            view.edit.setIs24HourView(is24hour)
+            view.edit.currentHour = hours
+            view.edit.currentMinute = minutes
         }
     }
 

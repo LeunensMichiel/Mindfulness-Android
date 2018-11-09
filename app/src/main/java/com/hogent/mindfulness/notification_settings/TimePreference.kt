@@ -9,8 +9,8 @@ import com.hogent.mindfulness.R
 /*
  * I used this https://github.com/code-troopers/android-betterpickers/issues/236
  */
-class TimePreference(context: Context?, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) :
-    DialogPreference(context, attrs, defStyleAttr, defStyleRes) {
+class TimePreference(context: Context?, attrs: AttributeSet?) :
+    DialogPreference(context, attrs) {
 
     var mTime: Int = 0
         set(value) {
@@ -26,7 +26,7 @@ class TimePreference(context: Context?, attrs: AttributeSet?, defStyleAttr: Int,
 
     override fun onSetInitialValue(
         restorePersistedValue: Boolean,
-        defaultValue: Any
+        defaultValue: Any?
     ) {
         // Read the value. Use the default value if it is not possible.
         mTime = (
