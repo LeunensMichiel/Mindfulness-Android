@@ -14,8 +14,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import com.hogent.mindfulness.R
+import com.hogent.mindfulness.data.UserApiService
 import com.hogent.mindfulness.scanner.ScannerActivity
-import com.hogent.mindfulness.data.MindfulnessApiService
+import com.hogent.mindfulness.data.ServiceGenerator
+import com.hogent.mindfulness.data.SessionApiService
 import com.hogent.mindfulness.domain.Model
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -37,9 +39,6 @@ class SessionFragment() : Fragment() {
     private lateinit var disposable: Disposable
     private lateinit var user: Model.User
     lateinit var unlockSession: String
-    private val mindfulnessApiService by lazy {
-        MindfulnessApiService.create()
-    }
 
     /**
      * I used this resource: https://developer.android.com/guide/topics/ui/layout/recyclerview
@@ -91,10 +90,11 @@ class SessionFragment() : Fragment() {
 
     private fun beginRetrieveUser() {
 
-        val userid =
-            activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+        val userid = activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
                 .getString(getString(R.string.userIdKey), "")
-        disposable = mindfulnessApiService.getUser(userid)
+        val userService = ServiceGenerator.createService(UserApiService::class.java)
+
+        disposable = userService.getUser(userid)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
@@ -107,8 +107,9 @@ class SessionFragment() : Fragment() {
      * this function retrieves a sessionmap from the database
      */
     private fun beginRetrieveSessionmap(sessionmap_id: String) {
-        Log.d("test", "hier ben ik")
-        disposable = mindfulnessApiService.getSessionmap(sessionmap_id)
+        val sessionService = ServiceGenerator.createService(SessionApiService::class.java)
+
+        disposable = sessionService.getSessionmap(sessionmap_id)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(

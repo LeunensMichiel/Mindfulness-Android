@@ -1,4 +1,4 @@
-package com.hogent.mindfulness.oefeningdetails
+package com.hogent.mindfulness.exercise_details
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -9,7 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.data.MindfulnessApiService
+import com.hogent.mindfulness.data.PageApiService
+import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.domain.Model
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -21,21 +22,18 @@ import kotlinx.android.synthetic.main.oefening_details_fragment.*
  * Hierin wordt ook de ViewPager gebruikt, die zorgt ervoor dat je kan swipen tussen de verschillende fragments
  * Elke oefening bestaat uit enkele pages (pagina's)
  * we hebben verschillende fragments voor de verschillende pages, namelijk
- * de fragment FragmentOefeningText voor de tekstpagina
- * de fragment FragmentOefeningAudio voor de audiopagina
- * de fragment FragmentOefeningInvoer voor de invoerpagina
+ * de fragment FragmentExerciseText voor de tekstpagina
+ * de fragment FragmentExerciseAudio voor de audiopagina
+ * de fragment FragmentExerciseInvoer voor de invoerpagina
  *
  * Deze klasse heeft als taak de fragments specifiek voor de oefening die hij meegekregen heeft van de MainActivity te tonen in de juiste
  * volgorde en met de juiste data
  */
-class OefeningDetailFragment(): Fragment(){
+class ExerciseDetailFragment(): Fragment(){
 
     lateinit var exerciseId:String
     lateinit var manager: FragmentManager
     private lateinit var disposable: Disposable
-    private val mindfulnessApiService by lazy {
-        MindfulnessApiService.create()
-    }
 
     /**
      * we halen eerst de exercise op en dan inflaten we de layout
@@ -56,7 +54,9 @@ class OefeningDetailFragment(): Fragment(){
      * * de exercisedata wordt in de variabele disposable gestored, disposable wordt gebruikt voor het aanroepen van api calls
      */
     private fun beginRetrieveExercise(exerciseId: String) {
-        disposable = mindfulnessApiService.getPages(exerciseId)
+        val PageApiService = ServiceGenerator.createService(PageApiService::class.java)
+
+        disposable = PageApiService.getPages(exerciseId)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
@@ -86,16 +86,16 @@ class OefeningDetailFragment(): Fragment(){
         pages.forEach {
             Log.d("page", it.description)
             when (it.type) {
-                "AUDIO" -> //adapter.addFragment(FragmentOefeningAudio(), "Audio")
+                "AUDIO" -> //adapter.addFragment(FragmentExerciseAudio(), "Audio")
                 {
-                    val fragment = FragmentOefeningAudio()
+                    val fragment = FragmentExerciseAudio()
                     val arg = Bundle()
                     arg.putString("audiopad", it.pathaudio)
                     fragment.arguments = arg
                     adapter.addFragment(fragment, "Audio")
                 }
                 "TEXT" -> {
-                    val fragment = FragmentOefeningText()
+                    val fragment = FragmentExerciseText()
                     val arg = Bundle()
                     arg.putString("description", it.description)
 
@@ -104,9 +104,9 @@ class OefeningDetailFragment(): Fragment(){
                     fragment.arguments = arg
                     adapter.addFragment(fragment, "Beschrijving")
                 }
-                "INPUT" -> //adapter.addFragment(FragmentOefeningInvoer(), "Invoer")
+                "INPUT" -> //adapter.addFragment(FragmentExerciseInvoer(), "Invoer")
                 {
-                    val fragment = FragmentOefeningInvoer()
+                    val fragment = FragmentExerciseInvoer()
                     val arg = Bundle()
                     arg.putString("opgave", it.title)
                     fragment.arguments = arg

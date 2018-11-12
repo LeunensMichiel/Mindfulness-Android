@@ -1,24 +1,18 @@
 package com.hogent.mindfulness.exercises_List_display
 
 
-import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.NavUtils.navigateUpTo
-import android.support.v7.app.ActionBar
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
-import android.widget.Toolbar
-import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.data.MindfulnessApiService
+import com.hogent.mindfulness.data.ExerciseApiService
+import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.domain.Model
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -28,15 +22,16 @@ import kotlinx.android.synthetic.main.fragment_exercises_pane.*
 
 class ExercisesListFragment : Fragment() {
 
-    // Here will the exercisesData be stored
-    // This will be used the populate the data for the ExerciseAdapter
-    lateinit var session : Model.Session
+    /**
+     * Here will the exercisesData be stored
+     *This will be used the populate the data for the ExerciseAdapter
+     */
+    lateinit var session: Model.Session
     private lateinit var disposable: Disposable
-    private val mindfulnessApiService by lazy {
-        MindfulnessApiService.create()
-    }
 
-    // I used this resource: https://developer.android.com/guide/topics/ui/layout/recyclerview
+    /**
+     * I used this resource: https://developer.android.com/guide/topics/ui/layout/recyclerview
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -49,7 +44,9 @@ class ExercisesListFragment : Fragment() {
     }
 
     private fun beginRetrieveExercises(session_id: String) {
-        disposable = mindfulnessApiService.getExercises(session_id)
+        val exerciseApiService = ServiceGenerator.createService(ExerciseApiService::class.java)
+
+        disposable = exerciseApiService.getExercises(session_id)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
@@ -78,8 +75,7 @@ class ExercisesListFragment : Fragment() {
     /***********************************************************************************************
      * Adapter
      *
-     ***********************************************************************************************
-     */
+     ***********************************************************************************************/
 
     class ExerciseAdapter(
         // This array has the data for the recyclerview adapter
@@ -98,6 +94,7 @@ class ExercisesListFragment : Fragment() {
 
             return ExerciseViewHolder(view)
         }
+
         //  This function gives the size back of the data list
         override fun getItemCount(): Int {
             return mExercisesData.size

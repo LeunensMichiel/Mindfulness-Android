@@ -9,7 +9,6 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.text.TextUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +19,6 @@ import com.hogent.mindfulness.R
 import com.hogent.mindfulness.data.*
 import com.hogent.mindfulness.domain.Model
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_login.*
@@ -37,6 +35,10 @@ class LoginFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_login, container, false)
     }
 
+    /**
+     * Add's a listener to the password TextField to automatically login
+     * Add's listener to login Button
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // Set up the login form.
@@ -163,7 +165,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun doLogin(loginDetails: Model.Login) {
-        val loginService = ServiceGenerator.createService(LoginApiService::class.java)
+        val loginService = ServiceGenerator.createService(UserApiService::class.java)
         showProgress(true)
 
         disposable = loginService.login(loginDetails)
@@ -192,6 +194,9 @@ class LoginFragment : Fragment() {
         startActivity(intent)
     }
 
+    /**
+     * Shows error msg when login failed
+     */
     private fun failedLogin(error: String?) {
         // TODO geef hier later een betere foutmelding op mss niet speciefiek op password
         login_password.error = getString(R.string.error_incorrect_password)
@@ -199,6 +204,12 @@ class LoginFragment : Fragment() {
         showProgress(false)
     }
 
+    /**
+     * Check's if email is valid
+     * Email is valid when it has a '@' sign
+     *
+     * It's maybe better to chance this the a regex
+     */
     private fun isEmailValid(email: String): Boolean {
         //TODO: Replace this with your own logic
         return email.contains("@")

@@ -9,19 +9,17 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import com.hogent.mindfulness.data.MindfulnessApiService
+import com.hogent.mindfulness.data.ServiceGenerator
+import com.hogent.mindfulness.data.UserApiService
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
 import com.hogent.mindfulness.login.LoginActivity
-import com.hogent.mindfulness.oefeningdetails.*
-import com.hogent.mindfulness.scanner.ScannerActivity
+import com.hogent.mindfulness.exercise_details.*
 import com.hogent.mindfulness.show_sessions.SessionFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_exercises_pane.*
-import kotlinx.android.synthetic.main.session_fragment.*
 
 
 class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.SessionAdapterOnClickHandler, ExercisesListFragment.ExerciseAdapter.ExerciseAdapterOnClickHandler {
@@ -31,12 +29,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
     private lateinit var disposable: Disposable
     private lateinit var sessionFragment: SessionFragment
     private lateinit var exerciseFragment: ExercisesListFragment
-    private lateinit var oefeningDetailFragment: OefeningDetailFragment
-
-
-    private val mindfulnessApiService by lazy {
-        MindfulnessApiService.create()
-    }
+    private lateinit var exerciseDetailFragment: ExerciseDetailFragment
 
     /**
      * Set view to MainActivity
@@ -80,7 +73,9 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                 .getString(getString(R.string.userIdKey), "")
             Log.d("user", sharedPref)
             val unlock_session = Model.unlock_session(sharedPref, intent.getStringExtra("code"))
-            disposable = mindfulnessApiService.updateUser(unlock_session)
+            val userService = ServiceGenerator.createService(UserApiService::class.java)
+
+            disposable = userService.updateUser(unlock_session)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -119,19 +114,19 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
     }
 
     /**
-     * Initialize OefeningDetailFragment
-     * Initialize manager in oefeningDetailFragment
-     * Initialize exerciseId in oefeningDetailFragment
-     * Add OefeningDetailFragment to Activity
+     * Initialize ExerciseDetailFragment
+     * Initialize manager in exerciseDetailFragment
+     * Initialize exerciseId in exerciseDetailFragment
+     * Add ExerciseDetailFragment to Activity
      */
     override fun onClickExercise(exercise: Model.Exercise) {
-        oefeningDetailFragment = OefeningDetailFragment()
+        exerciseDetailFragment = ExerciseDetailFragment()
 
-        oefeningDetailFragment.manager = supportFragmentManager
-        oefeningDetailFragment.exerciseId = exercise._id
+        exerciseDetailFragment.manager = supportFragmentManager
+        exerciseDetailFragment.exerciseId = exercise._id
 
         supportFragmentManager.beginTransaction()
-            .replace(R.id.session_container, oefeningDetailFragment)
+            .replace(R.id.session_container, exerciseDetailFragment)
             .addToBackStack("tag")
             .commit()
     }

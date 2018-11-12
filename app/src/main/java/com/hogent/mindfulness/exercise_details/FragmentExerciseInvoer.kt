@@ -1,4 +1,4 @@
-package com.hogent.mindfulness.oefeningdetails
+package com.hogent.mindfulness.exercise_details
 
 
 import android.app.Activity.RESULT_OK
@@ -16,27 +16,23 @@ import com.hogent.mindfulness.R
 import kotlinx.android.synthetic.main.fragment_fragment_oefeninginvoer.*
 import android.content.pm.PackageManager
 import android.util.Log
-import com.hogent.mindfulness.data.MindfulnessApiService
+import com.hogent.mindfulness.data.PostApiService
 import com.hogent.mindfulness.data.PostInformation
+import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.domain.Model
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import org.jetbrains.anko.textResource
-import retrofit2.http.Body
 
 
 /**
  * Deze klasse is een Fragment die verantwoordelijk is voor de invoerpagina van de oefening
  * De layout die hiermee gelinkt is is fragment_fragment_oefeninginvoer
  */
-class FragmentOefeningInvoer : Fragment() {
+class FragmentExerciseInvoer : Fragment() {
 
     private var postId:String? = null
     private lateinit var disposable: Disposable
-    private val mindfulnessApiService by lazy {
-        MindfulnessApiService.create()
-    }
 
     /**
      * in de onCreateView-methode inflaten we onze layout fragment_fragment_oefeninginvoer
@@ -55,7 +51,9 @@ class FragmentOefeningInvoer : Fragment() {
         info.exercise_id = "5bd1922012bbd66b6c19aa31"
         info.page_id = "5bd837fde39837098a7a7c82"
         info.user_id = "5bdc6f7cd7371903f9c88bc4"
-        disposable = mindfulnessApiService.getPost(info)
+        val PostService = ServiceGenerator.createService(PostApiService::class.java)
+
+        disposable = PostService.getPostOfPage(info)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
@@ -125,7 +123,9 @@ class FragmentOefeningInvoer : Fragment() {
         info.page_id = "5bd837fde39837098a7a7c82"
         info.user_id = "5bdc6f7cd7371903f9c88bc4"
         info.inhoud = text_edit.text.toString()
-        mindfulnessApiService.updatePost("5be2ad3d9a683c6576fbabe2",info)
+        val postService = ServiceGenerator.createService(PostApiService::class.java)
+
+        disposable = postService.updatePost("5be2ad3d9a683c6576fbabe2",info)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(

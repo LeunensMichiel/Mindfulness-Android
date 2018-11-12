@@ -1,4 +1,4 @@
-package com.hogent.mindfulness.oefeningdetails
+package com.hogent.mindfulness.exercise_details
 
 import android.annotation.SuppressLint
 import android.support.v7.widget.RecyclerView
@@ -10,7 +10,7 @@ import android.widget.TextView
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.R.drawable.*
 import com.hogent.mindfulness.domain.Model
-import com.hogent.mindfulness.oefeningdetails.ParagraafAdapter.ParagraafViewHolder
+import com.hogent.mindfulness.exercise_details.ParagraafAdapter.ParagraafViewHolder
 import kotlinx.android.synthetic.main.paragraaf_list_item.view.*
 import org.jetbrains.anko.imageResource
 

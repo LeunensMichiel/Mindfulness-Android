@@ -1,4 +1,4 @@
-package com.hogent.mindfulness.oefeningdetails
+package com.hogent.mindfulness.exercise_details
 
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager

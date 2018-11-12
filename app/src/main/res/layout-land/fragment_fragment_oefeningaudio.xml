@@ -4,7 +4,7 @@
                                              xmlns:tools="http://schemas.android.com/tools"
                                              android:layout_width="match_parent"
                                              android:layout_height="match_parent"
-                                             tools:context=".oefeningdetails.FragmentOefeningAudio"
+                                             tools:context=".exercise_details.FragmentExerciseAudio"
                                              android:id="@+id/linearLayout" tools:layout_editor_absoluteY="73dp"
     android:orientation="horizontal">
 

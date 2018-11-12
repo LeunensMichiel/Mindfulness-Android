@@ -1,4 +1,4 @@
-package com.hogent.mindfulness.oefeningdetails
+package com.hogent.mindfulness.exercise_details
 
 
 import android.content.res.Configuration
@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.recyclerview_paragrafen.*
 /**
  * Deze klasse is een Fragment die verantwoordelijk is voor een tekstpagina van een oefening
  */
-class FragmentOefeningText : Fragment() {
+class FragmentExerciseText : Fragment() {
 
     lateinit var paragraphs:Array<Model.Paragraph>
 
