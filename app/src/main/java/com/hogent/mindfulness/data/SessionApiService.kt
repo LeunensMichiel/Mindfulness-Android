@@ -10,6 +10,6 @@ interface SessionApiService {
      * REST API Call for retrieving one sessionmap from the given id
      */
     @GET("/API/session/sessions/{id}")
-    fun getSessionmap(@Path("id") id: String): Observable<Array<Model.Session>>
+    fun getSessions(@Path("id") id: String): Observable<Array<Model.Session>>
 
 }

@@ -109,7 +109,7 @@ class SessionFragment() : Fragment() {
     private fun beginRetrieveSessionmap(sessionmap_id: String) {
         val sessionService = ServiceGenerator.createService(SessionApiService::class.java)
 
-        disposable = sessionService.getSessionmap(sessionmap_id)
+        disposable = sessionService.getSessions(sessionmap_id)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
