@@ -31,7 +31,7 @@ class FragmentExerciseText : Fragment() {
 
     /**
      * Deze methode wordt direct na de onCreateView-methode uitgevoerd
-     * Het zorgt ervoor dat de recyclerview getoond zal worden met de juiste data via de RecyclerViewAdapter
+     * Het zorgt ervoor dat de recyclerview getoond zal worden met de juiste data via de SessionAdapter
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
