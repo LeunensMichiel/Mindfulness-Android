@@ -3,6 +3,7 @@ package com.hogent.mindfulness.domain
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.PrimaryKey
+import com.google.gson.annotations.SerializedName
 
 
 object Model {
@@ -38,6 +39,7 @@ object Model {
 
     data class Paragraph(
         val _id: String,
+        @SerializedName("form_type")
         val type: String,
         val filename: String,
         val pathname: String,
