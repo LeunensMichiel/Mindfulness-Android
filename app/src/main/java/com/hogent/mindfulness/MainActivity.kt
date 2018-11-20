@@ -15,6 +15,7 @@ import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
 import com.hogent.mindfulness.login.LoginActivity
 import com.hogent.mindfulness.exercise_details.*
+import com.hogent.mindfulness.group.GroupFragment
 import com.hogent.mindfulness.show_sessions.SessionFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -22,12 +23,15 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 
 
-class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.SessionAdapterOnClickHandler, ExercisesListFragment.ExerciseAdapter.ExerciseAdapterOnClickHandler {
+class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.SessionAdapterOnClickHandler,
+    ExercisesListFragment.ExerciseAdapter.ExerciseAdapterOnClickHandler {
 
 
     //initializing attributes
     private lateinit var disposable: Disposable
+    private lateinit var user: Model.User
     private lateinit var sessionFragment: SessionFragment
+    private lateinit var groupFragment: GroupFragment
     private lateinit var exerciseFragment: ExercisesListFragment
     private lateinit var exerciseDetailFragment: ExerciseDetailFragment
 
@@ -47,13 +51,37 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
             startActivity(intent)
         }
 
+        beginRetrieveUser()
 
-        sessionFragment = SessionFragment()
+        if (checkIfHasGroup()) {
+            groupFragment = GroupFragment()
 
-        supportFragmentManager.beginTransaction()
-            .add(R.id.session_container, sessionFragment)
-            .commit()
+            supportFragmentManager.beginTransaction()
+                .add(R.id.session_container, groupFragment)
+                .commit()
+        } else {
+            sessionFragment = SessionFragment()
 
+            supportFragmentManager.beginTransaction()
+                .add(R.id.session_container, sessionFragment)
+                .commit()
+        }
+    }
+
+    private fun beginRetrieveUser() {
+
+        val userid =
+            this!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+                .getString(getString(R.string.userIdKey), "")
+        val userService = ServiceGenerator.createService(UserApiService::class.java)
+
+        disposable = userService.getUser(userid)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> user = result },
+                { error -> showError(error.message) }
+            )
     }
 
     private fun checkIfLoggedIn(): Boolean {
@@ -62,26 +90,48 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         return token == null
     }
 
-
+    private fun checkIfHasGroup(): Boolean {
+        return user.group == null
+    }
 
     override fun onResume() {
         super.onResume()
 
-        if (intent.hasExtra("code")){
-            Log.d("code", intent.getStringExtra("code"))
-            val sharedPref = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-                .getString(getString(R.string.userIdKey), "")
-            Log.d("user", sharedPref)
-            val unlock_session = Model.unlock_session(sharedPref, intent.getStringExtra("code"))
-            val userService = ServiceGenerator.createService(UserApiService::class.java)
+        if (intent.hasExtra("code")) {
+            if (checkIfHasGroup()) {
+                Log.d("code", intent.getStringExtra("code"))
+                val sharedPref =
+                    getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+                        .getString(getString(R.string.userIdKey), "")
+                Log.d("user", sharedPref)
+                val user_group = Model.user_group(sharedPref, intent.getStringExtra("code"))
+                val userService = ServiceGenerator.createService(UserApiService::class.java)
 
-            disposable = userService.updateUser(unlock_session)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    { result -> showResult(result) },
-                    { error -> showError(error.message) }
-                )
+                disposable = userService.updateUserGroup(user_group)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                        { result -> showResult(result) },
+                        { error -> showError(error.message) }
+                    )
+            } else {
+                Log.d("code", intent.getStringExtra("code"))
+                val sharedPref =
+                    getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+                        .getString(getString(R.string.userIdKey), "")
+                Log.d("user", sharedPref)
+                val unlock_session = Model.unlock_session(sharedPref, intent.getStringExtra("code"))
+                val userService = ServiceGenerator.createService(UserApiService::class.java)
+
+                disposable = userService.updateUser(unlock_session)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                        { result -> showResult(result) },
+                        { error -> showError(error.message) }
+                    )
+            }
+
         }
 
     }
@@ -144,6 +194,12 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                     .commit()
                 return@OnNavigationItemSelectedListener true
             }
+//            R.id.navigation_notifications -> {
+//                supportFragmentManager.beginTransaction()
+//                    .replace(R.id.settings_container, settingFragment)
+//                    .commit()
+//                return@OnNavigationItemSelectedListener true
+//            }
         }
         false
     }
