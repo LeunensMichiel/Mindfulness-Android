@@ -60,7 +60,8 @@ object Model {
 //        @ColumnInfo(name = "group")
         val group: Group,
 //        @ColumnInfo(name = "token")
-        var token: String?
+        var token: String?,
+        var post_ids: Array<String>
     )
 
 
