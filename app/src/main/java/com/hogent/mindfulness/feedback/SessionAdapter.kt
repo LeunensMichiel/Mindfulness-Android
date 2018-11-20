@@ -12,7 +12,7 @@ import kotlinx.android.synthetic.main.feedback_session_item.view.*
 class SessionAdapter(val items: ArrayList<Model.Session>, val context: Context) :
     RecyclerView.Adapter<SessionAdapter.sessionViewHolder>() {
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): sessionViewHolder {
-        val vholder = sessionViewHolder(LayoutInflater.from(context).inflate(R.layout.session_item_list, p0, false))
+        val vholder = sessionViewHolder(LayoutInflater.from(context).inflate(R.layout.feedback_session_item, p0, false))
 
         return vholder
     }
