@@ -12,9 +12,10 @@ import android.widget.Toast
 import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.data.UserApiService
 import com.hogent.mindfulness.domain.Model
+import com.hogent.mindfulness.exercise_details.ExerciseDetailFragment
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
+import com.hogent.mindfulness.feedback.FeedbackFragment
 import com.hogent.mindfulness.login.LoginActivity
-import com.hogent.mindfulness.exercise_details.*
 import com.hogent.mindfulness.show_sessions.SessionFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -28,6 +29,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
     //initializing attributes
     private lateinit var disposable: Disposable
     private lateinit var sessionFragment: SessionFragment
+    private lateinit var feedbackFragment: FeedbackFragment
     private lateinit var exerciseFragment: ExercisesListFragment
     private lateinit var exerciseDetailFragment: ExerciseDetailFragment
 
@@ -49,6 +51,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
 
 
         sessionFragment = SessionFragment()
+        feedbackFragment = FeedbackFragment()
 
         supportFragmentManager.beginTransaction()
             .add(R.id.session_container, sessionFragment)
@@ -141,6 +144,12 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
             R.id.navigation_home -> {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.session_container, sessionFragment)
+                    .commit()
+                return@OnNavigationItemSelectedListener true
+            }
+            R.id.navigation_feedback -> {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.session_container, feedbackFragment)
                     .commit()
                 return@OnNavigationItemSelectedListener true
             }
