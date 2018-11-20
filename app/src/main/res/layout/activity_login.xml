@@ -5,7 +5,13 @@
               android:layout_height="match_parent"
               android:gravity="center_horizontal"
               android:orientation="vertical"
-              tools:context=".login.LoginActivity">
+              tools:context=".login.LoginActivity" android:background="@drawable/ic_artboard">
+
+    <TextView
+            android:text="@string/welcome_screen"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:textSize="30sp" android:textAlignment="center"
+            android:textAllCaps="true" android:layout_margin="20dp"/>
     <FrameLayout
             android:id="@+id/login_container"
             android:layout_width="match_parent"

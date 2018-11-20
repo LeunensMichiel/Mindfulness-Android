@@ -17,8 +17,8 @@ import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.data.UserApiService
 import com.hogent.mindfulness.data.ServiceGenerator
+import com.hogent.mindfulness.data.UserApiService
 import com.hogent.mindfulness.domain.Model
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -51,6 +51,11 @@ class RegisterFragment : Fragment() {
         })
 
         btn_register.setOnClickListener { attemptLogin() }
+
+        btnBackToLogin.setOnClickListener {
+            val loginCallback = activity as LoginFragmentCallBack
+            loginCallback.onClickGoBackToLogin()
+        }
     }
 
     private fun attemptLogin() {
@@ -182,5 +187,9 @@ class RegisterFragment : Fragment() {
                 })
         }
 
+    }
+
+    interface LoginFragmentCallBack {
+        fun onClickGoBackToLogin()
     }
 }
