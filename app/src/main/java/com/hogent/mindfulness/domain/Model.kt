@@ -108,4 +108,8 @@ object Model {
         var exercise_name:String? = null,
         var page_name:String? = null
     )
+
+    data class Point(val x: Int,
+                      val y: Int,
+                     val orientation: Boolean)
 }
