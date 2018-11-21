@@ -80,12 +80,10 @@ class SessionFragment() : Fragment() {
     override fun onStart() {
         super.onStart()
 
-
         fabCamera.setOnClickListener { view ->
             val intent = Intent(activity, ScannerActivity::class.java)
             startActivity(intent)
         }
-
     }
 
     private fun beginRetrieveUser() {

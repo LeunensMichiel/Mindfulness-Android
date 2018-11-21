@@ -94,7 +94,6 @@ object Model {
     )
 
     data class user_group (
-        val _id: String,
         val group_id: String
     )
 

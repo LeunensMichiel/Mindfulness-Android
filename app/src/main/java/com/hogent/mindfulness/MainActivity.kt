@@ -104,10 +104,10 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                     getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
                         .getString(getString(R.string.userIdKey), "")
                 Log.d("user", sharedPref)
-                val user_group = Model.user_group(sharedPref, intent.getStringExtra("code"))
+                val user_group = Model.user_group(intent.getStringExtra("code"))
                 val userService = ServiceGenerator.createService(UserApiService::class.java)
 
-                disposable = userService.updateUserGroup(user_group)
+                disposable = userService.updateUserGroup(sharedPref, user_group)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
