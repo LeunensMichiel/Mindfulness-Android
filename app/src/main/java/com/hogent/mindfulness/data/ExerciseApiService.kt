@@ -9,7 +9,7 @@ interface ExerciseApiService {
     /**
      * REST API Call for retrieving all exercises from the given sessionid
      */
-    @GET("/API/exercises/{id}")
+    @GET("/API/exercise/exercises/{id}")
     fun getExercises(@Path("id") id: String): Observable<Array<Model.Exercise>>
 
 
