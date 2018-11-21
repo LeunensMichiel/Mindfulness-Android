@@ -28,7 +28,6 @@ import kotlinx.android.synthetic.main.session_item_list.view.*
 
 class SessionFragment() : Fragment() {
 
-
     /**
      * Here will the sessionData be stored
      * Disposable used for calling api calls
@@ -39,7 +38,6 @@ class SessionFragment() : Fragment() {
     private lateinit var disposable: Disposable
     private lateinit var user: Model.User
     lateinit var unlockSession: String
-
     /**
      * I used this resource: https://developer.android.com/guide/topics/ui/layout/recyclerview
      */
@@ -125,8 +123,8 @@ class SessionFragment() : Fragment() {
      */
     private fun showResultUser(resultUser: Model.User) {
         user = resultUser
-        Log.d("testtest", user.group.sessionmap_id)
-        beginRetrieveSessionmap(user.group.sessionmap_id)
+        Log.d("testtest", user.group!!.sessionmap_id)
+        beginRetrieveSessionmap(user.group!!.sessionmap_id)
 
     }
 

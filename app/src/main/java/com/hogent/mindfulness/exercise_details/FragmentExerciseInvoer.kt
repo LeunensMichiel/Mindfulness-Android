@@ -16,6 +16,7 @@ import com.hogent.mindfulness.R
 import kotlinx.android.synthetic.main.fragment_fragment_oefeninginvoer.*
 import android.content.pm.PackageManager
 import android.util.Log
+import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.data.PostApiService
 import com.hogent.mindfulness.data.PostInformation
 import com.hogent.mindfulness.data.ServiceGenerator
@@ -33,7 +34,7 @@ class FragmentExerciseInvoer : Fragment() {
 
     private var postId:String? = null
     private lateinit var disposable: Disposable
-
+    lateinit var page:Model.Page
     /**
      * in de onCreateView-methode inflaten we onze layout fragment_fragment_oefeninginvoer
      */
@@ -109,8 +110,8 @@ class FragmentExerciseInvoer : Fragment() {
         }
 
         btnOpslaan.setOnClickListener {
-            // TEDOEN: nog een check: als er niets is veranderd, dan moet er geen nieuwe post gemaakt worden of geupdate worden
-            updatePost()
+            // TEDOEN: nog een check: als er niets is veranderd, dan moet er geen nieuwe post gemaakt worden of geupdate wordenge
+            (activity as MainActivity).updatePost(page, text_edit.text.toString())
             Log.d("button","-----------test1--------------")
         }
     }
