@@ -1,4 +1,4 @@
-package com.hogent.mindfulness.oefeningdetails
+package com.hogent.mindfulness.exercise_details
 
 
 import android.content.res.Configuration
@@ -16,43 +16,25 @@ import kotlinx.android.synthetic.main.recyclerview_paragrafen.*
 /**
  * Deze klasse is een Fragment die verantwoordelijk is voor een tekstpagina van een oefening
  */
-class FragmentOefeningText : Fragment() {
+class FragmentExerciseText : Fragment() {
 
     lateinit var paragraphs:Array<Model.Paragraph>
 
-    //var page: Model.Page = Model.Page("","","","","","",paragraphs = emptyArray())
-    //var page: Model.Page = Model.Page("","","","","","")
-
-
     /**
-     * in de onCreateView-methode inflaten we onze layout fragment_fragment_oefeningtext
+     * in de onCreateView-methode inflaten we onze layout, hierin zit een recyclerview (we tonen een lijst van paragrafen in deze page)
      */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-       // return inflater.inflate(R.layout.fragment_fragment_oefeningtext, container, false)
         return inflater.inflate(R.layout.recyclerview_paragrafen, container, false)
     }
 
     /**
      * Deze methode wordt direct na de onCreateView-methode uitgevoerd
-     * oefeningText_beschrijving is een TextView
-     * we zorgen ervoor dat de beschrijving van de oefening scrollbaar is (vb. voor lange teksten)
-     * als in de argumenten van de fragment de key description zit, dan steken we de value van deze key in onze beschrijving van de oefening
+     * Het zorgt ervoor dat de recyclerview getoond zal worden met de juiste data via de SessionAdapter
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        /*
-        oefeningText_beschrijving.setMovementMethod(ScrollingMovementMethod())
-        if(this.arguments!!.containsKey("description")){
-            oefeningText_beschrijving.text = this.arguments!!.getString("description", "check")
-        }
-
-        paragraphs.forEach {
-            (activity as MainActivity).creerParagraafFragment(it.description)
-
-        } */
 
         val viewAdapter = ParagraafAdapter(paragraphs)
         val viewManager = LinearLayoutManager(activity)
@@ -85,10 +67,6 @@ class FragmentOefeningText : Fragment() {
 
         val ft = fragmentManager!!.beginTransaction()
         ft.detach(this).attach(this).commit()
-        /*
-        if(this.arguments!!.containsKey("description")){
-            oefeningText_beschrijving.text = this.arguments!!.getString("description", "check")
-        } */
 
         val viewAdapter = ParagraafAdapter(paragraphs)
         val viewManager = LinearLayoutManager(activity)

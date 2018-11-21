@@ -1,5 +1,10 @@
 package com.hogent.mindfulness.domain
 
+import android.arch.persistence.room.ColumnInfo
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.PrimaryKey
+import com.google.gson.annotations.SerializedName
+
 
 object Model {
 
@@ -12,6 +17,7 @@ object Model {
 
     data class Session(
         val _id: String,
+        val position: Int,
         val title: String
     )
 
@@ -33,6 +39,7 @@ object Model {
 
     data class Paragraph(
         val _id: String,
+        @SerializedName("form_type")
         val type: String,
         val filename: String,
         val pathname: String,
@@ -46,11 +53,19 @@ object Model {
         val email: String,
         val current_session_id: String,
         val current_exercise_id: String,
+//        @ColumnInfo(name = "current_session")
         var current_session: Session?,
+//        @ColumnInfo(name = "current_exercise")
         var current_exercise: Exercise?,
+//        @ColumnInfo(name = "unlocked_sessions")
+        var unlocked_sessions: Array<String>,
+//        @ColumnInfo(name = "group")
         val group: Group,
-        var token: String?
+//        @ColumnInfo(name = "token")
+        var token: String?,
+        var post_ids: Array<String>
     )
+
 
     data class Group(
         val _id: String,
@@ -68,6 +83,26 @@ object Model {
         val email: String,
         val password: String,
         val groups_code: String
+    )
+
+    data class Result(
+        val result: String
+    )
+
+    data class unlock_session (
+        val id: String,
+        val session_id: String
+    )
+
+    data class Post(
+        val _id:String,
+        val inhoud:String,
+        val afbeelding:String,
+        val sessionmap_id:String,
+        val session_id:String,
+        val exercise_id:String,
+        val page_id:String,
+        val user_id:String
     )
 
     data class Point(val x: Int,

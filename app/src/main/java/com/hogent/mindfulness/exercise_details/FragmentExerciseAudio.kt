@@ -1,4 +1,4 @@
-package com.hogent.mindfulness.oefeningdetails
+package com.hogent.mindfulness.exercise_details
 
 import android.content.Context
 import android.content.pm.PackageManager
@@ -15,19 +15,17 @@ import android.widget.SeekBar
 import android.widget.Toast
 import kotlinx.android.synthetic.main.fragment_fragment_oefeningaudio.*
 import android.content.res.Configuration
-import android.util.Log
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.R.id.playButn
-import com.hogent.mindfulness.R.id.positionBar
 
 /**
  * Deze klasse is een Fragment die verantwoordelijk is voor de audiopagina van de oefening
  * De layout die hiermee gelinkt is is fragment_fragment_oefeningaudio
  */
-class FragmentOefeningAudio : Fragment() {
+class FragmentExerciseAudio : Fragment() {
 
     /**
-     * we declareren hier de variabele mp van het type MediaPlayer
+     * de variabele mp is van het type MediaPlayer
+     * we gebruiken MediaPlayer om het audiobestand te laten afspelen
      * android documentatie: https://developer.android.com/reference/android/media/MediaPlayer
      * bron voor mediaplayer: https://www.youtube.com/watch?v=zCYQBIcePaw
      */
@@ -178,7 +176,7 @@ class FragmentOefeningAudio : Fragment() {
 
     /**
      * Als de configuratie verandert (vb. van portrait mode naar landscape mode veranderen), wordt deze methode aangeroepen
-     * we roepen de functie checkOrientation() aan
+     * we herladen het fragment
      */
     override fun onConfigurationChanged(newConfig: Configuration?) {
         super.onConfigurationChanged(newConfig)

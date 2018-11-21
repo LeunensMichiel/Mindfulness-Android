@@ -44,13 +44,14 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="sessionmap_id">5bd1989f12bbd66b6c19aa3c</string>
+    <string name="sessionmap_id">5bdc9ecbe9bc22054be4a64d</string>
     <string name="title_session">Sessies</string>
     <string name="title_feedback">Feedback</string>
     <string name="title_notifications">Notifications</string>
+    <string name="title_activity_scanner">Scanner</string>
 
     <!-- Strings related to login -->
-    <string name="title_activity_login">Login</string>
+    <string name="title_activity_login">Account</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Wachtwoord</string>
     <string name="action_sign_in">Login</string>
@@ -62,10 +63,11 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
     <string name="action_login_form_register">Registreer</string>
     <string name="action_register">Registreer</string>
-
+    <string name="logout">Uitloggen</string>
     <!-- Strings related to register -->
     <string name="prompt_groupcode">Groepscode</string>
     <string name="prompt_repeat_password">Herhaal wachtwoord</string>
     <string name="action_register_short">Registreer</string>
+    <string name="welcome_screen">MindFulness</string>
 
 </resources>

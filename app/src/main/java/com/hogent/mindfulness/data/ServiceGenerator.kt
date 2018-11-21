@@ -11,7 +11,7 @@ class ServiceGenerator {
     companion object {
 
         val API_BASE_URL = "http://projecten3studserver03.westeurope.cloudapp.azure.com:3000"
-        val LOCAL_BASE_URL = "http://192.168.0.110:3000"
+        val LOCAL_BASE_URL = "http://172.18.155.92:3000"
         val httpClient = OkHttpClient.Builder()
 
         val builder = Retrofit.Builder()

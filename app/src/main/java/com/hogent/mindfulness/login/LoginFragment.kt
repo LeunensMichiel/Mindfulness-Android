@@ -17,16 +17,20 @@ import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.data.LoginApiService
-import com.hogent.mindfulness.data.ServiceGenerator
+import com.hogent.mindfulness.data.*
+import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
 import com.hogent.mindfulness.domain.Model
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_login.*
+import org.jetbrains.anko.support.v4.toast
 
 class LoginFragment : Fragment() {
     private lateinit var disposable: Disposable
+    private val mMindfullDB by lazy {
+        MindfulnessDBHelper( context!! )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,6 +41,10 @@ class LoginFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_login, container, false)
     }
 
+    /**
+     * Add's a listener to the password TextField to automatically login
+     * Add's listener to login Button
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // Set up the login form.
@@ -60,7 +68,6 @@ class LoginFragment : Fragment() {
     interface LoginFragmentCallBack {
         fun onclickRegister()
     }
-
 
 
 //    private fun populateAutoComplete() {
@@ -163,8 +170,8 @@ class LoginFragment : Fragment() {
         }
     }
 
-    private fun doLogin( loginDetails: Model.Login) {
-        val loginService = ServiceGenerator.createService(LoginApiService::class.java)
+    private fun doLogin(loginDetails: Model.Login) {
+        val loginService = ServiceGenerator.createService(UserApiService::class.java)
         showProgress(true)
 
         disposable = loginService.login(loginDetails)
@@ -173,12 +180,16 @@ class LoginFragment : Fragment() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
-                { user -> successfulLogin(user) },
+                { user ->
+                    Log.i("user", "$user")
+                    successfulLogin(user)
+                },
                 { error -> failedLogin(error.message) }
             )
     }
 
     private fun successfulLogin(user: Model.User) {
+        if (mMindfullDB.addUser(user)) toast("User added to local db") else toast("User not added to local db")
 
         showProgress(false)
         activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
@@ -186,11 +197,16 @@ class LoginFragment : Fragment() {
             .putString(getString(R.string.authTokenKey), user.token)
             .putString(getString(R.string.userIdKey), user._id)
             .apply()
+//        val repository = UserRepository(AppDatabase.getDatabase(activity!!.applicationContext))
+//        repository.insertUser(user)
 
         val intent = Intent(activity, MainActivity::class.java)
         startActivity(intent)
     }
 
+    /**
+     * Shows error msg when login failed
+     */
     private fun failedLogin(error: String?) {
         // TODO geef hier later een betere foutmelding op mss niet speciefiek op password
         login_password.error = getString(R.string.error_incorrect_password)
@@ -198,6 +214,12 @@ class LoginFragment : Fragment() {
         showProgress(false)
     }
 
+    /**
+     * Check's if email is valid
+     * Email is valid when it has a '@' sign
+     *
+     * It's maybe better to chance this the a regex
+     */
     private fun isEmailValid(email: String): Boolean {
         //TODO: Replace this with your own logic
         return email.contains("@")

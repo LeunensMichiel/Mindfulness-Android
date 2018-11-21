@@ -1,4 +1,4 @@
-package com.hogent.mindfulness.oefeningdetails
+package com.hogent.mindfulness.exercise_details
 
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
@@ -8,7 +8,7 @@ import android.support.v4.app.FragmentPagerAdapter
  * We gebruiken een ViewPager om door de verschillende fragments van de oefening te swipen
  * De FragmentPagerAdapter is nodig om te bepalen hoeveel pages er zullen bestaan en welke fragment er op elk van
  * de pages moet getoond worden
- * de klasse MyViewPager erft van FragmentPagerAdapter
+ * de klasse OefeningViewPagerAdapter erft van FragmentPagerAdapter
  * We hebben twee variabelen, dit zijn allebei veranderbare lijsten
  * De methodes getItem, getCount, addFragment en getPageTitle spreken voor zichzelf
  * de addFragment-methode zal dienen om het meegegeven fragment in de ViewPager te steken

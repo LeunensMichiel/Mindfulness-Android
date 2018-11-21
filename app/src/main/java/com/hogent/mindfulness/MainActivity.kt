@@ -1,14 +1,25 @@
 package com.hogent.mindfulness
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
-import com.hogent.mindfulness.data.MindfulnessApiService
+import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.Toast
+import com.hogent.mindfulness.data.ServiceGenerator
+import com.hogent.mindfulness.data.UserApiService
 import com.hogent.mindfulness.domain.Model
+import com.hogent.mindfulness.exercise_details.ExerciseDetailFragment
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
-import com.hogent.mindfulness.oefeningdetails.*
+import com.hogent.mindfulness.feedback.FeedbackFragment
+import com.hogent.mindfulness.login.LoginActivity
 import com.hogent.mindfulness.show_sessions.SessionFragment
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -18,13 +29,9 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
     //initializing attributes
     private lateinit var disposable: Disposable
     private lateinit var sessionFragment: SessionFragment
+    private lateinit var feedbackFragment: FeedbackFragment
     private lateinit var exerciseFragment: ExercisesListFragment
-    private lateinit var oefeningDetailFragment: OefeningDetailFragment
-
-
-    private val mindfulnessApiService by lazy {
-        MindfulnessApiService.create()
-    }
+    private lateinit var exerciseDetailFragment: ExerciseDetailFragment
 
     /**
      * Set view to MainActivity
@@ -37,11 +44,61 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         setContentView(R.layout.activity_main)
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
+        if (checkIfLoggedIn()) {
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+        }
+
+
+        sessionFragment = SessionFragment()
+        feedbackFragment = FeedbackFragment()
+
+        supportFragmentManager.beginTransaction()
+            .add(R.id.session_container, sessionFragment)
+            .commit()
+
+    }
+
+    private fun checkIfLoggedIn(): Boolean {
+        val token = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+            .getString(getString(R.string.authTokenKey), null)
+        return token == null
+    }
+
+
+
+    override fun onResume() {
+        super.onResume()
+
+        if (intent.hasExtra("code")){
+            Log.d("code", intent.getStringExtra("code"))
+            val sharedPref = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+                .getString(getString(R.string.userIdKey), "")
+            Log.d("user", sharedPref)
+            val unlock_session = Model.unlock_session(sharedPref, intent.getStringExtra("code"))
+            val userService = ServiceGenerator.createService(UserApiService::class.java)
+
+            disposable = userService.updateUser(unlock_session)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    { result -> showResult(result) },
+                    { error -> showError(error.message) }
+                )
+        }
+
+    }
+
+    private fun showResult(result: Model.Result) {
         sessionFragment = SessionFragment()
 
         supportFragmentManager.beginTransaction()
             .add(R.id.session_container, sessionFragment)
             .commit()
+    }
+
+    private fun showError(errMsg: String?) {
+        Toast.makeText(this, errMsg, Toast.LENGTH_SHORT).show()
     }
 
     /**
@@ -55,23 +112,25 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
 
         supportFragmentManager.beginTransaction()
             .replace(R.id.session_container, exerciseFragment)
+            .addToBackStack("tag")
             .commit()
     }
 
     /**
-     * Initialize OefeningDetailFragment
-     * Initialize manager in oefeningDetailFragment
-     * Initialize exerciseId in oefeningDetailFragment
-     * Add OefeningDetailFragment to Activity
+     * Initialize ExerciseDetailFragment
+     * Initialize manager in exerciseDetailFragment
+     * Initialize exerciseId in exerciseDetailFragment
+     * Add ExerciseDetailFragment to Activity
      */
     override fun onClickExercise(exercise: Model.Exercise) {
-        oefeningDetailFragment = OefeningDetailFragment()
-
-        oefeningDetailFragment.manager = supportFragmentManager
-        oefeningDetailFragment.exerciseId = exercise._id
+        exerciseDetailFragment = ExerciseDetailFragment()
+        Log.i("EX ID", exercise._id)
+        exerciseDetailFragment.manager = supportFragmentManager
+        exerciseDetailFragment.exerciseId = exercise._id
 
         supportFragmentManager.beginTransaction()
-            .replace(R.id.session_container, oefeningDetailFragment)
+            .replace(R.id.session_container, exerciseDetailFragment)
+            .addToBackStack("tag")
             .commit()
     }
 
@@ -88,9 +147,52 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                     .commit()
                 return@OnNavigationItemSelectedListener true
             }
+            R.id.navigation_feedback -> {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.session_container, feedbackFragment)
+                    .commit()
+                return@OnNavigationItemSelectedListener true
+            }
         }
         false
     }
+
+    override fun onBackPressed() {
+
+        val count = supportFragmentManager.backStackEntryCount
+
+        if (count == 0) {
+            super.onBackPressed()
+            //additional code
+        } else {
+            supportFragmentManager.popBackStack()
+        }
+
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // COMPLETED (9) Within onCreateOptionsMenu, use getMenuInflater().inflate to inflate the menu
+        menuInflater.inflate(R.menu.logout_menu, menu)
+        // COMPLETED (10) Return true to display your menu
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val itemThatWasClickedId = item.getItemId()
+        if (itemThatWasClickedId == R.id.logout) {
+            getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+                .edit()
+                .remove(getString(R.string.userIdKey))
+                .remove(getString(R.string.authTokenKey))
+                .apply()
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
 
 /*
    public fun creerParagraafFragment(description:String){
