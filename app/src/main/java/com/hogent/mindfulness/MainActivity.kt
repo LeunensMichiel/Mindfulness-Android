@@ -187,6 +187,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                 .apply()
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
+            finish()
             return true
         }
         return super.onOptionsItemSelected(item)

@@ -33,7 +33,6 @@ class FeedbackFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        test()
     }
 
     private fun test() {

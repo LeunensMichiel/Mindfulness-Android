@@ -9,16 +9,18 @@ import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.data.UserApiService
-import com.hogent.mindfulness.scanner.ScannerActivity
 import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.data.SessionApiService
+import com.hogent.mindfulness.data.UserApiService
 import com.hogent.mindfulness.domain.Model
+import com.hogent.mindfulness.scanner.ScannerActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -107,7 +109,7 @@ class SessionFragment() : Fragment() {
      * this function retrieves a sessionmap from the database
      */
     private fun beginRetrieveSessionmap(sessionmap_id: String) {
-        val sessionService = ServiceGenerator.createService(SessionApiService::class.java)
+        val sessionService = ServiceGenerator.createService(SessionApiService::class.java, user.token)
 
         disposable = sessionService.getSessions(sessionmap_id)
             .subscribeOn(Schedulers.io())
