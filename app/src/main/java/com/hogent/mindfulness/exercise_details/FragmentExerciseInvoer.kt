@@ -24,6 +24,7 @@ import com.hogent.mindfulness.domain.Model
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import kotlin.properties.Delegates
 
 
 /**
@@ -34,13 +35,28 @@ class FragmentExerciseInvoer : Fragment() {
 
     private var postId:String? = null
     private lateinit var disposable: Disposable
-    lateinit var page:Model.Page
+    private lateinit var post:Model.Post
+
+    private val postService by lazy {
+        ServiceGenerator.createService(PostApiService::class.java)
+    }
+
+    var page:Model.Page? by Delegates.observable(null) {property, oldValue:Model.Page?, newValue:Model.Page? ->
+        disposable = postService.checkPageId(newValue!!._id)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                {result -> post = result},
+                {error -> Log.i("fuck", "fuck")}
+            )
+    }
+
     /**
      * in de onCreateView-methode inflaten we onze layout fragment_fragment_oefeninginvoer
      */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        beginRetrievePost()
+        //beginRetrievePost()
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_fragment_oefeninginvoer, container, false)
     }
@@ -94,7 +110,7 @@ class FragmentExerciseInvoer : Fragment() {
         if(this.arguments!!.containsKey("opgave")){
             inputlayout.hint = this.arguments!!.getString("opgave", "check")
         }
-
+        text_edit.setText(post.inhoud)
         val pm = context!!.getPackageManager()
         if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
             btnCamera.setOnClickListener {
@@ -111,7 +127,7 @@ class FragmentExerciseInvoer : Fragment() {
 
         btnOpslaan.setOnClickListener {
             // TEDOEN: nog een check: als er niets is veranderd, dan moet er geen nieuwe post gemaakt worden of geupdate wordenge
-            (activity as MainActivity).updatePost(page, text_edit.text.toString())
+            post = (activity as MainActivity).updatePost(page!!, text_edit.text.toString(), post)
             Log.d("button","-----------test1--------------")
         }
     }

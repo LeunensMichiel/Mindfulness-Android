@@ -20,33 +20,28 @@
                     android:id="@+id/text_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="20sp"
-            />
+                    android:paddingBottom="20sp"/>
         </android.support.design.widget.TextInputLayout>
 
         <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-        >
-        <Button
-                android:id="@+id/btnOpslaan"
-                android:layout_height="wrap_content"
-                android:layout_width="120sp"
-                android:text="Opslaan"
-                android:layout_centerInParent="true"
-                android:background="@drawable/ovalebutton"
-                android:textColor="@android:color/white"
-
-        >
-        </Button>
+                android:layout_height="wrap_content">
+            <Button
+                    android:id="@+id/btnOpslaan"
+                    android:layout_height="wrap_content"
+                    android:layout_width="120sp"
+                    android:text="Opslaan"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/ovalebutton"
+                    android:textColor="@android:color/white">
+            </Button>
         </RelativeLayout>
 
         <ImageView
                 android:id="@+id/imageView"
                 android:layout_width="match_parent"
                 android:layout_height="200sp"
-                android:layout_margin="20sp"
-        />
+                android:layout_margin="20sp"/>
 
         <Button
                 android:layout_width="match_parent"
@@ -55,7 +50,6 @@
                 android:background="@android:color/holo_red_dark"
                 android:textColor="@android:color/white"
                 android:layout_marginTop="5sp"
-                android:text="Foto nemen"
-        />
+                android:text="Foto nemen"/>
     </LinearLayout>
 </FrameLayout>

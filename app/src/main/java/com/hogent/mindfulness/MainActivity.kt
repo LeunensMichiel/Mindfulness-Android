@@ -143,19 +143,31 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
             .commit()
     }
 
-    fun updatePost(page:Model.Page, description:String){
+    fun updatePost(page:Model.Page, description:String, newPost:Model.Post):Model.Post{
         currentPost.page_id = page._id
         currentPost.page_name = page.title
         currentPost.inhoud = description
         currentPost.user_id = currentUser._id
-        disposable = postService.addPost(currentPost)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { postResult ->  onPostResult(postResult) },
-                { error ->  showError("FUCK") }
-            )
+        Log.i("POST", "$newPost")
+        if (newPost._id == "none"){
+            disposable = postService.addPost(currentPost)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    { postResult ->  onPostResult(postResult) },
+                    { error ->  showError("FUCK") }
+                )
+        } else {
+            disposable = postService.changePost(currentPost)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    { result -> Log.i("oldPost", "$result") },
+                    { error -> showError("MOTHERFUCK") }
+                )
+        }
         Log.i("POST", "${currentPost.session_name} > ${currentPost.exercise_name} > ${currentPost.page_name} - ${currentPost.page_id}")
+        return currentPost
     }
 
     fun onPostResult(savedPost:Model.Post){
@@ -204,6 +216,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
         val itemThatWasClickedId = item.getItemId()
         if (itemThatWasClickedId == R.id.logout) {
             getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
