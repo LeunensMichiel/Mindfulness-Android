@@ -84,6 +84,19 @@ class SessionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        sessions = arrayOf<Model.Session>()
+        val sessionBools = BooleanArray(10)
+
+        mAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler, sessionBools)
+        val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
+
+        Log.d("sessions", sessions.size.toString())
+
+        rv_sessions.apply {
+            layoutManager = viewManager
+            adapter = mAdapter
+        }
+
         view.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener{
             override fun onGlobalLayout() {
                 sessionFragment.post {
@@ -94,7 +107,7 @@ class SessionFragment : Fragment() {
                     val centerx = (progress_img.width.toFloat() / 2.0).toFloat()
                     val bottomy = progress_img.height
 
-                    val currentSession = 1.0 - 1
+                    val currentSession = user.unlocked_sessions.size
                     val sessionSize = 15.0
                     val coPoint = (currentSession / sessionSize.toFloat()) * coordinates.size.toFloat()
                     val point = coordinates[coPoint.toInt()]
@@ -112,19 +125,6 @@ class SessionFragment : Fragment() {
                 }
             }
         })
-
-        sessions = arrayOf<Model.Session>()
-        val sessionBools = BooleanArray(10)
-
-        mAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler, sessionBools)
-        val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
-
-        Log.d("sessions", sessions.size.toString())
-
-        rv_sessions.apply {
-            layoutManager = viewManager
-            adapter = mAdapter
-        }
     }
 
     /**
