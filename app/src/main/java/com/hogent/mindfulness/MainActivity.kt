@@ -124,7 +124,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
      */
     override fun onClickExercise(exercise: Model.Exercise) {
         exerciseDetailFragment = ExerciseDetailFragment()
-
+        Log.i("EX ID", exercise._id)
         exerciseDetailFragment.manager = supportFragmentManager
         exerciseDetailFragment.exerciseId = exercise._id
 
