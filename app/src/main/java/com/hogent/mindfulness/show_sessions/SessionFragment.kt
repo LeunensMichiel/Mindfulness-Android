@@ -65,7 +65,6 @@ class SessionFragment : Fragment() {
     private lateinit var disposable: Disposable
     private lateinit var user: Model.User
     lateinit var unlockSession: String
-
     /**
      * I used this resource: https://developer.android.com/guide/topics/ui/layout/recyclerview
      */
@@ -181,8 +180,8 @@ class SessionFragment : Fragment() {
      */
     private fun showResultUser(resultUser: Model.User) {
         user = resultUser
-        Log.d("testtest", user.group.sessionmap_id)
-        beginRetrieveSessionmap(user.group.sessionmap_id)
+        Log.d("testtest", user.group!!.sessionmap_id)
+        beginRetrieveSessionmap(user.group!!.sessionmap_id)
 
     }
 

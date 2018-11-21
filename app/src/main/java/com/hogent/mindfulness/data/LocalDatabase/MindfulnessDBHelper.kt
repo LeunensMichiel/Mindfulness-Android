@@ -57,7 +57,7 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
             db.insert(UserEntry.TABLE_NAME,null,  values)
             db.close()
 
-            addGroup(user.group)
+            addGroup(user.group!!)
         }
         return userExists
     }
@@ -85,6 +85,35 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
         }
         cursor.close()
         return true
+    }
+
+    fun getUser(): Model.User? {
+        val query = "SELECT * FROM " + UserEntry.TABLE_NAME
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query, null)
+        var user: Model.User? = null
+        if (cursor.moveToFirst()){
+            cursor.moveToFirst()
+            val id = cursor.getString(0)
+            val current_session_id = cursor.getString(1)?:""
+            val current_ex_id = cursor.getString(2)?:""
+            val unlocked_sessions:Array<String> = cursor.getString(3).split(",").toTypedArray()
+            val post_ids = cursor.getString(4).split(",").toTypedArray()
+            user = Model.User(id,
+                "",
+                "",
+                "",
+                current_session_id,
+                current_ex_id,
+                null,
+                null,
+                unlocked_sessions,
+                null,
+                "",
+                post_ids )
+        }
+        db.close()
+        return user
     }
 
     companion object {
