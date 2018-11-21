@@ -203,7 +203,9 @@ class SessionFragment() : Fragment() {
                 val session = mSessionData[position]
                 mClickHandler.onClick(session)
             }
-
+            sessionBools.forEach {
+                Log.d("codes", it.toString())
+            }
             if (sessionBools[position]) {
                 holder.title.visibility = View.VISIBLE
                 holder.lock.visibility = View.INVISIBLE
