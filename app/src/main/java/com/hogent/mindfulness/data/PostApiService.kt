@@ -16,5 +16,8 @@ interface PostApiService {
     fun updatePost(@Path("id") id:String, @Body postInformation: PostInformation): Observable<Model.Post>
 
     @POST("/API/post/post")
-    fun AddPost(@Body postInformation:PostInformation): Observable<Model.Post>
+    fun addPost(@Body post:Model.Post): Observable<Model.Post>
+
+    @PUT("/API/post/post")
+    fun changePost(@Body post:Model.Post):Observable<Model.Post>
 }

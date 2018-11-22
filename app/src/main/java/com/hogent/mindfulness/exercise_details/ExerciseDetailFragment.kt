@@ -55,12 +55,12 @@ class ExerciseDetailFragment(): Fragment(){
      */
     private fun beginRetrieveExercise(exerciseId: String) {
         val PageApiService = ServiceGenerator.createService(PageApiService::class.java)
-
         disposable = PageApiService.getPages(exerciseId)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
-                { result -> showResultExercise(result) },
+                { result -> showResultExercise(result)
+                },
                 { error -> showError(error.message) }
             )
     }
@@ -82,11 +82,9 @@ class ExerciseDetailFragment(): Fragment(){
      */
     private fun showResultExercise(pages: Array<Model.Page>) {
         val adapter = OefeningViewPagerAdapter(manager)
-
         pages.forEach {
-            Log.d("page", it.description)
             when (it.type) {
-                "AUDIO" -> //adapter.addFragment(FragmentExerciseAudio(), "Audio")
+                "AUDIO" ->
                 {
                     val fragment = FragmentExerciseAudio()
                     val arg = Bundle()
@@ -94,7 +92,9 @@ class ExerciseDetailFragment(): Fragment(){
                     fragment.arguments = arg
                     adapter.addFragment(fragment, "Audio")
                 }
-                "TEXT" -> {
+                "TEXT" ->
+                {
+                    Log.i("PAGE", "TEST")
                     val fragment = FragmentExerciseText()
                     val arg = Bundle()
                     arg.putString("description", it.description)
@@ -104,19 +104,17 @@ class ExerciseDetailFragment(): Fragment(){
                     fragment.arguments = arg
                     adapter.addFragment(fragment, "Beschrijving")
                 }
-                "INPUT" -> //adapter.addFragment(FragmentExerciseInvoer(), "Invoer")
+                "INPUT" ->
                 {
                     val fragment = FragmentExerciseInvoer()
+                    fragment.page = it
                     val arg = Bundle()
                     arg.putString("opgave", it.title)
                     fragment.arguments = arg
                     adapter.addFragment(fragment, "Invoer")
                 }
-
             }
         }
-
         viewPager.adapter = adapter
-
     }
 }

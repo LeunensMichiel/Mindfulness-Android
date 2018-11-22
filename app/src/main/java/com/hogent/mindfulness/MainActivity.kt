@@ -9,9 +9,12 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
+import com.hogent.mindfulness.data.PostApiService
 import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.data.UserApiService
 import com.hogent.mindfulness.domain.Model
+import com.hogent.mindfulness.exercise_details.ExerciseDetailFragment
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
 import com.hogent.mindfulness.login.LoginActivity
 import com.hogent.mindfulness.exercise_details.*
@@ -28,18 +31,24 @@ import com.hogent.mindfulness.services.PeriodicNotificationJob
 import com.evernote.android.job.JobManager
 
 
-class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.SessionAdapterOnClickHandler,
-    ExercisesListFragment.ExerciseAdapter.ExerciseAdapterOnClickHandler {
+class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.SessionAdapterOnClickHandler, ExercisesListFragment.ExerciseAdapter.ExerciseAdapterOnClickHandler {
 
 
     //initializing attributes
+    private val mMindfullDB by lazy {
+        MindfulnessDBHelper(this@MainActivity )
+    }
+    private val postService by lazy {
+        ServiceGenerator.createService(PostApiService::class.java)
+    }
+
     private lateinit var disposable: Disposable
-    private lateinit var user: Model.User
     private lateinit var sessionFragment: SessionFragment
     private lateinit var groupFragment: GroupFragment
     private lateinit var exerciseFragment: ExercisesListFragment
     private lateinit var exerciseDetailFragment: ExerciseDetailFragment
-
+    private lateinit var currentUser: Model.User
+    private var currentPost = Model.Post()
     /**
      * Set view to MainActivity
      * Set ItemSelectedListener for the navigation
@@ -60,8 +69,8 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
         }
-
-        beginRetrieveUser()
+        currentUser = mMindfullDB.getUser()!!
+        sessionFragment = SessionFragment()
 
         if (checkIfHasGroup()) {
             groupFragment = GroupFragment()
@@ -76,23 +85,6 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                 .add(R.id.session_container, sessionFragment)
                 .commit()
         }
-    }
-
-    private fun beginRetrieveUser() {
-
-        val userid =
-            this!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-                .getString(getString(R.string.userIdKey), "")
-        val userService = ServiceGenerator.createService(UserApiService::class.java)
-
-        disposable = userService.getUser(userid)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { result -> user = result },
-                { error -> showError(error.message) }
-            )
-
     }
 
     private fun checkIfLoggedIn(): Boolean {
@@ -143,7 +135,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                     )
             }
 
-        }
+    }
 
     }
 
@@ -167,7 +159,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
     override fun onClick(session: Model.Session) {
         exerciseFragment = ExercisesListFragment()
         exerciseFragment.session = session
-
+        currentPost.session_name = session.title
         supportFragmentManager.beginTransaction()
             .replace(R.id.session_container, exerciseFragment)
             .addToBackStack("tag")
@@ -182,17 +174,34 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
      */
     override fun onClickExercise(exercise: Model.Exercise) {
         exerciseDetailFragment = ExerciseDetailFragment()
-
+        Log.i("EX ID", exercise._id)
         exerciseDetailFragment.manager = supportFragmentManager
         exerciseDetailFragment.exerciseId = exercise._id
-
+        currentPost.exercise_name = exercise.title
         supportFragmentManager.beginTransaction()
             .replace(R.id.session_container, exerciseDetailFragment)
             .addToBackStack("tag")
             .commit()
     }
 
+    fun updatePost(page:Model.Page, description:String){
+        currentPost.page_id = page._id
+        currentPost.page_name = page.title
+        currentPost.inhoud = description
+        currentPost.user_id = currentUser._id
+        disposable = postService.addPost(currentPost)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { postResult ->  onPostResult(postResult) },
+                { error ->  showError("FUCK") }
+            )
+        Log.i("POST", "${currentPost.session_name} > ${currentPost.exercise_name} > ${currentPost.page_name} - ${currentPost.page_id}")
+    }
 
+    fun onPostResult(savedPost:Model.Post){
+        currentPost = savedPost
+    }
     /**
      * Initialize NavigationListener
      * Specify Fragment to add to Activity via itemId in Navigation
@@ -245,6 +254,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                 .apply()
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
+            finish()
             return true
         }
         return super.onOptionsItemSelected(item)

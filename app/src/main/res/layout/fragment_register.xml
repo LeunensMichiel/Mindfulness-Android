@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
+              xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:gravity="center_horizontal"
               android:orientation="vertical"
@@ -17,94 +17,96 @@
             android:layout_marginBottom="8dp"
             android:visibility="gone"/>
 
-    <ScrollView
+    <android.support.constraint.ConstraintLayout
             android:id="@+id/register_form"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        <LinearLayout
-                android:id="@+id/email_register_form"
+        <TextView
+                android:text="REGISTREREN"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp" app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" android:layout_marginTop="16dp"
+                app:layout_constraintTop_toTopOf="parent" android:id="@+id/textView2"
+        />
+        <EditText android:id="@+id/email"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:hint="@string/prompt_email"
+                  android:inputType="textEmailAddress"
+                  android:maxLines="1"
+                  android:singleLine="true"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintHorizontal_bias="0.0" android:layout_marginTop="8dp"
+                  app:layout_constraintTop_toBottomOf="@+id/textView2" android:padding="18dp"/>
+
+        <EditText
+                android:id="@+id/edit_register_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:hint="@string/prompt_password"
+                android:imeActionId="6"
+                android:imeActionLabel="@string/action_register_short"
+                android:imeOptions="actionUnspecified"
+                android:inputType="textPassword"
+                android:maxLines="1"
+                android:singleLine="true" android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/email" app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:padding="18dp"/>
 
-            <android.support.design.widget.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+        <EditText
+                android:id="@+id/edit_register_repeat_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/prompt_repeat_password"
+                android:imeActionId="6"
+                android:imeActionLabel="@string/action_register_short"
+                android:imeOptions="actionUnspecified"
+                android:inputType="textPassword"
+                android:maxLines="1"
+                android:singleLine="true" android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/edit_register_password"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" android:padding="18dp"/>
 
-                <AutoCompleteTextView
-                        android:id="@+id/email"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/prompt_email"
-                        android:inputType="textEmailAddress"
-                        android:maxLines="1"
-                        android:singleLine="true"/>
+        <EditText
+                android:id="@+id/edit_group_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/prompt_groupcode"
+                android:imeActionLabel="@string/action_register_short"
+                android:imeOptions="actionUnspecified"
+                android:inputType="text"
+                android:maxLines="1"
+                android:singleLine="true" android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/edit_register_repeat_password"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" android:padding="18dp"/>
 
-            </android.support.design.widget.TextInputLayout>
+        <Button
+                android:id="@+id/btn_register"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/action_register"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="8dp" android:padding="18dp" android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/edit_group_code"/>
+        <Button
+                android:text="IK HEB AL EEN ACCOUNT"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnBackToLogin" app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"/>
 
-            <android.support.design.widget.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                <EditText
-                        android:id="@+id/edit_register_password"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/prompt_password"
-                        android:imeActionId="6"
-                        android:imeActionLabel="@string/action_register_short"
-                        android:imeOptions="actionUnspecified"
-                        android:inputType="textPassword"
-                        android:maxLines="1"
-                        android:singleLine="true"/>
-
-            </android.support.design.widget.TextInputLayout>
-            <android.support.design.widget.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                <EditText
-                        android:id="@+id/edit_register_repeat_password"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/prompt_repeat_password"
-                        android:imeActionId="6"
-                        android:imeActionLabel="@string/action_register_short"
-                        android:imeOptions="actionUnspecified"
-                        android:inputType="textPassword"
-                        android:maxLines="1"
-                        android:singleLine="true"/>
-
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                <EditText
-                        android:id="@+id/edit_group_code"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/prompt_groupcode"
-                        android:imeActionLabel="@string/action_register_short"
-                        android:imeOptions="actionUnspecified"
-                        android:inputType="text"
-                        android:maxLines="1"
-                        android:singleLine="true"/>
-
-            </android.support.design.widget.TextInputLayout>
-
-            <Button
-                    android:id="@+id/btn_register"
-                    style="?android:textAppearanceSmall"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/action_register"
-                    android:textStyle="bold"/>
-
-        </LinearLayout>
-    </ScrollView>
+    </android.support.constraint.ConstraintLayout>
 
 </LinearLayout>

@@ -65,7 +65,7 @@
     <string name="title_vibrate">Vibrate</string>
 
     <!-- Strings related to login -->
-    <string name="title_activity_login">Login</string>
+    <string name="title_activity_login">Account</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Wachtwoord</string>
     <string name="action_sign_in">Login</string>
@@ -82,5 +82,8 @@
     <string name="prompt_groupcode">Groepscode</string>
     <string name="prompt_repeat_password">Herhaal wachtwoord</string>
     <string name="action_register_short">Registreer</string>
+    <string name="welcome_screen">MindFulness</string>
+    <string name="feedback_beschrijving">Wij zouden het ten zeerste appreciëren moest u even tijd maken om deze sessie te beoordelen. Zo kunnen wij u een betere ervaring geven.</string>
+    <string name="feedback_titel">GEEF ONS UW FEEDBACK!</string>
 
 </resources>

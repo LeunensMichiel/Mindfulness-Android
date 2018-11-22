@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.text.TextUtils
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,14 +18,19 @@ import android.widget.TextView
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.data.*
+import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
 import com.hogent.mindfulness.domain.Model
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_login.*
+import org.jetbrains.anko.support.v4.toast
 
 class LoginFragment : Fragment() {
     private lateinit var disposable: Disposable
+    private val mMindfullDB by lazy {
+        MindfulnessDBHelper( context!! )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -174,12 +180,16 @@ class LoginFragment : Fragment() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
-                { user -> successfulLogin(user) },
+                { user ->
+                    Log.i("user", "$user")
+                    successfulLogin(user)
+                },
                 { error -> failedLogin(error.message) }
             )
     }
 
     private fun successfulLogin(user: Model.User) {
+        if (mMindfullDB.addUser(user)) toast("User added to local db") else toast("User not added to local db")
 
         showProgress(false)
         activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)

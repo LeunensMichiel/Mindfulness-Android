@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="350dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+        app:cardBackgroundColor="@color/colorPrimary"
+        app:cardElevation="5dp"
+        app:cardCornerRadius="3dp">
+    <android.support.constraint.ConstraintLayout android:layout_width="match_parent"
+                                                 android:layout_height="wrap_content">
+
+        <TextView
+                android:id="@+id/feedback_dialogTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/feedback_titel"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="18sp"
+                android:textAlignment="center"
+                android:padding="5dp"
+                android:background="#FFF"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="sessienaam"
+                android:textAllCaps="true"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:id="@+id/feedback_namesessie"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/feedback_dialogTitle">
+        </TextView>
+
+        <TextView
+                android:text="@string/feedback_beschrijving"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/feedback_subtitle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:padding="5dp"
+                app:layout_constraintTop_toBottomOf="@+id/feedback_namesessie"
+                android:textAlignment="center"
+                android:textSize="12sp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"/>
+
+        <EditText
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:inputType="textMultiLine"
+                android:ems="10"
+                android:hint="Beschrijving"
+                android:gravity="top"
+                android:id="@+id/feedback_description"
+                android:textColor="#FFF"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/feedback_subtitle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:textSize="12sp"
+                android:importantForAutofill="no"/>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:weightSum="3"
+                android:id="@+id/linearLayout2"
+                app:layout_constraintTop_toBottomOf="@+id/feedback_description"
+                android:layout_marginTop="8dp">
+
+            <Button
+                    android:text="Uitschrijven Feedback"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/feedback_uitschrijvenBtn"
+                    android:layout_weight="1"
+                    android:textSize="12sp"
+                    style="@style/Widget.AppCompat.Button.Borderless"/>
+
+            <Button
+                    android:text="neen Bedankt"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/feedback_cancelBtn"
+                    android:layout_weight="1"
+                    android:textSize="12sp"
+
+                    style="@style/Widget.AppCompat.Button.Borderless"/>
+
+            <Button
+                    android:text="Versturen"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/feedback_sendBtn"
+                    android:layout_weight="1"
+                    style="@style/Widget.AppCompat.Button.Colored"/>
+        </LinearLayout>
+
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.v7.widget.CardView>
