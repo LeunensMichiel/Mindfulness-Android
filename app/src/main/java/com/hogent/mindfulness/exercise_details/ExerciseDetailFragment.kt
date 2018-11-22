@@ -1,5 +1,6 @@
 package com.hogent.mindfulness.exercise_details
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
@@ -54,7 +55,9 @@ class ExerciseDetailFragment(): Fragment(){
      * * de exercisedata wordt in de variabele disposable gestored, disposable wordt gebruikt voor het aanroepen van api calls
      */
     private fun beginRetrieveExercise(exerciseId: String) {
-        val PageApiService = ServiceGenerator.createService(PageApiService::class.java)
+        val PageApiService = ServiceGenerator.createService(PageApiService::class.java,
+            activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+                .getString(getString(R.string.authTokenKey), null))
         disposable = PageApiService.getPages(exerciseId)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

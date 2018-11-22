@@ -82,7 +82,9 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                 .getString(getString(R.string.userIdKey), "")
             Log.d("user", sharedPref)
             val unlock_session = Model.unlock_session(sharedPref, intent.getStringExtra("code"))
-            val userService = ServiceGenerator.createService(UserApiService::class.java)
+            val userService = ServiceGenerator.createService(UserApiService::class.java,
+                getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+                .getString(getString(R.string.authTokenKey), null))
 
             disposable = userService.updateUser(unlock_session)
                 .subscribeOn(Schedulers.io())

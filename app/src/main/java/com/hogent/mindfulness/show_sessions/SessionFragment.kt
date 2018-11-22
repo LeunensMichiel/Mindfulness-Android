@@ -15,6 +15,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -23,17 +25,13 @@ import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.data.SessionApiService
 import com.hogent.mindfulness.data.UserApiService
 import com.hogent.mindfulness.domain.Model
-import com.hogent.mindfulness.scanner.ScannerActivity
 import com.hogent.mindfulness.domain.Model.Point
-import com.hogent.mindfulness.domain.Model.Session
+import com.hogent.mindfulness.scanner.ScannerActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.session_fragment.*
 import kotlinx.android.synthetic.main.session_item_list.view.*
-import android.util.DisplayMetrics
-import android.view.ViewTreeObserver
-import android.widget.Button
 
 
 class SessionFragment : Fragment() {
@@ -151,7 +149,9 @@ class SessionFragment : Fragment() {
 
         val userid = activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
                 .getString(getString(R.string.userIdKey), "")
-        val userService = ServiceGenerator.createService(UserApiService::class.java)
+        val userService = ServiceGenerator.createService(UserApiService::class.java,
+            activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+            .getString(getString(R.string.authTokenKey), null))
 
         disposable = userService.getUser(userid)
             .subscribeOn(Schedulers.io())
@@ -166,7 +166,9 @@ class SessionFragment : Fragment() {
      * this function retrieves a sessionmap from the database
      */
     private fun beginRetrieveSessionmap(sessionmap_id: String) {
-        val sessionService = ServiceGenerator.createService(SessionApiService::class.java, user.token)
+        val sessionService = ServiceGenerator.createService(SessionApiService::class.java,
+            activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+            .getString(getString(R.string.authTokenKey), null))
 
         disposable = sessionService.getSessions(sessionmap_id)
             .subscribeOn(Schedulers.io())
@@ -271,7 +273,6 @@ class SessionFragment : Fragment() {
                     feedbackDialog.hide()
                 }
                 noFeedbackbtn.setOnClickListener() {
-                    //TODO Api call to set deactivate a boolean in user. While this is off, he wont recieve any feedback notifications
                     return@setOnClickListener
                 }
                 feedbackDialog.show()
