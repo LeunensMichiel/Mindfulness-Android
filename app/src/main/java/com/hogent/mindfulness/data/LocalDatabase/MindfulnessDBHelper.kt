@@ -5,7 +5,8 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
-import com.hogent.mindfulness.data.LocalDatabase.MindfulnessContract.*
+import com.hogent.mindfulness.data.LocalDatabase.MindfulnessContract.GroupEntry
+import com.hogent.mindfulness.data.LocalDatabase.MindfulnessContract.UserEntry
 import com.hogent.mindfulness.domain.Model
 
 class MindfulnessDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
@@ -17,8 +18,10 @@ class MindfulnessDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
                 UserEntry.COLUMN_CURRENT_SESSION_ID + " TEXT , " +
                 UserEntry.COLUMN_CURRENT_EXERCISE_ID + " TEXT, " +
                 UserEntry.COLUMN_UNLOCKED_SESSIONS + " TEXT, " +
-                UserEntry.COLUMN_POSTS + " TEXT " +
+                UserEntry.COLUMN_POSTS + " TEXT, " +
+                UserEntry.COLUMN_FEEDBACK_IS_SUBSCRIBED + " INTEGER " +
                 "); "
+
         Log.i("dbCOunt", "1")
         val SQL_CREATE_GROUP_TABLE = "CREATE TABLE " + GroupEntry.TABLE_NAME + " (" +
                 GroupEntry.COLUMN_ID + " TEXT PRIMARY KEY NOT NULL , " +
@@ -45,16 +48,19 @@ class MindfulnessDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
             val values = ContentValues()
             val unlocked_sessions = user.unlocked_sessions.joinToString(",", "", "")
             val post_ids = user.post_ids.joinToString(",", "", "")
+            val michielZijnFuckingBoolean:Int = if (user.feedbackSubscribed) 1 else 0
 
             values.put(UserEntry.COLUMN_ID, user._id)
             values.put(UserEntry.COLUMN_CURRENT_SESSION_ID, user.current_session_id)
             values.put(UserEntry.COLUMN_CURRENT_EXERCISE_ID, user.current_exercise_id)
             values.put(UserEntry.COLUMN_UNLOCKED_SESSIONS, unlocked_sessions)
             values.put(UserEntry.COLUMN_POSTS, post_ids)
+            values.put(UserEntry.COLUMN_FEEDBACK_IS_SUBSCRIBED, michielZijnFuckingBoolean)
 
             val db = this.writableDatabase
             Log.i("dbUser", values.toString())
-            db.insert(UserEntry.TABLE_NAME, null, values)
+            Log.i("FUCKINGFEEDBQCKBULLSHIT", "$values")
+            db.insert(UserEntry.TABLE_NAME,null,  values)
             db.close()
 
             addGroup(user.group!!)
@@ -103,8 +109,9 @@ class MindfulnessDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
             val current_ex_id = cursor.getString(2) ?: ""
             val unlocked_sessions: Array<String> = cursor.getString(3).split(",").toTypedArray()
             val post_ids = cursor.getString(4).split(",").toTypedArray()
-            user = Model.User(
-                id,
+
+            val fuckingQWERTY:Boolean = cursor.getInt(5) == 1
+            user = Model.User(id,
                 "",
                 "",
                 "",
@@ -115,8 +122,8 @@ class MindfulnessDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
                 unlocked_sessions,
                 null,
                 "",
-                post_ids
-            )
+                post_ids,
+                fuckingQWERTY)
         }
         db.close()
         return user

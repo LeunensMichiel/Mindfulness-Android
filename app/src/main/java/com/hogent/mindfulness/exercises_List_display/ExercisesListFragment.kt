@@ -1,6 +1,7 @@
 package com.hogent.mindfulness.exercises_List_display
 
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
@@ -44,7 +45,9 @@ class ExercisesListFragment : Fragment() {
     }
 
     private fun beginRetrieveExercises(session_id: String) {
-        val exerciseApiService = ServiceGenerator.createService(ExerciseApiService::class.java)
+        val exerciseApiService = ServiceGenerator.createService(ExerciseApiService::class.java,
+            activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+            .getString(getString(R.string.authTokenKey), null))
 
         disposable = exerciseApiService.getExercises(session_id)
             .subscribeOn(Schedulers.io())

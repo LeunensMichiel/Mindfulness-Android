@@ -33,4 +33,8 @@ interface UserApiService {
      */
     @PUT("/users/user{id}")
     fun updateUserGroup(@Path("id") id: String, @Body usergroup: Model.user_group) : Observable<Model.Result>
+
+    //Updates a USER so its feedback field is true or false
+    @PUT("/API/users/user/feedback")
+    fun updateUserFeedback(@Body wantsFeedback : Model.User) : Observable<Model.Result>
 }
