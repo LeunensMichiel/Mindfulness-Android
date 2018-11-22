@@ -46,7 +46,10 @@ class FragmentExerciseInvoer : Fragment() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
-                {result -> post = result},
+                {result ->
+                    post = result
+                    Log.i("OBSERVABLE", "$post")
+                },
                 {error -> Log.i("fuck", "fuck")}
             )
     }

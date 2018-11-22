@@ -69,5 +69,7 @@
     <string name="prompt_repeat_password">Herhaal wachtwoord</string>
     <string name="action_register_short">Registreer</string>
     <string name="welcome_screen">MindFulness</string>
+    <string name="title_history">History</string>
+    <string name="post_image_desc">back icon</string>
 
 </resources>

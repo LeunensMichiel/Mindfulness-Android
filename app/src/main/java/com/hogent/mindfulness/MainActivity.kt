@@ -18,6 +18,7 @@ import com.hogent.mindfulness.exercise_details.ExerciseDetailFragment
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
 import com.hogent.mindfulness.feedback.FeedbackFragment
 import com.hogent.mindfulness.login.LoginActivity
+import com.hogent.mindfulness.post.PostFragment
 import com.hogent.mindfulness.show_sessions.SessionFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -40,6 +41,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
     private lateinit var sessionFragment: SessionFragment
     private lateinit var feedbackFragment: FeedbackFragment
     private lateinit var exerciseFragment: ExercisesListFragment
+    private lateinit var postFragment: PostFragment
     private lateinit var exerciseDetailFragment: ExerciseDetailFragment
     private lateinit var currentUser: Model.User
     private var currentPost = Model.Post()
@@ -61,7 +63,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         currentUser = mMindfullDB.getUser()!!
         sessionFragment = SessionFragment()
         feedbackFragment = FeedbackFragment()
-
+        postFragment = PostFragment()
         supportFragmentManager.beginTransaction()
             .add(R.id.session_container, sessionFragment)
             .commit()
@@ -148,7 +150,6 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         currentPost.page_name = page.title
         currentPost.inhoud = description
         currentPost.user_id = currentUser._id
-        Log.i("POST", "$newPost")
         if (newPost._id == "none"){
             disposable = postService.addPost(currentPost)
                 .subscribeOn(Schedulers.io())
@@ -158,15 +159,15 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                     { error ->  showError("FUCK") }
                 )
         } else {
+            Log.i("CURRENTPOST", "$currentPost")
             disposable = postService.changePost(currentPost)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     { result -> Log.i("oldPost", "$result") },
-                    { error -> showError("MOTHERFUCK") }
+                    { error -> Log.i("ERROR",error.message) }
                 )
         }
-        Log.i("POST", "${currentPost.session_name} > ${currentPost.exercise_name} > ${currentPost.page_name} - ${currentPost.page_id}")
         return currentPost
     }
 
@@ -190,6 +191,11 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                     .replace(R.id.session_container, feedbackFragment)
                     .commit()
                 return@OnNavigationItemSelectedListener true
+            }
+            R.id.navigation_history -> {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.session_container, postFragment)
+                    .commit()
             }
         }
         false
