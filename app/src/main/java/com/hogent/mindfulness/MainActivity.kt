@@ -29,14 +29,16 @@ import java.util.concurrent.TimeUnit
 import com.hogent.mindfulness.services.NotifyJobCreator
 import com.hogent.mindfulness.services.PeriodicNotificationJob
 import com.evernote.android.job.JobManager
+// Settings
+import com.hogent.mindfulness.notification_settings.SettingsActivity
+import org.jetbrains.anko.support.v4.toast
 
 
-class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.SessionAdapterOnClickHandler, ExercisesListFragment.ExerciseAdapter.ExerciseAdapterOnClickHandler {
-
-
+class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.SessionAdapterOnClickHandler,
+    ExercisesListFragment.ExerciseAdapter.ExerciseAdapterOnClickHandler {
     //initializing attributes
     private val mMindfullDB by lazy {
-        MindfulnessDBHelper(this@MainActivity )
+        MindfulnessDBHelper(this@MainActivity)
     }
     private val postService by lazy {
         ServiceGenerator.createService(PostApiService::class.java)
@@ -61,7 +63,12 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
 
         // Starts van notification service
         JobManager.create(this).addJobCreator(NotifyJobCreator())
-        PeriodicNotificationJob.scheduleJob(TimeUnit.MINUTES.toMillis(15),"Mindfulness", "this is a notification about mindfulness", "mindfulness")
+        PeriodicNotificationJob.scheduleJob(
+            TimeUnit.MINUTES.toMillis(15),
+            "Mindfulness",
+            "clean ur teeth boi",
+            "mindfulness"
+        )
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
@@ -70,7 +77,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
             startActivity(intent)
         }
         currentUser = mMindfullDB.getUser()!!
-        sessionFragment = SessionFragment()
+        Log.d("user", currentUser.toString())
 
         if (checkIfHasGroup()) {
             groupFragment = GroupFragment()
@@ -94,21 +101,23 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
     }
 
     private fun checkIfHasGroup(): Boolean {
-        return user.group == null
+        return currentUser.group == null
     }
 
     override fun onResume() {
         super.onResume()
 
         if (intent.hasExtra("code")) {
+            Log.d("code", intent.getStringExtra("code"))
             if (checkIfHasGroup()) {
-                Log.d("code", intent.getStringExtra("code"))
                 val sharedPref =
                     getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
                         .getString(getString(R.string.userIdKey), "")
-                Log.d("user", sharedPref)
                 val user_group = Model.user_group(intent.getStringExtra("code"))
                 val userService = ServiceGenerator.createService(UserApiService::class.java)
+                val group = Model.Group(intent.getStringExtra("code"), "", "", null)
+
+                mMindfullDB.addGroup(group)
 
                 disposable = userService.updateUserGroup(sharedPref, user_group)
                     .subscribeOn(Schedulers.io())
@@ -118,11 +127,9 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                         { error -> showError(error.message) }
                     )
             } else {
-                Log.d("code", intent.getStringExtra("code"))
                 val sharedPref =
                     getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
                         .getString(getString(R.string.userIdKey), "")
-                Log.d("user", sharedPref)
                 val unlock_session = Model.unlock_session(sharedPref, intent.getStringExtra("code"))
                 val userService = ServiceGenerator.createService(UserApiService::class.java)
 
@@ -135,7 +142,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                     )
             }
 
-    }
+        }
 
     }
 
@@ -174,7 +181,6 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
      */
     override fun onClickExercise(exercise: Model.Exercise) {
         exerciseDetailFragment = ExerciseDetailFragment()
-        Log.i("EX ID", exercise._id)
         exerciseDetailFragment.manager = supportFragmentManager
         exerciseDetailFragment.exerciseId = exercise._id
         currentPost.exercise_name = exercise.title
@@ -184,7 +190,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
             .commit()
     }
 
-    fun updatePost(page:Model.Page, description:String){
+    fun updatePost(page: Model.Page, description: String) {
         currentPost.page_id = page._id
         currentPost.page_name = page.title
         currentPost.inhoud = description
@@ -193,15 +199,19 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
-                { postResult ->  onPostResult(postResult) },
-                { error ->  showError("FUCK") }
+                { postResult -> onPostResult(postResult) },
+                { error -> showError("FUCK") }
             )
-        Log.i("POST", "${currentPost.session_name} > ${currentPost.exercise_name} > ${currentPost.page_name} - ${currentPost.page_id}")
+        Log.i(
+            "POST",
+            "${currentPost.session_name} > ${currentPost.exercise_name} > ${currentPost.page_name} - ${currentPost.page_id}"
+        )
     }
 
-    fun onPostResult(savedPost:Model.Post){
+    fun onPostResult(savedPost: Model.Post) {
         currentPost = savedPost
     }
+
     /**
      * Initialize NavigationListener
      * Specify Fragment to add to Activity via itemId in Navigation
@@ -214,12 +224,10 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                     .commit()
                 return@OnNavigationItemSelectedListener true
             }
-//            R.id.navigation_notifications -> {
-//                supportFragmentManager.beginTransaction()
-//                    .replace(R.id.settings_container, settingFragment)
-//                    .commit()
-//                return@OnNavigationItemSelectedListener true
-//            }
+            R.id.navigation_notifications -> {
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
+            }
         }
         false
     }
@@ -234,7 +242,6 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         } else {
             supportFragmentManager.popBackStack()
         }
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

@@ -8,7 +8,7 @@ import android.util.Log
 import com.hogent.mindfulness.data.LocalDatabase.MindfulnessContract.*
 import com.hogent.mindfulness.domain.Model
 
-class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+class MindfulnessDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     override fun onCreate(db: SQLiteDatabase?) {
         Log.i("db", "db creation")
@@ -39,9 +39,9 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
         onCreate(db)
     }
 
-    fun addUser(user: Model.User):Boolean {
-        val userExists = doesDataExist(UserEntry.TABLE_NAME, UserEntry.COLUMN_ID , user._id)
-        if (!userExists){
+    fun addUser(user: Model.User): Boolean {
+        val userExists = doesDataExist(UserEntry.TABLE_NAME, UserEntry.COLUMN_ID, user._id)
+        if (!userExists) {
             val values = ContentValues()
             val unlocked_sessions = user.unlocked_sessions.joinToString(",", "", "")
             val post_ids = user.post_ids.joinToString(",", "", "")
@@ -54,7 +54,7 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
 
             val db = this.writableDatabase
             Log.i("dbUser", values.toString())
-            db.insert(UserEntry.TABLE_NAME,null,  values)
+            db.insert(UserEntry.TABLE_NAME, null, values)
             db.close()
 
             addGroup(user.group!!)
@@ -62,21 +62,25 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
         return userExists
     }
 
-    fun addGroup(group: Model.Group){
-        val values = ContentValues()
+    fun addGroup(group: Model.Group): Boolean {
+        val groupExists = doesDataExist(GroupEntry.TABLE_NAME, GroupEntry.COLUMN_ID, group._id)
+        if (!groupExists) {
+            val values = ContentValues()
 
-        values.put(GroupEntry.COLUMN_ID, group._id)
-        values.put(GroupEntry.COLUMN_NAME, group.name)
-        values.put(GroupEntry.COLUMN_SESSIONMAP_ID, group.sessionmap_id)
+            values.put(GroupEntry.COLUMN_ID, group._id)
+            values.put(GroupEntry.COLUMN_NAME, group.name)
+            values.put(GroupEntry.COLUMN_SESSIONMAP_ID, group.sessionmap_id)
 
-        Log.i("dbGroup", values.toString())
-        val db = this.writableDatabase
-        db.insert(GroupEntry.TABLE_NAME, null, values)
-        db.close()
+            Log.i("dbGroup", values.toString())
+            val db = this.writableDatabase
+            db.insert(GroupEntry.TABLE_NAME, null, values)
+            db.close()
+        }
+        return groupExists
     }
 
     fun doesDataExist(TableName: String, dbfield: String, fieldValue: String): Boolean {
-        val sqldb =this.readableDatabase
+        val sqldb = this.readableDatabase
         val Query = "Select * from $TableName where $dbfield =\"$fieldValue\""
         val cursor = sqldb.rawQuery(Query, null)
         if (cursor.getCount() <= 0) {
@@ -92,14 +96,15 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
         val db = this.writableDatabase
         val cursor = db.rawQuery(query, null)
         var user: Model.User? = null
-        if (cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             cursor.moveToFirst()
             val id = cursor.getString(0)
-            val current_session_id = cursor.getString(1)?:""
-            val current_ex_id = cursor.getString(2)?:""
-            val unlocked_sessions:Array<String> = cursor.getString(3).split(",").toTypedArray()
+            val current_session_id = cursor.getString(1) ?: ""
+            val current_ex_id = cursor.getString(2) ?: ""
+            val unlocked_sessions: Array<String> = cursor.getString(3).split(",").toTypedArray()
             val post_ids = cursor.getString(4).split(",").toTypedArray()
-            user = Model.User(id,
+            user = Model.User(
+                id,
                 "",
                 "",
                 "",
@@ -110,7 +115,8 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
                 unlocked_sessions,
                 null,
                 "",
-                post_ids )
+                post_ids
+            )
         }
         db.close()
         return user

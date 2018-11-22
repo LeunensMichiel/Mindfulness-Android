@@ -3,6 +3,7 @@ package com.hogent.mindfulness.login
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.TargetApi
+import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -29,7 +30,7 @@ import org.jetbrains.anko.support.v4.toast
 class LoginFragment : Fragment() {
     private lateinit var disposable: Disposable
     private val mMindfullDB by lazy {
-        MindfulnessDBHelper( context!! )
+        MindfulnessDBHelper(context!!)
     }
 
     override fun onCreateView(
@@ -189,8 +190,17 @@ class LoginFragment : Fragment() {
     }
 
     private fun successfulLogin(user: Model.User) {
-        if (mMindfullDB.addUser(user)) toast("User added to local db") else toast("User not added to local db")
-
+        val userService = ServiceGenerator.createService(UserApiService::class.java)
+        disposable = userService.getUser(user._id)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { userFull ->
+                    Log.d("user", user.toString())
+                    if (mMindfullDB.addUser(userFull)) toast("User added to local db") else toast("User not added to local db")
+                },
+                { error ->  }
+            )
         showProgress(false)
         activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
             .edit()
