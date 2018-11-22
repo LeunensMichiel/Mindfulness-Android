@@ -1,8 +1,5 @@
 package com.hogent.mindfulness.domain
 
-import android.arch.persistence.room.ColumnInfo
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
 
@@ -63,7 +60,8 @@ object Model {
         val group: Group?,
 //        @ColumnInfo(name = "token")
         var token: String?,
-        var post_ids: Array<String>
+        var post_ids: Array<String>,
+        var feedbackSubscribed: Boolean
     )
 
 
