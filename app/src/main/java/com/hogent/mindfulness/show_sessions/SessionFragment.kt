@@ -83,7 +83,6 @@ class SessionFragment : Fragment() {
         user = mMindfullDB.getUser()!!
         Log.i("DBUSER", "$user")
         //beginRetrieveUser()
-        beginRetrieveSessionmap(getString(R.string.sessionmap_id))
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.session_fragment, container, false)
     }
@@ -91,9 +90,10 @@ class SessionFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        beginRetrieveSessionmap(getString(R.string.sessionmap_id))
 
         sessions = arrayOf<Model.Session>()
-        val sessionBools = BooleanArray(10)
+        sessionBools = BooleanArray(10)
 
 
         mAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler, sessionBools, user)
@@ -223,7 +223,6 @@ class SessionFragment : Fragment() {
 
         this.sessions = sessions
 
-        sessionBools = BooleanArray(10)
         sessions.forEach {
             sessionBools[it.position] = user.unlocked_sessions.contains(it._id)
 
