@@ -1,8 +1,11 @@
 package com.hogent.mindfulness.show_sessions
 
 
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.Fragment
@@ -30,6 +33,7 @@ import kotlinx.android.synthetic.main.session_fragment.*
 import kotlinx.android.synthetic.main.session_item_list.view.*
 import android.util.DisplayMetrics
 import android.view.ViewTreeObserver
+import android.widget.Button
 
 
 class SessionFragment : Fragment() {
@@ -245,6 +249,36 @@ class SessionFragment : Fragment() {
             val inflater = LayoutInflater.from(context)
             val view = inflater.inflate(layoutIdForListItem, viewGroup, false)
             Log.d("view", "i am created")
+
+            //Tijdelijke Manier om van Sessions Feedback Te krijgen
+            val feedbackDialog = Dialog(context)
+            feedbackDialog.setContentView(R.layout.feedback_popup)
+            feedbackDialog.window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            val sessionname = feedbackDialog.findViewById<TextView>(R.id.feedback_namesessie)
+            val description = feedbackDialog.findViewById<TextView>(R.id.feedback_description)
+            val sendBtn = feedbackDialog.findViewById<Button>(R.id.feedback_sendBtn)
+            val cancelBtn = feedbackDialog.findViewById<Button>(R.id.feedback_cancelBtn)
+            val noFeedbackbtn = feedbackDialog.findViewById<Button>(R.id.feedback_uitschrijvenBtn)
+
+            SessionViewHolder(view).button.setOnLongClickListener() {
+                sessionname.text = mSessionData[SessionViewHolder(view).adapterPosition + 1].title
+                sendBtn.setOnClickListener() {
+                    //TODO Make an api call to angular part, need Feedback Objects for this
+                    //New Feedback maken
+                    return@setOnClickListener
+                }
+                cancelBtn.setOnClickListener() {
+                    feedbackDialog.hide()
+                }
+                noFeedbackbtn.setOnClickListener() {
+                    //TODO Api call to set deactivate a boolean in user. While this is off, he wont recieve any feedback notifications
+                    return@setOnClickListener
+                }
+                feedbackDialog.show()
+                return@setOnLongClickListener true
+            }
+
+
             return SessionViewHolder(view)
 
         }
