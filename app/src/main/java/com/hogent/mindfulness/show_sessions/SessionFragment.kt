@@ -83,7 +83,7 @@ class SessionFragment : Fragment() {
         user = mMindfullDB.getUser()!!
         Log.i("DBUSER", "$user")
         //beginRetrieveUser()
-        beginRetrieveSessionmap(/*getString(R.string.sessionmap_id)*/"5bf476c6cd754b46e1cf8f0d")
+        beginRetrieveSessionmap(getString(R.string.sessionmap_id))
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.session_fragment, container, false)
     }
@@ -95,7 +95,9 @@ class SessionFragment : Fragment() {
         sessions = arrayOf<Model.Session>()
         val sessionBools = BooleanArray(10)
 
+
         mAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler, sessionBools, user)
+
         val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
 
         Log.d("sessions", sessions.size.toString())
@@ -220,6 +222,7 @@ class SessionFragment : Fragment() {
 //        }
 
         this.sessions = sessions
+
         sessionBools = BooleanArray(10)
         sessions.forEach {
             sessionBools[it.position] = user.unlocked_sessions.contains(it._id)
@@ -249,6 +252,8 @@ class SessionFragment : Fragment() {
         val user: Model.User
     ) : RecyclerView.Adapter<SessionAdapter.SessionViewHolder>() {
 
+        private lateinit var disposable: Disposable
+
 
         /**
          * This function loads in the item view
@@ -258,7 +263,6 @@ class SessionFragment : Fragment() {
             val layoutIdForListItem = R.layout.session_item_list
             val inflater = LayoutInflater.from(context)
             val view = inflater.inflate(layoutIdForListItem, viewGroup, false)
-            Log.d("view", "i am created")
 
             //Tijdelijke Manier om van Sessions Feedback Te krijgen
             val feedbackDialog = Dialog(context)
@@ -282,6 +286,15 @@ class SessionFragment : Fragment() {
                 }
                 noFeedbackbtn.setOnClickListener() {
                     user.feedbackSubscribed = false
+                    val userService = ServiceGenerator.createService(UserApiService::class.java, user.token)
+                    disposable = userService.updateUserFeedback(user)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                            { result -> feedbackDialog.hide() },
+                            { error ->  Log.d("error", error.message)
+                            }
+                        )
 
                 }
                 feedbackDialog.show()
@@ -297,6 +310,7 @@ class SessionFragment : Fragment() {
          * This function attaches the data to item view
          */
         override fun onBindViewHolder(holder: SessionViewHolder, position: Int) {
+
             holder.title.text = (position + 1).toString()
             holder.button.setOnClickListener {
                 val session = mSessionData[position]
