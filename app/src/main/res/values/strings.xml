@@ -50,6 +50,20 @@
     <string name="title_notifications">Notifications</string>
     <string name="title_activity_scanner">Scanner</string>
 
+    <!-- settings for Notifications -->
+    <string name="pref_title_notifications">Notificaties</string>
+    <string name="switch_notifications">switch_notifications</string>
+    <string name="switch_title_notifications">Give notifications</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <string name="timePreference_key">t</string>
+    <string name="timePreference_summary">Stel een tijdstip in van wanneer u een oefening wilt doen.</string>
+    <string name="timePreference_title">Notificatie tijdstip</string>
+
+    <string name="key_vibrate">key_vibrate</string>
+    <string name="summary_vibrate">Vibrate on new notification</string>
+    <string name="title_vibrate">Vibrate</string>
+
     <!-- Strings related to login -->
     <string name="title_activity_login">Login</string>
     <string name="prompt_email">Email</string>

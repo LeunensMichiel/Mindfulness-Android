@@ -27,7 +27,7 @@
                 android:windowSoftInputMode="adjustPan|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
+                <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
@@ -39,6 +39,15 @@
                 android:name=".scanner.ScannerActivity"
                 android:label="@string/title_activity_scanner"
                 android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+                android:name=".notification_settings.SettingsActivity"
+                android:label="@string/title_activity_settings"
+                android:parentActivityName=".MainActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".MainActivity"/>
+
         </activity>
     </application>
 

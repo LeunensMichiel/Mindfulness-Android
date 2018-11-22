@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.preference.PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <android.support.v7.preference.PreferenceCategory
+            android:title="@string/pref_title_notifications">
+
+        <android.support.v7.preference.SwitchPreferenceCompat
+                android:defaultValue="true"
+                android:key="@string/switch_notifications"
+                android:title="@string/switch_title_notifications"/>
+
+        <com.hogent.mindfulness.notification_settings.TimePreference
+                android:key="pref_time"
+                android:title="@string/timePreference_title"
+                android:defaultValue="90"
+                android:summary="@string/timePreference_summary"
+                style="@style/AppPreference.DialogPreference"/>
+
+        <android.support.v7.preference.SwitchPreferenceCompat
+                android:defaultValue="true"
+                android:key="@string/key_vibrate"
+                android:summary="@string/summary_vibrate"
+                android:title="@string/title_vibrate"
+                android:dependency="@string/switch_notifications"/>
+    </android.support.v7.preference.PreferenceCategory>
+
+
+</android.support.v7.preference.PreferenceScreen>

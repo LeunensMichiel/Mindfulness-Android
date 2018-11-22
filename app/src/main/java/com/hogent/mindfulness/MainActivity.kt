@@ -21,6 +21,11 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
+// Notificaties
+import java.util.concurrent.TimeUnit
+import com.hogent.mindfulness.services.NotifyJobCreator
+import com.hogent.mindfulness.services.PeriodicNotificationJob
+import com.evernote.android.job.JobManager
 
 
 class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.SessionAdapterOnClickHandler,
@@ -44,6 +49,11 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Starts van notification service
+        JobManager.create(this).addJobCreator(NotifyJobCreator())
+        PeriodicNotificationJob.scheduleJob(TimeUnit.MINUTES.toMillis(15),"Mindfulness", "this is a notification about mindfulness", "mindfulness")
+
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
         if (checkIfLoggedIn()) {
@@ -82,6 +92,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                 { result -> user = result },
                 { error -> showError(error.message) }
             )
+
     }
 
     private fun checkIfLoggedIn(): Boolean {
