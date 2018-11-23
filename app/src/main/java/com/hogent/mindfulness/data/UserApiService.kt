@@ -2,10 +2,7 @@ package com.hogent.mindfulness.data
 
 import com.hogent.mindfulness.domain.Model
 import io.reactivex.Observable
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface UserApiService {
     @POST("/API/users/login")
@@ -26,5 +23,9 @@ interface UserApiService {
      */
     @POST("/API/users/user")
     fun updateUser(@Body unlocksession: Model.unlock_session) : Observable<Model.Result>
+
+    //Updates a USER so its feedback field is true or false
+    @PUT("/API/users/user/feedback")
+    fun updateUserFeedback(@Body wantsFeedback : Model.User) : Observable<Model.Result>
 
 }

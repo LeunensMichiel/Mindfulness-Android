@@ -2,20 +2,21 @@ package com.hogent.mindfulness.exercise_details
 
 
 import android.app.Activity.RESULT_OK
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.provider.MediaStore
 import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
-import kotlinx.android.synthetic.main.fragment_fragment_oefeninginvoer.*
-import android.content.pm.PackageManager
-import android.util.Log
 import com.hogent.mindfulness.data.PostApiService
 import com.hogent.mindfulness.data.PostInformation
 import com.hogent.mindfulness.data.ServiceGenerator
@@ -23,6 +24,7 @@ import com.hogent.mindfulness.domain.Model
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.fragment_fragment_oefeninginvoer.*
 
 
 /**
@@ -33,7 +35,7 @@ class FragmentExerciseInvoer : Fragment() {
 
     private var postId:String? = null
     private lateinit var disposable: Disposable
-
+    lateinit var page:Model.Page
     /**
      * in de onCreateView-methode inflaten we onze layout fragment_fragment_oefeninginvoer
      */
@@ -51,7 +53,9 @@ class FragmentExerciseInvoer : Fragment() {
         info.exercise_id = "5bd1922012bbd66b6c19aa31"
         info.page_id = "5bd837fde39837098a7a7c82"
         info.user_id = "5bdc6f7cd7371903f9c88bc4"
-        val PostService = ServiceGenerator.createService(PostApiService::class.java)
+        val PostService = ServiceGenerator.createService(PostApiService::class.java,
+            activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+                .getString(getString(R.string.authTokenKey), null))
 
         disposable = PostService.getPostOfPage(info)
             .subscribeOn(Schedulers.io())
@@ -109,8 +113,8 @@ class FragmentExerciseInvoer : Fragment() {
         }
 
         btnOpslaan.setOnClickListener {
-            // TEDOEN: nog een check: als er niets is veranderd, dan moet er geen nieuwe post gemaakt worden of geupdate worden
-            updatePost()
+            // TEDOEN: nog een check: als er niets is veranderd, dan moet er geen nieuwe post gemaakt worden of geupdate wordenge
+            (activity as MainActivity).updatePost(page, text_edit.text.toString())
             Log.d("button","-----------test1--------------")
         }
     }
@@ -123,7 +127,9 @@ class FragmentExerciseInvoer : Fragment() {
         info.page_id = "5bd837fde39837098a7a7c82"
         info.user_id = "5bdc6f7cd7371903f9c88bc4"
         info.inhoud = text_edit.text.toString()
-        val postService = ServiceGenerator.createService(PostApiService::class.java)
+        val postService = ServiceGenerator.createService(PostApiService::class.java,
+            activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+                .getString(getString(R.string.authTokenKey), null))
 
         disposable = postService.updatePost("5be2ad3d9a683c6576fbabe2",info)
             .subscribeOn(Schedulers.io())

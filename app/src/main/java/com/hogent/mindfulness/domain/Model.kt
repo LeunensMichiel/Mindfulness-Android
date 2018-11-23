@@ -1,9 +1,7 @@
 package com.hogent.mindfulness.domain
 
-import android.arch.persistence.room.ColumnInfo
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
+import java.util.*
 
 
 object Model {
@@ -60,11 +58,12 @@ object Model {
 //        @ColumnInfo(name = "unlocked_sessions")
         var unlocked_sessions: Array<String>,
 //        @ColumnInfo(name = "group")
-        val group: Group,
+        val group: Group?,
 //        @ColumnInfo(name = "token")
-        var token: String?
+        var token: String?,
+        var post_ids: Array<String>,
+        var feedbackSubscribed: Boolean
     )
-
 
     data class Group(
         val _id: String,
@@ -88,19 +87,35 @@ object Model {
         val result: String
     )
 
-    data class unlock_session (
+    data class unlock_session(
         val id: String,
         val session_id: String
     )
 
     data class Post(
-        val _id:String,
-        val inhoud:String,
-        val afbeelding:String,
-        val sessionmap_id:String,
-        val session_id:String,
-        val exercise_id:String,
-        val page_id:String,
-        val user_id:String
+        var _id: String? = null,
+        var inhoud: String? = null,
+        var afbeelding: String? = null,
+        var sessionmap_id: String? = null,
+        var session_id: String? = null,
+        var exercise_id: String? = null,
+        var page_id: String? = null,
+        var user_id: String? = null,
+        var session_map_name: String? = null,
+        var session_name: String? = null,
+        var exercise_name: String? = null,
+        var page_name: String? = null
+    )
+
+    data class Point(
+        val x: Int,
+        val y: Int,
+        val orientation: Boolean
+    )
+
+    data class Feedback(
+        val date: Date,
+        val message: String,
+        val Session_id: String
     )
 }
