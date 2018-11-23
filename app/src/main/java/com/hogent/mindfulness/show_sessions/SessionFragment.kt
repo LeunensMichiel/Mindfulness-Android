@@ -92,7 +92,7 @@ class SessionFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        beginRetrieveSessionmap(getString(R.string.sessionmap_id))
+        beginRetrieveSessionmap("5bf72a307a76ee0b04943251")
 
         sessions = arrayOf<Model.Session>()
         sessionBools = BooleanArray(10)
