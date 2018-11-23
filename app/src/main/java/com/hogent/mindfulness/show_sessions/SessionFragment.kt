@@ -22,6 +22,7 @@ import android.widget.TextView
 import android.widget.Toast
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
+import com.hogent.mindfulness.data.FeedbackApiService
 import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
 import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.data.SessionApiService
@@ -34,6 +35,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.session_fragment.*
 import kotlinx.android.synthetic.main.session_item_list.view.*
+import java.util.*
 
 
 class SessionFragment : Fragment() {
@@ -276,9 +278,19 @@ class SessionFragment : Fragment() {
             SessionViewHolder(view).button.setOnLongClickListener() {
                 sessionname.text = mSessionData[SessionViewHolder(view).adapterPosition + 1].title
                 sendBtn.setOnClickListener() {
-                    //TODO Make an api call to angular part, need Feedback Objects for this
-                    //New Feedback maken
-                    return@setOnClickListener
+                    val feedback = Model.Feedback(Date(), description.text.toString(), mSessionData[SessionViewHolder(view).adapterPosition + 1]._id)
+                    val feedbackService = ServiceGenerator.createService(FeedbackApiService::class.java, user.token)
+                    disposable = feedbackService.addFeedback(feedback)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                            { result ->
+                                feedbackDialog.hide()
+                                Toast.makeText(context, "Bedankt voor uw Feedback!", Toast.LENGTH_SHORT).show()
+                            },
+                            { error ->  Log.d("error", error.message)
+                            }
+                        )
                 }
                 cancelBtn.setOnClickListener() {
                     feedbackDialog.hide()
@@ -290,17 +302,16 @@ class SessionFragment : Fragment() {
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
-                            { result -> feedbackDialog.hide() },
+                            { result ->
+                                    feedbackDialog.hide()
+                            },
                             { error ->  Log.d("error", error.message)
                             }
                         )
-
                 }
                 feedbackDialog.show()
                 return@setOnLongClickListener true
             }
-
-
             return SessionViewHolder(view)
 
         }

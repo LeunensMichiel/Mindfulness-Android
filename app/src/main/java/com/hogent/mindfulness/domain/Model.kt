@@ -1,6 +1,7 @@
 package com.hogent.mindfulness.domain
 
 import com.google.gson.annotations.SerializedName
+import java.util.*
 
 
 object Model {
@@ -64,7 +65,6 @@ object Model {
         var feedbackSubscribed: Boolean
     )
 
-
     data class Group(
         val _id: String,
         val name: String,
@@ -87,27 +87,35 @@ object Model {
         val result: String
     )
 
-    data class unlock_session (
+    data class unlock_session(
         val id: String,
         val session_id: String
     )
 
     data class Post(
-        var _id:String? = null,
-        var inhoud:String? = null,
-        var afbeelding:String? = null,
-        var sessionmap_id:String? = null,
-        var session_id:String? = null,
-        var exercise_id:String? = null,
-        var page_id:String? = null,
-        var user_id:String? = null,
-        var session_map_name:String? = null,
-        var session_name:String? = null,
-        var exercise_name:String? = null,
-        var page_name:String? = null
+        var _id: String? = null,
+        var inhoud: String? = null,
+        var afbeelding: String? = null,
+        var sessionmap_id: String? = null,
+        var session_id: String? = null,
+        var exercise_id: String? = null,
+        var page_id: String? = null,
+        var user_id: String? = null,
+        var session_map_name: String? = null,
+        var session_name: String? = null,
+        var exercise_name: String? = null,
+        var page_name: String? = null
     )
 
-    data class Point(val x: Int,
-                      val y: Int,
-                     val orientation: Boolean)
+    data class Point(
+        val x: Int,
+        val y: Int,
+        val orientation: Boolean
+    )
+
+    data class Feedback(
+        val date: Date,
+        val message: String,
+        val Session_id: String
+    )
 }
