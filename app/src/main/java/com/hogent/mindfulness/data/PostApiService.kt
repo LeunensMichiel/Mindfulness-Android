@@ -2,10 +2,7 @@ package com.hogent.mindfulness.data
 
 import com.hogent.mindfulness.domain.Model
 import io.reactivex.Observable
-import retrofit2.http.Body
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface PostApiService {
 
@@ -20,4 +17,7 @@ interface PostApiService {
 
     @PUT("/API/post/post")
     fun changePost(@Body post:Model.Post):Observable<Model.Post>
+
+    @GET("/API/post/checkpost/{page_id}")
+    fun checkPageId(@Path("page_id") page_id:String):Observable<Model.Post>
 }

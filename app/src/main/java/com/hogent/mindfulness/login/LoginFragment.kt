@@ -181,7 +181,6 @@ class LoginFragment : Fragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { user ->
-                    Log.i("user", "$user")
                     successfulLogin(user)
                 },
                 { error -> failedLogin(error.message) }

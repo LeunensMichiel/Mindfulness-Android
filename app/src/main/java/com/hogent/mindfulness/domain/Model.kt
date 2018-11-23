@@ -92,6 +92,10 @@ object Model {
         val session_id: String
     )
 
+    data class user_group (
+        val group_id: String
+    )
+
     data class Post(
         var _id:String? = null,
         var inhoud:String? = null,

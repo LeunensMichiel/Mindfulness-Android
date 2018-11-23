@@ -15,6 +15,7 @@ import android.util.Log
 import android.widget.Toast
 import com.google.zxing.Result
 import com.hogent.mindfulness.MainActivity
+import com.hogent.mindfulness.login.LoginActivity
 import me.dm7.barcodescanner.zxing.ZXingScannerView
 
 
@@ -24,8 +25,11 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler{
     private var scannerView: ZXingScannerView? = null
     private val camId = CAMERA_FACING_BACK
     private lateinit var code:String
+    private var returnActivity = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        returnActivity = intent.getIntExtra("activity", 0)
 
         scannerView = ZXingScannerView(this)
         setContentView(scannerView)
@@ -140,9 +144,21 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler{
 //        val alert1 = builder.create()
 //        alert1.show()
         code = result.text
-        val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("code", code)
-        startActivity(intent)
+        when(returnActivity) {
+            0 -> {
+                val intent = Intent(this, MainActivity::class.java)
+                intent.putExtra("code", code)
+                intent.putExtra("activity", returnActivity)
+                startActivity(intent)
+            }
+            1 -> {
+                val intent = Intent(this, MainActivity::class.java)
+                intent.putExtra("code", code)
+                intent.putExtra("activity", returnActivity)
+                startActivity(intent)
+            }
+        }
+
     }
 
 }

@@ -88,7 +88,6 @@ class SessionFragment : Fragment() {
         return inflater.inflate(R.layout.session_fragment, container, false)
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -147,6 +146,8 @@ class SessionFragment : Fragment() {
 
         fabCamera.setOnClickListener { view ->
             val intent = Intent(activity, ScannerActivity::class.java)
+            // value 0 voor MainActivity
+            intent.putExtra("activity", 0)
             startActivity(intent)
         }
 

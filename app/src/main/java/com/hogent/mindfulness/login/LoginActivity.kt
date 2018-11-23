@@ -18,6 +18,7 @@ class LoginActivity : AppCompatActivity(), LoginFragment.LoginFragmentCallBack, 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+
         loginFragment = LoginFragment()
 
         supportFragmentManager.beginTransaction()
