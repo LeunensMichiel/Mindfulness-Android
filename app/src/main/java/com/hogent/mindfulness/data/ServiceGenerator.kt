@@ -1,6 +1,10 @@
 package com.hogent.mindfulness.data
 
+import android.app.Activity
+import android.content.Context
+import android.content.SharedPreferences
 import android.text.TextUtils
+import android.util.Log
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -11,7 +15,7 @@ class ServiceGenerator {
     companion object {
 
         val API_BASE_URL = "http://projecten3studserver03.westeurope.cloudapp.azure.com:3000"
-        val LOCAL_BASE_URL = "http://192.168.0.137:3000"
+        val LOCAL_BASE_URL = "http://172.18.155.92:3000"
         val httpClient = OkHttpClient.Builder()
 
         val builder = Retrofit.Builder()
@@ -21,17 +25,10 @@ class ServiceGenerator {
 
         var retrofit = builder.build()
 
-        fun <S> createService(serviceClass: Class<S>
-//                              email: String,
-//                              password: String
-        ): S {
-//            if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)) {
-//                val authToken = Credentials.basic(email, password)
-//
-//                return createService(serviceClass, authToken)
-//            }
-
-            return createService(serviceClass, null)
+        fun <S> createService(serviceClass: Class<S>, activity: Activity): S {
+            val token = activity!!.getSharedPreferences("userDetails", Context.MODE_PRIVATE)
+                .getString("authToken", null)
+            return createService(serviceClass, authToken = token)
         }
 
         fun <S> createService(

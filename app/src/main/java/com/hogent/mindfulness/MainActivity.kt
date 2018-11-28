@@ -30,11 +30,10 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
 
 
     //initializing attributes
-    private val mMindfullDB by lazy {
-        MindfulnessDBHelper(this@MainActivity )
-    }
+    private val mMindfullDB = MindfulnessDBHelper(this@MainActivity )
+
     private val postService by lazy {
-        ServiceGenerator.createService(PostApiService::class.java)
+        ServiceGenerator.createService(PostApiService::class.java, this@MainActivity)
     }
 
     private lateinit var disposable: Disposable
@@ -56,10 +55,14 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         setContentView(R.layout.activity_main)
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
+        Log.i("LOGIN", "BEFORE REDIRECT")
         if (checkIfLoggedIn()) {
+            Log.i("LOGIN", "REDIRECT")
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
         }
+
+        Log.i("LOGIN", "AFTER REDIRECT")
         currentUser = mMindfullDB.getUser()!!
         sessionFragment = SessionFragment()
         feedbackFragment = FeedbackFragment()
@@ -87,7 +90,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                 .getString(getString(R.string.userIdKey), "")
             Log.d("user", sharedPref)
             val unlock_session = Model.unlock_session(sharedPref, intent.getStringExtra("code"))
-            val userService = ServiceGenerator.createService(UserApiService::class.java)
+            val userService = ServiceGenerator.createService(UserApiService::class.java, this@MainActivity)
 
             disposable = userService.updateUser(unlock_session)
                 .subscribeOn(Schedulers.io())
@@ -150,7 +153,10 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         currentPost.page_name = page.title
         currentPost.inhoud = description
         currentPost.user_id = currentUser._id
-        if (newPost._id == "none"){
+        currentPost._id = newPost._id
+        Log.i("FUCKING_POST", "$newPost")
+        if (currentPost._id == "none" || currentPost._id == null){
+            currentPost._id = null
             disposable = postService.addPost(currentPost)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -165,7 +171,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     { result -> Log.i("oldPost", "$result") },
-                    { error -> Log.i("ERROR",error.message) }
+                    { error -> Log.i("ERRORCHECK",error.message) }
                 )
         }
         return currentPost
@@ -225,6 +231,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
 
         val itemThatWasClickedId = item.getItemId()
         if (itemThatWasClickedId == R.id.logout) {
+            this@MainActivity.deleteDatabase("mindfulness.db")
             getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
                 .edit()
                 .remove(getString(R.string.userIdKey))

@@ -30,6 +30,7 @@ import kotlinx.android.synthetic.main.session_fragment.*
 import kotlinx.android.synthetic.main.session_item_list.view.*
 import android.util.DisplayMetrics
 import android.view.ViewTreeObserver
+import com.hogent.mindfulness.MainActivity
 
 
 class SessionFragment : Fragment() {
@@ -65,6 +66,7 @@ class SessionFragment : Fragment() {
     private lateinit var disposable: Disposable
     private lateinit var user: Model.User
     lateinit var unlockSession: String
+    private lateinit var sessionService:SessionApiService
     /**
      * I used this resource: https://developer.android.com/guide/topics/ui/layout/recyclerview
      */
@@ -73,6 +75,7 @@ class SessionFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        sessionService = ServiceGenerator.createService(SessionApiService::class.java, (activity as MainActivity))
         beginRetrieveUser()
 //        beginRetrieveSessionmap(getString(R.string.sessionmap_id))
         // Inflate the layout for this fragment
@@ -147,14 +150,18 @@ class SessionFragment : Fragment() {
 
         val userid = activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
                 .getString(getString(R.string.userIdKey), "")
-        val userService = ServiceGenerator.createService(UserApiService::class.java)
+        val userService = ServiceGenerator.createService(UserApiService::class.java, (activity as MainActivity))
 
         disposable = userService.getUser(userid)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
-                { result -> showResultUser(result) },
-                { error -> showError(error.message) }
+                { result ->
+                    showResultUser(result)
+                },
+                { error ->
+                    Log.i("whuk", "check")
+                    showError(error.message) }
             )
     }
 
@@ -162,13 +169,14 @@ class SessionFragment : Fragment() {
      * this function retrieves a sessionmap from the database
      */
     private fun beginRetrieveSessionmap(sessionmap_id: String) {
-        val sessionService = ServiceGenerator.createService(SessionApiService::class.java, user.token)
-
+        Log.i("what", "4")
+        Log.i("what", "5")
         disposable = sessionService.getSessions(sessionmap_id)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
-                { result -> showResult(result) },
+                { result ->
+                    showResult(result) },
                 { error -> showError(error.message) }
             )
     }
@@ -179,8 +187,12 @@ class SessionFragment : Fragment() {
      * Add Manager and Adapter to recyclerview
      */
     private fun showResultUser(resultUser: Model.User) {
+        Log.i("what", "1")
         user = resultUser
-        Log.d("testtest", user.group!!.sessionmap_id)
+
+        Log.i("what", "2")
+
+        Log.i("what", "${user}")
         beginRetrieveSessionmap(user.group!!.sessionmap_id)
 
     }

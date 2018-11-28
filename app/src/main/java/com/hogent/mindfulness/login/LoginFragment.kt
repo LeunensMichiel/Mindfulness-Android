@@ -171,7 +171,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun doLogin(loginDetails: Model.Login) {
-        val loginService = ServiceGenerator.createService(UserApiService::class.java)
+        val loginService = ServiceGenerator.createService(UserApiService::class.java, (activity as LoginActivity))
         showProgress(true)
 
         disposable = loginService.login(loginDetails)

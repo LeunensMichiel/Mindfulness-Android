@@ -29,6 +29,7 @@ object Model {
 
     data class Page(
         val pathaudio: String,
+        val path_audio: String,
         val type: String,
         val _id: String,
         val title: String,
@@ -60,7 +61,7 @@ object Model {
 //        @ColumnInfo(name = "unlocked_sessions")
         var unlocked_sessions: Array<String>,
 //        @ColumnInfo(name = "group")
-        val group: Group?,
+        var group: Group?,
 //        @ColumnInfo(name = "token")
         var token: String?,
         var post_ids: Array<String>
@@ -68,10 +69,10 @@ object Model {
 
 
     data class Group(
-        val _id: String,
-        val name: String,
-        val sessionmap_id: String,
-        var sessionmap: Sessionmap?
+        var _id: String,
+        var name: String,
+        var sessionmap_id: String,
+        var sessionmap: Sessionmap? = null
     )
 
     data class Login(
@@ -95,7 +96,7 @@ object Model {
     )
 
     data class Post(
-        var _id:String? = null,
+        var _id:String? = "none",
         var inhoud:String? = null,
         var afbeelding:String? = null,
         var sessionmap_id:String? = null,
@@ -112,4 +113,6 @@ object Model {
     data class Point(val x: Int,
                       val y: Int,
                      val orientation: Boolean)
+
+    data class File(var path:String)
 }

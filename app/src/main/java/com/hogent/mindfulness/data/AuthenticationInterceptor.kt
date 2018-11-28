@@ -11,7 +11,7 @@ class AuthenticationInterceptor(val authToken: String): Interceptor {
         val oldRequest = chain.request()
 
         val builder = oldRequest.newBuilder()
-            .header("Authorization", authToken)
+            .header("Authorization", "Bearer $authToken")
 
         val newRequest = builder.build()
 

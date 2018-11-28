@@ -50,7 +50,7 @@ class PostFragment : Fragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { result -> initializeRecyclerView(result) },
-                { error -> Log.i("fuck", "MOTHERFUCK")}
+                { error -> Log.i("fuck", "$error")}
             )
     }
     private val mMindfulDB by lazy {
@@ -70,12 +70,13 @@ class PostFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        postService = ServiceGenerator.createService(PostApiService::class.java)
+        postService = ServiceGenerator.createService(PostApiService::class.java, (activity as MainActivity))
     }
 
     fun initializeRecyclerView(newPosts:Array<Model.Post>){
         posts = newPosts
         if (posts.isNotEmpty()){
+            viewManager = LinearLayoutManager((activity as MainActivity))
             viewAdapter = PostAdapter(posts, (activity as MainActivity))
             post_recycler_view.apply {
                 setHasFixedSize(true)

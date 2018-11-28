@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
+import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.data.ExerciseApiService
 import com.hogent.mindfulness.data.ServiceGenerator
@@ -44,7 +45,7 @@ class ExercisesListFragment : Fragment() {
     }
 
     private fun beginRetrieveExercises(session_id: String) {
-        val exerciseApiService = ServiceGenerator.createService(ExerciseApiService::class.java)
+        val exerciseApiService = ServiceGenerator.createService(ExerciseApiService::class.java, (activity as MainActivity))
 
         disposable = exerciseApiService.getExercises(session_id)
             .subscribeOn(Schedulers.io())

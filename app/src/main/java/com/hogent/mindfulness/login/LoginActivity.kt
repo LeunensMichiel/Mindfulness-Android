@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 
@@ -17,7 +18,7 @@ class LoginActivity : AppCompatActivity(), LoginFragment.LoginFragmentCallBack, 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-
+        Log.i("wtf", "MOTHERFUCKER")
         loginFragment = LoginFragment()
 
         supportFragmentManager.beginTransaction()

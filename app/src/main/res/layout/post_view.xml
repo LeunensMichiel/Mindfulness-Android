@@ -34,7 +34,9 @@
         <TextView
                 android:id="@+id/post_desc"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" android:textSize="18sp"/>
+                android:layout_height="match_parent"
+                android:textSize="18sp"
+                android:textAlignment="center"/>
     </LinearLayout>
 
 

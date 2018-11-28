@@ -117,7 +117,7 @@ class RegisterFragment : Fragment() {
     }
 
     private fun startRegistrationCall(registerDetails: Model.Register) {
-        val loginService = ServiceGenerator.createService(UserApiService::class.java)
+        val loginService = ServiceGenerator.createService(UserApiService::class.java, (activity as LoginActivity))
         showProgress(true)
 
         disposable = loginService.register(registerDetails)

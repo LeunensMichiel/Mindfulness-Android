@@ -87,6 +87,27 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
         return true
     }
 
+    fun getGroup(): Model.Group? {
+        val query = "SELECT * FROM " + GroupEntry.TABLE_NAME
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(query, null)
+        var group: Model.Group? = null
+        if (cursor.moveToFirst()) {
+            cursor.moveToFirst()
+            val id = cursor.getString(0)
+            val name:String = cursor.getString(1)
+            val sessionmap_id = cursor.getString(2)
+            group = Model.Group(
+                id,
+                name,
+                sessionmap_id,
+                null
+            )
+        }
+        db.close()
+        return group
+    }
+
     fun getUser(): Model.User? {
         val query = "SELECT * FROM " + UserEntry.TABLE_NAME
         val db = this.writableDatabase

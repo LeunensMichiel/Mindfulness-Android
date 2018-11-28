@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.data.PageApiService
 import com.hogent.mindfulness.data.ServiceGenerator
@@ -54,7 +55,7 @@ class ExerciseDetailFragment(): Fragment(){
      * * de exercisedata wordt in de variabele disposable gestored, disposable wordt gebruikt voor het aanroepen van api calls
      */
     private fun beginRetrieveExercise(exerciseId: String) {
-        val PageApiService = ServiceGenerator.createService(PageApiService::class.java)
+        val PageApiService = ServiceGenerator.createService(PageApiService::class.java, (activity as MainActivity))
         disposable = PageApiService.getPages(exerciseId)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -87,6 +88,8 @@ class ExerciseDetailFragment(): Fragment(){
                 "AUDIO" ->
                 {
                     val fragment = FragmentExerciseAudio()
+                    Log.i("FUCKINGAUDIO", it.path_audio)
+                    fragment.audioPath = it.path_audio
                     val arg = Bundle()
                     arg.putString("audiopad", it.pathaudio)
                     fragment.arguments = arg
@@ -94,7 +97,7 @@ class ExerciseDetailFragment(): Fragment(){
                 }
                 "TEXT" ->
                 {
-                    Log.i("PAGE", "TEST")
+                    Log.i("PAGE", "TEXT")
                     val fragment = FragmentExerciseText()
                     val arg = Bundle()
                     arg.putString("description", it.description)
