@@ -1,9 +1,7 @@
 package com.hogent.mindfulness.domain
 
-import android.arch.persistence.room.ColumnInfo
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
+import java.util.*
 
 
 object Model {
@@ -64,9 +62,9 @@ object Model {
         var group: Group?,
 //        @ColumnInfo(name = "token")
         var token: String?,
-        var post_ids: Array<String>
+        var post_ids: Array<String>,
+        var feedbackSubscribed: Boolean
     )
-
 
     data class Group(
         var _id: String,
@@ -90,7 +88,7 @@ object Model {
         val result: String
     )
 
-    data class unlock_session (
+    data class unlock_session(
         val id: String,
         val session_id: String
     )
@@ -110,9 +108,19 @@ object Model {
         var page_name:String? = null
     )
 
-    data class Point(val x: Int,
-                      val y: Int,
-                     val orientation: Boolean)
+    data class Point(
+        val x: Int,
+        val y: Int,
+        val orientation: Boolean
+    )
 
-    data class File(var path:String)
+    data class Feedback(
+        val date: Date,
+        val message: String,
+        val Session_id: String
+    )
+
+    data class File(
+        val path:String?
+    )
 }

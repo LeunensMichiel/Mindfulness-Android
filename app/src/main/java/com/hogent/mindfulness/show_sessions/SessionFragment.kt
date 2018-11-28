@@ -1,8 +1,11 @@
 package com.hogent.mindfulness.show_sessions
 
 
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.Fragment
@@ -12,25 +15,27 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
+import com.hogent.mindfulness.data.FeedbackApiService
+import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
 import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.data.SessionApiService
 import com.hogent.mindfulness.data.UserApiService
 import com.hogent.mindfulness.domain.Model
-import com.hogent.mindfulness.scanner.ScannerActivity
 import com.hogent.mindfulness.domain.Model.Point
-import com.hogent.mindfulness.domain.Model.Session
+import com.hogent.mindfulness.scanner.ScannerActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.session_fragment.*
 import kotlinx.android.synthetic.main.session_item_list.view.*
-import android.util.DisplayMetrics
-import android.view.ViewTreeObserver
-import com.hogent.mindfulness.MainActivity
+import java.util.*
 
 
 class SessionFragment : Fragment() {
@@ -60,6 +65,9 @@ class SessionFragment : Fragment() {
      * Here will the sessionData be stored
      * Disposable used for calling api calls
      */
+    private val mMindfullDB by lazy {
+        MindfulnessDBHelper(activity as MainActivity )
+    }
     private lateinit var sessions: Array<Model.Session>
     private lateinit var mAdapter: SessionAdapter
     private lateinit var sessionBools: BooleanArray
@@ -75,9 +83,9 @@ class SessionFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        sessionService = ServiceGenerator.createService(SessionApiService::class.java, (activity as MainActivity))
-        beginRetrieveUser()
-//        beginRetrieveSessionmap(getString(R.string.sessionmap_id))
+        user = mMindfullDB.getUser()!!
+        Log.i("DBUSER", "$user")
+        //beginRetrieveUser()
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.session_fragment, container, false)
     }
@@ -85,6 +93,22 @@ class SessionFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        beginRetrieveSessionmap("5bf72a307a76ee0b04943251")
+
+        sessions = arrayOf<Model.Session>()
+        sessionBools = BooleanArray(10)
+
+
+        mAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler, sessionBools, user)
+
+        val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
+
+        Log.d("sessions", sessions.size.toString())
+
+        rv_sessions.apply {
+            layoutManager = viewManager
+            adapter = mAdapter
+        }
 
         view.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener{
             override fun onGlobalLayout() {
@@ -96,7 +120,7 @@ class SessionFragment : Fragment() {
                     val centerx = (progress_img.width.toFloat() / 2.0).toFloat()
                     val bottomy = progress_img.height
 
-                    val currentSession = 1.0 - 1
+                    val currentSession = user.unlocked_sessions.size
                     val sessionSize = 15.0
                     val coPoint = (currentSession / sessionSize.toFloat()) * coordinates.size.toFloat()
                     val point = coordinates[coPoint.toInt()]
@@ -114,19 +138,6 @@ class SessionFragment : Fragment() {
                 }
             }
         })
-
-        sessions = arrayOf<Model.Session>()
-        val sessionBools = BooleanArray(10)
-
-        mAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler, sessionBools)
-        val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
-
-        Log.d("sessions", sessions.size.toString())
-
-        rv_sessions.apply {
-            layoutManager = viewManager
-            adapter = mAdapter
-        }
     }
 
     /**
@@ -156,12 +167,8 @@ class SessionFragment : Fragment() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
-                { result ->
-                    showResultUser(result)
-                },
-                { error ->
-                    Log.i("whuk", "check")
-                    showError(error.message) }
+                { result -> showResultUser(result) },
+                { error -> showError(error.message) }
             )
     }
 
@@ -169,14 +176,15 @@ class SessionFragment : Fragment() {
      * this function retrieves a sessionmap from the database
      */
     private fun beginRetrieveSessionmap(sessionmap_id: String) {
-        Log.i("what", "4")
-        Log.i("what", "5")
+        val sessionService = ServiceGenerator.createService(SessionApiService::class.java,
+            activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+            .getString(getString(R.string.authTokenKey), null))
+
         disposable = sessionService.getSessions(sessionmap_id)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
-                { result ->
-                    showResult(result) },
+                { result -> showResult(result) },
                 { error -> showError(error.message) }
             )
     }
@@ -187,12 +195,8 @@ class SessionFragment : Fragment() {
      * Add Manager and Adapter to recyclerview
      */
     private fun showResultUser(resultUser: Model.User) {
-        Log.i("what", "1")
         user = resultUser
-
-        Log.i("what", "2")
-
-        Log.i("what", "${user}")
+        Log.d("testtest", user.group!!.sessionmap_id)
         beginRetrieveSessionmap(user.group!!.sessionmap_id)
 
     }
@@ -219,7 +223,7 @@ class SessionFragment : Fragment() {
 //        }
 
         this.sessions = sessions
-        sessionBools = BooleanArray(10)
+
         sessions.forEach {
             sessionBools[it.position] = user.unlocked_sessions.contains(it._id)
 
@@ -244,8 +248,11 @@ class SessionFragment : Fragment() {
         var mSessionData: Array<Model.Session>,
         //mClickHandler is for communicating whit the activity when item clicked
         private val mClickHandler: SessionAdapterOnClickHandler,
-        var sessionBools: BooleanArray
+        var sessionBools: BooleanArray,
+        val user: Model.User
     ) : RecyclerView.Adapter<SessionAdapter.SessionViewHolder>() {
+
+        private lateinit var disposable: Disposable
 
 
         /**
@@ -256,7 +263,54 @@ class SessionFragment : Fragment() {
             val layoutIdForListItem = R.layout.session_item_list
             val inflater = LayoutInflater.from(context)
             val view = inflater.inflate(layoutIdForListItem, viewGroup, false)
-            Log.d("view", "i am created")
+
+            //Tijdelijke Manier om van Sessions Feedback Te krijgen
+            val feedbackDialog = Dialog(context)
+            feedbackDialog.setContentView(R.layout.feedback_popup)
+            feedbackDialog.window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            val sessionname = feedbackDialog.findViewById<TextView>(R.id.feedback_namesessie)
+            val description = feedbackDialog.findViewById<TextView>(R.id.feedback_description)
+            val sendBtn = feedbackDialog.findViewById<Button>(R.id.feedback_sendBtn)
+            val cancelBtn = feedbackDialog.findViewById<Button>(R.id.feedback_cancelBtn)
+            val noFeedbackbtn = feedbackDialog.findViewById<Button>(R.id.feedback_uitschrijvenBtn)
+
+            SessionViewHolder(view).button.setOnLongClickListener() {
+                sessionname.text = mSessionData[SessionViewHolder(view).adapterPosition + 1].title
+                sendBtn.setOnClickListener() {
+                    val feedback = Model.Feedback(Date(), description.text.toString(), mSessionData[SessionViewHolder(view).adapterPosition + 1]._id)
+                    val feedbackService = ServiceGenerator.createService(FeedbackApiService::class.java, user.token)
+                    disposable = feedbackService.addFeedback(feedback)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                            { result ->
+                                feedbackDialog.hide()
+                                Toast.makeText(context, "Bedankt voor uw Feedback!", Toast.LENGTH_SHORT).show()
+                            },
+                            { error ->  Log.d("error", error.message)
+                            }
+                        )
+                }
+                cancelBtn.setOnClickListener() {
+                    feedbackDialog.hide()
+                }
+                noFeedbackbtn.setOnClickListener() {
+                    user.feedbackSubscribed = false
+                    val userService = ServiceGenerator.createService(UserApiService::class.java, user.token)
+                    disposable = userService.updateUserFeedback(user)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                            { result ->
+                                    feedbackDialog.hide()
+                            },
+                            { error ->  Log.d("error", error.message)
+                            }
+                        )
+                }
+                feedbackDialog.show()
+                return@setOnLongClickListener true
+            }
             return SessionViewHolder(view)
 
         }
@@ -265,12 +319,15 @@ class SessionFragment : Fragment() {
          * This function attaches the data to item view
          */
         override fun onBindViewHolder(holder: SessionViewHolder, position: Int) {
+
             holder.title.text = (position + 1).toString()
             holder.button.setOnClickListener {
                 val session = mSessionData[position]
                 mClickHandler.onClick(session)
             }
-
+            sessionBools.forEach {
+                Log.d("codes", it.toString())
+            }
             if (sessionBools[position]) {
                 holder.title.visibility = View.VISIBLE
                 holder.lock.visibility = View.INVISIBLE

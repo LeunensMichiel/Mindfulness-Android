@@ -71,13 +71,13 @@ class FragmentExerciseAudio : Fragment() {
             }
         }
         else {
-            disposable = fileService.getFile(Model.File(audioPath))
+            /*disposable = fileService.getFile(Model.File(audioPath))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     { result -> Log.i("motherfuckingAudio", "$result") },
                     { error -> Log.i("ERROR", "$error") }
-                )
+                )*/
             audioVoorbereiden()
        }
     }

@@ -26,4 +26,8 @@ interface UserApiService {
 
     @GET("/API/users/group/{id}")
     fun getUserGroup(@Path("id") id:String?):Observable<Model.Group>
+    //Updates a USER so its feedback field is true or false
+    @PUT("/API/users/user/feedback")
+    fun updateUserFeedback(@Body wantsFeedback : Model.User) : Observable<Model.Result>
+
 }

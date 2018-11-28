@@ -16,7 +16,6 @@ import com.hogent.mindfulness.data.UserApiService
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.exercise_details.ExerciseDetailFragment
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
-import com.hogent.mindfulness.feedback.FeedbackFragment
 import com.hogent.mindfulness.login.LoginActivity
 import com.hogent.mindfulness.post.PostFragment
 import com.hogent.mindfulness.show_sessions.SessionFragment
@@ -38,7 +37,6 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
 
     private lateinit var disposable: Disposable
     private lateinit var sessionFragment: SessionFragment
-    private lateinit var feedbackFragment: FeedbackFragment
     private lateinit var exerciseFragment: ExercisesListFragment
     private lateinit var postFragment: PostFragment
     private lateinit var exerciseDetailFragment: ExerciseDetailFragment
@@ -65,7 +63,6 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         Log.i("LOGIN", "AFTER REDIRECT")
         currentUser = mMindfullDB.getUser()!!
         sessionFragment = SessionFragment()
-        feedbackFragment = FeedbackFragment()
         postFragment = PostFragment()
         supportFragmentManager.beginTransaction()
             .add(R.id.session_container, sessionFragment)
@@ -189,12 +186,6 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
             R.id.navigation_home -> {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.session_container, sessionFragment)
-                    .commit()
-                return@OnNavigationItemSelectedListener true
-            }
-            R.id.navigation_feedback -> {
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.session_container, feedbackFragment)
                     .commit()
                 return@OnNavigationItemSelectedListener true
             }
