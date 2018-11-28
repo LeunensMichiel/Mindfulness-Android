@@ -1,6 +1,7 @@
 package com.hogent.mindfulness.show_sessions
 
 
+import android.animation.ValueAnimator
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
@@ -20,6 +21,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import com.airbnb.lottie.LottieAnimationView
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.data.FeedbackApiService
@@ -110,34 +112,34 @@ class SessionFragment : Fragment() {
             adapter = mAdapter
         }
 
-        view.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener{
-            override fun onGlobalLayout() {
-                sessionFragment.post {
-
-                    val height = view.height
-                    val width = view.width
-
-                    val centerx = (progress_img.width.toFloat() / 2.0).toFloat()
-                    val bottomy = progress_img.height
-
-                    val currentSession = user.unlocked_sessions.size
-                    val sessionSize = 15.0
-                    val coPoint = (currentSession / sessionSize.toFloat()) * coordinates.size.toFloat()
-                    val point = coordinates[coPoint.toInt()]
-                    val newHeight = (point.y.toFloat() / imgHeight) * height.toFloat()
-                    val newWidth = (point.x.toFloat() / imgWidth) * width.toFloat()
-
-                    progress_img.x = newWidth.toFloat() - centerx
-                    progress_img.y = newHeight.toFloat() - bottomy
-
-                    Log.d("ventje_x", progress_img.x.toString())
-                    Log.d("ventje_y", width.toString())
-
-                    view.viewTreeObserver.removeOnGlobalLayoutListener(this)
-
-                }
-            }
-        })
+//        view.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener{
+//            override fun onGlobalLayout() {
+//                sessionFragment.post {
+//
+//                    val height = view.height
+//                    val width = view.width
+//
+//                    val centerx = (progress_img.width.toFloat() / 2.0).toFloat()
+//                    val bottomy = progress_img.height
+//
+//                    val currentSession = user.unlocked_sessions.size
+//                    val sessionSize = 15.0
+//                    val coPoint = (currentSession / sessionSize.toFloat()) * coordinates.size.toFloat()
+//                    val point = coordinates[coPoint.toInt()]
+//                    val newHeight = (point.y.toFloat() / imgHeight) * height.toFloat()
+//                    val newWidth = (point.x.toFloat() / imgWidth) * width.toFloat()
+//
+//                    progress_img.x = newWidth.toFloat() - centerx
+//                    progress_img.y = newHeight.toFloat() - bottomy
+//
+//                    Log.d("ventje_x", progress_img.x.toString())
+//                    Log.d("ventje_y", width.toString())
+//
+//                    view.viewTreeObserver.removeOnGlobalLayoutListener(this)
+//
+//                }
+//            }
+//        })
     }
 
     /**
@@ -154,7 +156,6 @@ class SessionFragment : Fragment() {
             val intent = Intent(activity, ScannerActivity::class.java)
             startActivity(intent)
         }
-
     }
 
     private fun beginRetrieveUser() {
@@ -253,6 +254,14 @@ class SessionFragment : Fragment() {
     ) : RecyclerView.Adapter<SessionAdapter.SessionViewHolder>() {
 
         private lateinit var disposable: Disposable
+        private val LIKE_START = 0.4f
+        private val LIKE_END = 0.7f
+        private val UNLIKE_START = 0.93f
+        private val UNLIKE_END = 1f
+        private val PLAY_START = 0f
+        private val PLAY_END = 0.5f
+        private val PAUSE_START = 0.5f
+        private val PAUSE_END = 1f
 
 
         /**
@@ -325,6 +334,11 @@ class SessionFragment : Fragment() {
                 val session = mSessionData[position]
                 mClickHandler.onClick(session)
             }
+            val animator = ValueAnimator.ofFloat(LIKE_START, LIKE_END).setDuration(500)
+            animator.addUpdateListener {
+                animation -> holder.glowing_orb.progress = animation.getAnimatedValue() as Float
+            }
+            animator.start()
             sessionBools.forEach {
                 Log.d("codes", it.toString())
             }
@@ -358,6 +372,7 @@ class SessionFragment : Fragment() {
             val title: TextView = view.tv_session_title
             val button: FloatingActionButton = view.fab
             val lock: ImageView = view.iv_lock
+            val glowing_orb: LottieAnimationView = view.glowing_orb_animation
 
             init {
 //                view.fab.setOnClickListener {
