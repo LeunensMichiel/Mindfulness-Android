@@ -117,7 +117,7 @@ object Model {
     data class Feedback(
         val date: Date,
         val message: String,
-        val Session_id: String
+        val session: String
     )
 
     data class File(
