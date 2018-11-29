@@ -3,9 +3,7 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:layout_margin="15dp">
+        android:layout_height="wrap_content">
 
     <LinearLayout
             android:layout_width="wrap_content"
@@ -15,10 +13,7 @@
             android:orientation="horizontal"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="32dp">
+            app:layout_constraintTop_toTopOf="parent">
 
         <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/progressbar_animation"
@@ -26,9 +21,9 @@
                 android:layout_height="200dp"
                 android:adjustViewBounds="true"
                 android:cropToPadding="true"
-                android:scaleType="centerInside"
+                android:scaleType="centerCrop"
                 app:lottie_rawRes="@raw/progress_bar"
-                app:lottie_scale="1"
+                app:lottie_scale="2"
                 app:lottie_autoPlay="true"
                 app:lottie_loop="true"/>
 
@@ -52,7 +47,8 @@
                     android:scaleType="centerInside"
                     app:lottie_rawRes="@raw/button_touch_effect"
                     app:lottie_scale="1"
-                    app:lottie_autoPlay="true"
+                    app:lottie_autoPlay="false"
+                    app:lottie_colorFilter="#2979ff"
                     app:lottie_loop="true"
             />
 
@@ -103,7 +99,6 @@
             android:layout_marginEnd="16dp"
             app:layout_constraintTop_toBottomOf="@+id/horizontal_animation_LLayout"
             app:layout_constraintVertical_bias="1.0"
-            android:layout_marginTop="32dp"
             android:layout_marginBottom="8dp">
 
     </android.support.design.widget.FloatingActionButton>
