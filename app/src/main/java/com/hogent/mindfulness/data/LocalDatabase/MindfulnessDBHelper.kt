@@ -126,7 +126,7 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
             val current_ex_id = cursor.getString(2)?:""
             val unlocked_sessions:Array<String> = cursor.getString(3).split(",").toTypedArray()
             val post_ids = cursor.getString(4).split(",").toTypedArray()
-            //val fuckingQWERTY:Boolean = cursor.getInt(5) == 1
+            val feedback:Boolean = cursor.getInt(5) == 1
             user = Model.User(id,
                 "",
                 "",
@@ -139,7 +139,7 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
                 null,
                 "",
                 post_ids,
-                true)
+                feedback)
         }
         db.close()
         return user

@@ -19,7 +19,7 @@ class ServiceGenerator {
         val httpClient = OkHttpClient.Builder()
 
         val builder = Retrofit.Builder()
-            .baseUrl(LOCAL_BASE_URL)
+            .baseUrl(API_BASE_URL)
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
 

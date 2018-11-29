@@ -84,8 +84,8 @@
                 android:id="@+id/linearLayout2"
                 app:layout_constraintTop_toBottomOf="@+id/feedback_description"
                 android:layout_marginTop="8dp"
-                android:paddingTop="5dp">
-            android:paddingBottom="5dp">
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp">
 
             <Button
                     android:text="Uitschrijven Feedback"
@@ -93,7 +93,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/feedback_uitschrijvenBtn"
                     android:layout_weight="1"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     style="@style/Widget.AppCompat.Button.Borderless"
                     android:paddingTop="0dp"
                     android:paddingBottom="0dp"/>
@@ -104,7 +104,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/feedback_cancelBtn"
                     android:layout_weight="1"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
 
                     style="@style/Widget.AppCompat.Button.Borderless"/>
 

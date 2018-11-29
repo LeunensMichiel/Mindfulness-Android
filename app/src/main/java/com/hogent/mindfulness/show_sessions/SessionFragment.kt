@@ -95,11 +95,11 @@ class SessionFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        beginRetrieveSessionmap("5bf72a307a76ee0b04943251")
 
         sessions = arrayOf<Model.Session>()
         sessionBools = BooleanArray(10)
 
+        beginRetrieveSessionmap("5bf72a307a76ee0b04943251")
 
         mAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler, sessionBools, user)
 
@@ -334,11 +334,11 @@ class SessionFragment : Fragment() {
                 val session = mSessionData[position]
                 mClickHandler.onClick(session)
             }
-            val animator = ValueAnimator.ofFloat(LIKE_START, LIKE_END).setDuration(500)
-            animator.addUpdateListener {
-                animation -> holder.glowing_orb.progress = animation.getAnimatedValue() as Float
-            }
-            animator.start()
+//            val animator = ValueAnimator.ofFloat(LIKE_START, LIKE_END).setDuration(500)
+//            animator.addUpdateListener {
+//                animation -> holder.glowing_orb.progress = animation.getAnimatedValue() as Float
+//            }
+//            animator.start()
             sessionBools.forEach {
                 Log.d("codes", it.toString())
             }
