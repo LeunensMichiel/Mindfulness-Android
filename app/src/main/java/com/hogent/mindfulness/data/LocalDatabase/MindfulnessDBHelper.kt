@@ -2,6 +2,7 @@ package com.hogent.mindfulness.data.LocalDatabase
 
 import android.content.ContentValues
 import android.content.Context
+import android.database.DatabaseUtils
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
@@ -19,7 +20,11 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
                 UserEntry.COLUMN_CURRENT_EXERCISE_ID + " TEXT, " +
                 UserEntry.COLUMN_UNLOCKED_SESSIONS + " TEXT, " +
                 UserEntry.COLUMN_POSTS + " TEXT, " +
-                UserEntry.COLUMN_FEEDBACK_IS_SUBSCRIBED + " INTEGER DEFAULT 0" +
+                UserEntry.COLUMN_FEEDBACK_IS_SUBSCRIBED + " INTEGER DEFAULT 0 , " +
+                UserEntry.COLUMN_EMAIL + " TEXT , " +
+                UserEntry.COLUMN_FIRSTNAME + " TEXT , " +
+                UserEntry.COLUMN_LASTNAME + " TEXT , " +
+                UserEntry.COLUMN_GROUP_ID + " TEXT" +
                 "); "
 
         Log.i("dbCOunt", "1")
@@ -48,18 +53,28 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
             val values = ContentValues()
             val unlocked_sessions = user.unlocked_sessions.joinToString(",", "", "")
             val post_ids = user.post_ids.joinToString(",", "", "")
-            val michielZijnFuckingBoolean:Int = if (user.feedbackSubscribed) 1 else 0
+            val feedbackBooleon:Int = if (user.feedbackSubscribed) 1 else 0
+            val firstname = user.firstname
+            val lastname = user.lastname
+            val email = user.email
+            val group = user.group!!
 
             values.put(UserEntry.COLUMN_ID, user._id)
             values.put(UserEntry.COLUMN_CURRENT_SESSION_ID, user.current_session_id)
             values.put(UserEntry.COLUMN_CURRENT_EXERCISE_ID, user.current_exercise_id)
             values.put(UserEntry.COLUMN_UNLOCKED_SESSIONS, unlocked_sessions)
             values.put(UserEntry.COLUMN_POSTS, post_ids)
-            values.put(UserEntry.COLUMN_FEEDBACK_IS_SUBSCRIBED, michielZijnFuckingBoolean)
+            values.put(UserEntry.COLUMN_FEEDBACK_IS_SUBSCRIBED, feedbackBooleon)
+            values.put(UserEntry.COLUMN_EMAIL, email)
+            values.put(UserEntry.COLUMN_FIRSTNAME, firstname)
+            values.put(UserEntry.COLUMN_LASTNAME, lastname)
+            //DIT ZOU MISSCHIEN VOOR FOUTEN KUNNEN ZORGEN WOEPSIE DUS ALS JE EEN
+            // BUG HEBT MET DE GROEPEN OF USER 30/11/2018
+            values.put(UserEntry.COLUMN_GROUP_ID, group._id)
 
             val db = this.writableDatabase
             Log.i("dbUser", values.toString())
-            Log.i("FUCKINGFEEDBQCKBULLSHIT", "$values")
+            Log.i("dbUserValues", "$values")
             db.insert(UserEntry.TABLE_NAME,null,  values)
             db.close()
 
@@ -121,22 +136,27 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
         var user: Model.User? = null
         if (cursor.moveToFirst()){
             cursor.moveToFirst()
+            Log.d("cursortje",  DatabaseUtils.dumpCursorToString(cursor))
             val id = cursor.getString(0)
             val current_session_id = cursor.getString(1)?:""
             val current_ex_id = cursor.getString(2)?:""
             val unlocked_sessions:Array<String> = cursor.getString(3).split(",").toTypedArray()
             val post_ids = cursor.getString(4).split(",").toTypedArray()
             val feedback:Boolean = cursor.getInt(5) == 1
+            val email: String = cursor.getString(6)?:""
+            val firstname: String = cursor.getString(7)?:""
+            val lastname: String = cursor.getString(8)?:""
+            val group: String = cursor.getString(9)?:""
             user = Model.User(id,
-                "",
-                "",
-                "",
+                firstname,
+                lastname,
+                email,
                 current_session_id,
                 current_ex_id,
                 null,
                 null,
                 unlocked_sessions,
-                null,
+               /* getGroup(),*/null,
                 "",
                 post_ids,
                 feedback)
