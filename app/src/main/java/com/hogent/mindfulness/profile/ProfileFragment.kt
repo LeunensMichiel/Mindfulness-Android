@@ -5,7 +5,6 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.SimpleAdapter
 import android.widget.Toast
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
@@ -17,7 +16,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_profile.*
-import kotlinx.android.synthetic.main.profile_listview.*
 import kotlin.properties.Delegates.observable
 
 
@@ -36,7 +34,7 @@ class ProfileFragment : Fragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 {result -> initUserScreen(result)},
-                {error -> Toast.makeText(context, error.message, Toast.LENGTH_LONG).show()}
+                {error -> Toast.makeText(context, error.message, Toast.LENGTH_SHORT).show()}
             )
     }
 

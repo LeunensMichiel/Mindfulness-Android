@@ -10,7 +10,7 @@ import com.hogent.mindfulness.data.LocalDatabase.MindfulnessContract.GroupEntry
 import com.hogent.mindfulness.data.LocalDatabase.MindfulnessContract.UserEntry
 import com.hogent.mindfulness.domain.Model
 
-class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+class MindfulnessDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     override fun onCreate(db: SQLiteDatabase?) {
         Log.i("db", "db creation")
@@ -47,13 +47,13 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
         onCreate(db)
     }
 
-    fun addUser(user: Model.User):Boolean {
-        val userExists = doesDataExist(UserEntry.TABLE_NAME, UserEntry.COLUMN_ID , user._id)
-        if (!userExists){
+    fun addUser(user: Model.User): Boolean {
+        val userExists = doesDataExist(UserEntry.TABLE_NAME, UserEntry.COLUMN_ID, user._id)
+        if (!userExists) {
             val values = ContentValues()
             val unlocked_sessions = user.unlocked_sessions.joinToString(",", "", "")
             val post_ids = user.post_ids.joinToString(",", "", "")
-            val feedbackBooleon:Int = if (user.feedbackSubscribed) 1 else 0
+            val feedbackBooleon: Int = if (user.feedbackSubscribed) 1 else 0
             val firstname = user.firstname
             val lastname = user.lastname
             val email = user.email
@@ -75,7 +75,7 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
             val db = this.writableDatabase
             Log.i("dbUser", values.toString())
             Log.i("dbUserValues", "$values")
-            db.insert(UserEntry.TABLE_NAME,null,  values)
+            db.insert(UserEntry.TABLE_NAME, null, values)
             db.close()
 
             addGroup(user.group!!)
@@ -83,7 +83,7 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
         return userExists
     }
 
-    fun addGroup(group: Model.Group){
+    fun addGroup(group: Model.Group) {
         val values = ContentValues()
 
         values.put(GroupEntry.COLUMN_ID, group._id)
@@ -97,7 +97,7 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
     }
 
     fun doesDataExist(TableName: String, dbfield: String, fieldValue: String): Boolean {
-        val sqldb =this.readableDatabase
+        val sqldb = this.readableDatabase
         val Query = "Select * from $TableName where $dbfield =\"$fieldValue\""
         val cursor = sqldb.rawQuery(Query, null)
         if (cursor.getCount() <= 0) {
@@ -116,7 +116,7 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
         if (cursor.moveToFirst()) {
             cursor.moveToFirst()
             val id = cursor.getString(0)
-            val name:String = cursor.getString(1)
+            val name: String = cursor.getString(1)
             val sessionmap_id = cursor.getString(2)
             group = Model.Group(
                 id,
@@ -134,20 +134,21 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
         val db = this.writableDatabase
         val cursor = db.rawQuery(query, null)
         var user: Model.User? = null
-        if (cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             cursor.moveToFirst()
-            Log.d("cursortje",  DatabaseUtils.dumpCursorToString(cursor))
+            Log.d("cursortje", DatabaseUtils.dumpCursorToString(cursor))
             val id = cursor.getString(0)
-            val current_session_id = cursor.getString(1)?:""
-            val current_ex_id = cursor.getString(2)?:""
-            val unlocked_sessions:Array<String> = cursor.getString(3).split(",").toTypedArray()
+            val current_session_id = cursor.getString(1) ?: ""
+            val current_ex_id = cursor.getString(2) ?: ""
+            val unlocked_sessions: Array<String> = cursor.getString(3).split(",").toTypedArray()
             val post_ids = cursor.getString(4).split(",").toTypedArray()
-            val feedback:Boolean = cursor.getInt(5) == 1
-            val email: String = cursor.getString(6)?:""
-            val firstname: String = cursor.getString(7)?:""
-            val lastname: String = cursor.getString(8)?:""
-            val group: String = cursor.getString(9)?:""
-            user = Model.User(id,
+            val feedback: Boolean = cursor.getInt(5) == 1
+            val email: String = cursor.getString(6) ?: ""
+            val firstname: String = cursor.getString(7) ?: ""
+            val lastname: String = cursor.getString(8) ?: ""
+            val group: String = cursor.getString(9) ?: ""
+            user = Model.User(
+                id,
                 firstname,
                 lastname,
                 email,
@@ -156,10 +157,11 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
                 null,
                 null,
                 unlocked_sessions,
-               /* getGroup(),*/null,
+                getGroup(),
                 "",
                 post_ids,
-                feedback)
+                feedback
+            )
         }
         db.close()
         return user

@@ -1,7 +1,6 @@
 package com.hogent.mindfulness.show_sessions
 
 
-import android.animation.ValueAnimator
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
@@ -16,7 +15,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -99,7 +97,7 @@ class SessionFragment : Fragment() {
         sessions = arrayOf<Model.Session>()
         sessionBools = BooleanArray(10)
 
-        beginRetrieveSessionmap("5bf72a307a76ee0b04943251")
+        beginRetrieveSessionmap(user.group!!.sessionmap_id)
 
         mAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler, sessionBools, user)
 
