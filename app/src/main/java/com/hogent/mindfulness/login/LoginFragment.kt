@@ -190,17 +190,8 @@ class LoginFragment : Fragment() {
     }
 
     private fun successfulLogin(user: Model.User) {
-        val userService = ServiceGenerator.createService(UserApiService::class.java)
-        disposable = userService.getUser(user._id)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { userFull ->
-                    Log.d("user", user.toString())
-                    if (mMindfullDB.addUser(userFull)) toast("User added to local db") else toast("User not added to local db")
-                },
-                { error ->  }
-            )
+        if (mMindfullDB.addUser(user)) toast("User added to local db") else toast("User not added to local db")
+
         showProgress(false)
         activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
             .edit()
