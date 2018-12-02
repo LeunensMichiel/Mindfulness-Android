@@ -13,6 +13,10 @@ class MindfulnessContract {
             val COLUMN_CURRENT_EXERCISE_ID = "current_exercise_id"
             val COLUMN_POSTS = "post_ids"
             val COLUMN_FEEDBACK_IS_SUBSCRIBED = "feedback_is_subscribed"
+            val COLUMN_EMAIL = "email"
+            val COLUMN_FIRSTNAME = "firstname"
+            val COLUMN_LASTNAME = "lastname"
+            val COLUMN_GROUP_ID = "group_id"
         }
     }
 

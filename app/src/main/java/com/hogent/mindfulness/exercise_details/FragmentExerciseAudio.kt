@@ -15,7 +15,15 @@ import android.widget.SeekBar
 import android.widget.Toast
 import kotlinx.android.synthetic.main.fragment_fragment_oefeningaudio.*
 import android.content.res.Configuration
+import android.util.Log
+import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
+import com.hogent.mindfulness.data.FIleApiService
+import com.hogent.mindfulness.data.ServiceGenerator
+import com.hogent.mindfulness.domain.Model
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 
 /**
  * Deze klasse is een Fragment die verantwoordelijk is voor de audiopagina van de oefening
@@ -30,7 +38,9 @@ class FragmentExerciseAudio : Fragment() {
      * bron voor mediaplayer: https://www.youtube.com/watch?v=zCYQBIcePaw
      */
     var mp: MediaPlayer? = null
-
+    lateinit var audioFilename:String
+    lateinit var disposable: Disposable
+    lateinit var fileService: FIleApiService
     /**
      * variabele totalTime om dit later gelijk te zetten aan het totale aantal van de duratie van de audiofile
      */
@@ -41,6 +51,8 @@ class FragmentExerciseAudio : Fragment() {
      */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        fileService = ServiceGenerator.createService(FIleApiService::class.java, (activity as MainActivity))
+
         return inflater.inflate(R.layout.fragment_fragment_oefeningaudio, container, false)
     }
 
@@ -59,6 +71,13 @@ class FragmentExerciseAudio : Fragment() {
             }
         }
         else {
+            /*disposable = fileService.getFile(Model.File(audioPath))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    { result -> Log.i("motherfuckingAudio", "$result") },
+                    { error -> Log.i("ERROR", "$error") }
+                )*/
             audioVoorbereiden()
        }
     }

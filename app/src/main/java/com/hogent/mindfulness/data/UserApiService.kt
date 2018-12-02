@@ -2,11 +2,7 @@ package com.hogent.mindfulness.data
 
 import com.hogent.mindfulness.domain.Model
 import io.reactivex.Observable
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface UserApiService {
     @POST("/API/users/login")
@@ -20,7 +16,7 @@ interface UserApiService {
      * This API call should be eliminated in the future with a locale database (sqllite)
      */
     @GET("/API/users/user/{id}")
-    fun getUser(@Path("id") id:String?): Observable<Model.User>
+    fun getUser( @Path("id") id:String?): Observable<Model.User>
 
     /**
      * unlocks a session with a code (code == session_id)
@@ -33,6 +29,9 @@ interface UserApiService {
      */
     @PUT("/users/user{id}")
     fun updateUserGroup(@Path("id") id: String, @Body usergroup: Model.user_group) : Observable<Model.Result>
+
+    @GET("/API/users/group/{id}")
+    fun getUserGroup(@Path("id") id:String?):Observable<Model.Group>
 
     //Updates a USER so its feedback field is true or false
     @PUT("/API/users/user/feedback")

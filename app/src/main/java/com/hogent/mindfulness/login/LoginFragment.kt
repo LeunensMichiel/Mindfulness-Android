@@ -172,7 +172,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun doLogin(loginDetails: Model.Login) {
-        val loginService = ServiceGenerator.createService(UserApiService::class.java)
+        val loginService = ServiceGenerator.createService(UserApiService::class.java, (activity as LoginActivity))
         showProgress(true)
 
         disposable = loginService.login(loginDetails)
@@ -221,6 +221,7 @@ class LoginFragment : Fragment() {
         // TODO geef hier later een betere foutmelding op mss niet speciefiek op password
         login_password.error = getString(R.string.error_incorrect_password)
         login_password.requestFocus()
+        Log.d("logintje", error)
         showProgress(false)
     }
 
@@ -275,7 +276,7 @@ class LoginFragment : Fragment() {
 //            this,
 //            // Retrieve data rows for the device user's 'profile' contact.
 //            Uri.withAppendedPath(
-//                ContactsContract.Profile.CONTENT_URI,
+//                ContactsContract.ProfileFragment.CONTENT_URI,
 //                ContactsContract.Contacts.Data.CONTENT_DIRECTORY
 //            ), ProfileQuery.PROJECTION,
 //

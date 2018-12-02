@@ -1,6 +1,5 @@
 package com.hogent.mindfulness.data
 
-import android.util.Log
 import okhttp3.Interceptor
 import okhttp3.Response
 
@@ -9,7 +8,6 @@ class AuthenticationInterceptor(val authToken: String): Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val oldRequest = chain.request()
-        Log.d("test",authToken)
         val builder = oldRequest.newBuilder()
             .header("Authorization", "Bearer $authToken")
 

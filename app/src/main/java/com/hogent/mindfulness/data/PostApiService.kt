@@ -20,4 +20,7 @@ interface PostApiService {
 
     @GET("/API/post/checkpost/{page_id}")
     fun checkPageId(@Path("page_id") page_id:String):Observable<Model.Post>
+
+    @GET("/API/post/post/{user_id}")
+    fun getPosts(@Path("user_id") user_id:String):Observable<Array<Model.Post>>
 }

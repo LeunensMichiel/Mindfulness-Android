@@ -90,14 +90,16 @@ class ExerciseDetailFragment(): Fragment(){
                 "AUDIO" ->
                 {
                     val fragment = FragmentExerciseAudio()
+                    Log.i("FUCKINGAUDIO", it.audioFilename)
+                    fragment.audioFilename = it.audioFilename
                     val arg = Bundle()
-                    arg.putString("audiopad", it.pathaudio)
+                    arg.putString("audioFilename", it.audioFilename)
                     fragment.arguments = arg
                     adapter.addFragment(fragment, "Audio")
                 }
                 "TEXT" ->
                 {
-                    Log.i("PAGE", "TEST")
+                    Log.i("PAGE", "TEXT")
                     val fragment = FragmentExerciseText()
                     val arg = Bundle()
                     arg.putString("description", it.description)

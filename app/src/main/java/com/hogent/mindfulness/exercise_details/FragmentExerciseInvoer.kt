@@ -15,6 +15,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import kotlinx.android.synthetic.main.fragment_fragment_oefeninginvoer.*
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.data.PostApiService
@@ -38,19 +39,9 @@ class FragmentExerciseInvoer : Fragment() {
     private lateinit var disposable: Disposable
     private lateinit var post:Model.Post
 
-    private val postService by lazy {
-        ServiceGenerator.createService(PostApiService::class.java)
-    }
+    private lateinit var postService:PostApiService
 
-    var page:Model.Page? by Delegates.observable(null) {property, oldValue:Model.Page?, newValue:Model.Page? ->
-        disposable = postService.checkPageId(newValue!!._id)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                {result -> post = result},
-                {error -> Log.i("fuck", "fuck")}
-            )
-    }
+    lateinit var page:Model.Page
 
     /**
      * in de onCreateView-methode inflaten we onze layout fragment_fragment_oefeninginvoer
@@ -59,42 +50,14 @@ class FragmentExerciseInvoer : Fragment() {
                               savedInstanceState: Bundle?): View? {
         //beginRetrievePost()
         // Inflate the layout for this fragment
+        postService = ServiceGenerator.createService(PostApiService::class.java, (activity as MainActivity))
         return inflater.inflate(R.layout.fragment_fragment_oefeninginvoer, container, false)
     }
-
-    private fun beginRetrievePost() {
-        var info = PostInformation()
-        info.sessionmap_id = "5bdc9ecbe9bc22054be4a64d"
-        info.session_id = "5be2a269e19f6a1b2bf7eaae"
-        info.exercise_id = "5bd1922012bbd66b6c19aa31"
-        info.page_id = "5bd837fde39837098a7a7c82"
-        info.user_id = "5bdc6f7cd7371903f9c88bc4"
-        val PostService = ServiceGenerator.createService(PostApiService::class.java,
-            activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-                .getString(getString(R.string.authTokenKey), null))
-
-        disposable = PostService.getPostOfPage(info)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { result -> showResultPost(result) },
-                { error -> showError(error.message) }
-            )
-    }
-
     /**
      * Dit is een methode om eventuele fouten te tonen
      */
     fun showError(errMsg: String?) {
         Toast.makeText(activity, errMsg, Toast.LENGTH_SHORT).show()
-    }
-
-    fun showResultPost(post: Model.Post) {
-        text_edit.setText(post.inhoud)
-        if(postId == null){
-            postId = post._id
-            Log.d("PostId","----------"+post._id+"---------")
-        }
     }
 
     /**
@@ -110,9 +73,24 @@ class FragmentExerciseInvoer : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        disposable = postService.checkPageId(page!!._id)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                {result ->
+                    post = result
+                    showResult()
+                    Log.i("OBSERVABLE", "$post")
+                },
+                {error -> Log.i("fuck", "fuck")}
+            )
         if(this.arguments!!.containsKey("opgave")){
             inputlayout.hint = this.arguments!!.getString("opgave", "check")
         }
+
+    }
+
+    fun showResult() {
         text_edit.setText(post.inhoud)
         val pm = context!!.getPackageManager()
         if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
@@ -135,45 +113,7 @@ class FragmentExerciseInvoer : Fragment() {
         }
     }
 
-    private fun updatePost(){
-        var info = PostInformation()
-        info.sessionmap_id = "5bdc9ecbe9bc22054be4a64d"
-        info.session_id = "5be2a269e19f6a1b2bf7eaae"
-        info.exercise_id = "5bd1922012bbd66b6c19aa31"
-        info.page_id = "5bd837fde39837098a7a7c82"
-        info.user_id = "5bdc6f7cd7371903f9c88bc4"
-        info.inhoud = text_edit.text.toString()
-        val postService = ServiceGenerator.createService(PostApiService::class.java,
-            activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-                .getString(getString(R.string.authTokenKey), null))
-
-        disposable = postService.updatePost("5be2ad3d9a683c6576fbabe2",info)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { result -> showResultPost(result) },
-                { error -> showError(error.message) }
-            )
     }
-
-    /*
- private fun maakPost()
- {
-     var info = PostInformation()
-     info.sessionmap_id = "5bdc9ecbe9bc22054be4a64d"
-     info.session_id = "5be2a269e19f6a1b2bf7eaae"
-     info.exercise_id = "5bd1922012bbd66b6c19aa31"
-     info.page_id = "5bd837fde39837098a7a7c82"
-     info.user_id = "5bdc6f7cd7371903f9c88bc4"
-     info.inhoud = text_edit.text.toString()
-     mindfulnessApiService.maakPost(info)
-         .subscribeOn(Schedulers.io())
-         .observeOn(AndroidSchedulers.mainThread())
-         .subscribe(
-             { result -> showResultPost(result) },
-             { error -> showError(error.message) }
-         )
- } */
 
     /**
      * Als de configuratie verandert, wordt deze methode aangeroepen

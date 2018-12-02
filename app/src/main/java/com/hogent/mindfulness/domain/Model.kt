@@ -1,6 +1,7 @@
 package com.hogent.mindfulness.domain
 
 import com.google.gson.annotations.SerializedName
+import java.util.*
 
 
 object Model {
@@ -15,7 +16,9 @@ object Model {
     data class Session(
         val _id: String,
         val position: Int,
-        val title: String
+        val title: String,
+        @SerializedName("image_filename")
+        val imageFilename: String
     )
 
 
@@ -25,7 +28,8 @@ object Model {
     )
 
     data class Page(
-        val pathaudio: String,
+        @SerializedName("audio_filename")
+        val audioFilename: String,
         val type: String,
         val _id: String,
         val title: String,
@@ -38,8 +42,8 @@ object Model {
         val _id: String,
         @SerializedName("form_type")
         val type: String,
-        val filename: String,
-        val pathname: String,
+        @SerializedName("image_filename")
+        val imageFilename: String,
         val description: String
     )
 
@@ -57,19 +61,18 @@ object Model {
 //        @ColumnInfo(name = "unlocked_sessions")
         var unlocked_sessions: Array<String>,
 //        @ColumnInfo(name = "group")
-        val group: Group?,
+        var group: Group?,
 //        @ColumnInfo(name = "token")
         var token: String?,
         var post_ids: Array<String>,
         var feedbackSubscribed: Boolean
     )
 
-
     data class Group(
-        val _id: String,
-        val name: String,
-        val sessionmap_id: String,
-        var sessionmap: Sessionmap?
+        var _id: String,
+        var name: String,
+        var sessionmap_id: String,
+        var sessionmap: Sessionmap? = null
     )
 
     data class Login(
@@ -87,7 +90,7 @@ object Model {
         val result: String
     )
 
-    data class unlock_session (
+    data class unlock_session(
         val id: String,
         val session_id: String
     )
@@ -97,7 +100,7 @@ object Model {
     )
 
     data class Post(
-        var _id:String? = null,
+        var _id:String? = "none",
         var inhoud:String? = null,
         var afbeelding:String? = null,
         var sessionmap_id:String? = null,
@@ -111,7 +114,19 @@ object Model {
         var page_name:String? = null
     )
 
-    data class Point(val x: Int,
-                      val y: Int,
-                     val orientation: Boolean)
+    data class Point(
+        val x: Int,
+        val y: Int,
+        val orientation: Boolean
+    )
+
+    data class Feedback(
+        val date: Date,
+        val message: String,
+        val session: String
+    )
+
+    data class File(
+        val path:String?
+    )
 }

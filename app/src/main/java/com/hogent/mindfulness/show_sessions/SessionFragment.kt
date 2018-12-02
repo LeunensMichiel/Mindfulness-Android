@@ -15,13 +15,14 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import com.airbnb.lottie.LottieAnimationView
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
+import com.hogent.mindfulness.data.FeedbackApiService
 import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
 import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.data.SessionApiService
@@ -34,6 +35,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.session_fragment.*
 import kotlinx.android.synthetic.main.session_item_list.view.*
+import java.util.*
 
 
 class SessionFragment : Fragment() {
@@ -72,6 +74,7 @@ class SessionFragment : Fragment() {
     private lateinit var disposable: Disposable
     private lateinit var user: Model.User
     lateinit var unlockSession: String
+    private lateinit var sessionService:SessionApiService
     /**
      * I used this resource: https://developer.android.com/guide/topics/ui/layout/recyclerview
      */
@@ -83,7 +86,6 @@ class SessionFragment : Fragment() {
         user = mMindfullDB.getUser()!!
         Log.i("DBUSER", "$user")
         //beginRetrieveUser()
-        beginRetrieveSessionmap(/*getString(R.string.sessionmap_id)*/"5bf476c6cd754b46e1cf8f0d")
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.session_fragment, container, false)
     }
@@ -93,9 +95,12 @@ class SessionFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         sessions = arrayOf<Model.Session>()
-        val sessionBools = BooleanArray(10)
+        sessionBools = BooleanArray(10)
+
+        beginRetrieveSessionmap(user.group!!.sessionmap_id)
 
         mAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler, sessionBools, user)
+
         val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
 
         Log.d("sessions", sessions.size.toString())
@@ -105,34 +110,34 @@ class SessionFragment : Fragment() {
             adapter = mAdapter
         }
 
-        view.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener{
-            override fun onGlobalLayout() {
-                sessionFragment.post {
-
-                    val height = view.height
-                    val width = view.width
-
-                    val centerx = (progress_img.width.toFloat() / 2.0).toFloat()
-                    val bottomy = progress_img.height
-
-                    val currentSession = user.unlocked_sessions.size
-                    val sessionSize = 15.0
-                    val coPoint = (currentSession / sessionSize.toFloat()) * coordinates.size.toFloat()
-                    val point = coordinates[coPoint.toInt()]
-                    val newHeight = (point.y.toFloat() / imgHeight) * height.toFloat()
-                    val newWidth = (point.x.toFloat() / imgWidth) * width.toFloat()
-
-                    progress_img.x = newWidth.toFloat() - centerx
-                    progress_img.y = newHeight.toFloat() - bottomy
-
-                    Log.d("ventje_x", progress_img.x.toString())
-                    Log.d("ventje_y", width.toString())
-
-                    view.viewTreeObserver.removeOnGlobalLayoutListener(this)
-
-                }
-            }
-        })
+//        view.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener{
+//            override fun onGlobalLayout() {
+//                sessionFragment.post {
+//
+//                    val height = view.height
+//                    val width = view.width
+//
+//                    val centerx = (progress_img.width.toFloat() / 2.0).toFloat()
+//                    val bottomy = progress_img.height
+//
+//                    val currentSession = user.unlocked_sessions.size
+//                    val sessionSize = 15.0
+//                    val coPoint = (currentSession / sessionSize.toFloat()) * coordinates.size.toFloat()
+//                    val point = coordinates[coPoint.toInt()]
+//                    val newHeight = (point.y.toFloat() / imgHeight) * height.toFloat()
+//                    val newWidth = (point.x.toFloat() / imgWidth) * width.toFloat()
+//
+//                    progress_img.x = newWidth.toFloat() - centerx
+//                    progress_img.y = newHeight.toFloat() - bottomy
+//
+//                    Log.d("ventje_x", progress_img.x.toString())
+//                    Log.d("ventje_y", width.toString())
+//
+//                    view.viewTreeObserver.removeOnGlobalLayoutListener(this)
+//
+//                }
+//            }
+//        })
     }
 
     /**
@@ -154,9 +159,7 @@ class SessionFragment : Fragment() {
 
         val userid = activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
                 .getString(getString(R.string.userIdKey), "")
-        val userService = ServiceGenerator.createService(UserApiService::class.java,
-            activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-            .getString(getString(R.string.authTokenKey), null))
+        val userService = ServiceGenerator.createService(UserApiService::class.java, (activity as MainActivity))
 
         disposable = userService.getUser(userid)
             .subscribeOn(Schedulers.io())
@@ -218,7 +221,7 @@ class SessionFragment : Fragment() {
 //        }
 
         this.sessions = sessions
-        sessionBools = BooleanArray(10)
+
         sessions.forEach {
             sessionBools[it.position] = user.unlocked_sessions.contains(it._id)
 
@@ -247,6 +250,16 @@ class SessionFragment : Fragment() {
         val user: Model.User
     ) : RecyclerView.Adapter<SessionAdapter.SessionViewHolder>() {
 
+        private lateinit var disposable: Disposable
+        private val LIKE_START = 0.4f
+        private val LIKE_END = 0.7f
+        private val UNLIKE_START = 0.93f
+        private val UNLIKE_END = 1f
+        private val PLAY_START = 0f
+        private val PLAY_END = 0.5f
+        private val PAUSE_START = 0.5f
+        private val PAUSE_END = 1f
+
 
         /**
          * This function loads in the item view
@@ -256,7 +269,6 @@ class SessionFragment : Fragment() {
             val layoutIdForListItem = R.layout.session_item_list
             val inflater = LayoutInflater.from(context)
             val view = inflater.inflate(layoutIdForListItem, viewGroup, false)
-            Log.d("view", "i am created")
 
             //Tijdelijke Manier om van Sessions Feedback Te krijgen
             val feedbackDialog = Dialog(context)
@@ -271,22 +283,40 @@ class SessionFragment : Fragment() {
             SessionViewHolder(view).button.setOnLongClickListener() {
                 sessionname.text = mSessionData[SessionViewHolder(view).adapterPosition + 1].title
                 sendBtn.setOnClickListener() {
-                    //TODO Make an api call to angular part, need Feedback Objects for this
-                    //New Feedback maken
-                    return@setOnClickListener
+                    val feedback = Model.Feedback(Date(), description.text.toString(), mSessionData[SessionViewHolder(view).adapterPosition + 1]._id)
+                    val feedbackService = ServiceGenerator.createService(FeedbackApiService::class.java, user.token)
+                    disposable = feedbackService.addFeedback(feedback)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                            { result ->
+                                feedbackDialog.hide()
+                                Toast.makeText(context, "Bedankt voor uw Feedback!", Toast.LENGTH_SHORT).show()
+                            },
+                            { error ->  Log.d("error", error.message)
+                            }
+                        )
                 }
                 cancelBtn.setOnClickListener() {
                     feedbackDialog.hide()
                 }
                 noFeedbackbtn.setOnClickListener() {
                     user.feedbackSubscribed = false
-
+                    val userService = ServiceGenerator.createService(UserApiService::class.java, user.token)
+                    disposable = userService.updateUserFeedback(user)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                            { result ->
+                                    feedbackDialog.hide()
+                            },
+                            { error ->  Log.d("error", error.message)
+                            }
+                        )
                 }
                 feedbackDialog.show()
                 return@setOnLongClickListener true
             }
-
-
             return SessionViewHolder(view)
 
         }
@@ -295,12 +325,20 @@ class SessionFragment : Fragment() {
          * This function attaches the data to item view
          */
         override fun onBindViewHolder(holder: SessionViewHolder, position: Int) {
+
             holder.title.text = (position + 1).toString()
             holder.button.setOnClickListener {
                 val session = mSessionData[position]
                 mClickHandler.onClick(session)
             }
-
+//            val animator = ValueAnimator.ofFloat(LIKE_START, LIKE_END).setDuration(500)
+//            animator.addUpdateListener {
+//                animation -> holder.glowing_orb.progress = animation.getAnimatedValue() as Float
+//            }
+//            animator.start()
+            sessionBools.forEach {
+                Log.d("codes", it.toString())
+            }
             if (sessionBools[position]) {
                 holder.title.visibility = View.VISIBLE
                 holder.lock.visibility = View.INVISIBLE
@@ -331,6 +369,7 @@ class SessionFragment : Fragment() {
             val title: TextView = view.tv_session_title
             val button: FloatingActionButton = view.fab
             val lock: ImageView = view.iv_lock
+            val glowing_orb: LottieAnimationView = view.glowing_orb_animation
 
             init {
 //                view.fab.setOnClickListener {

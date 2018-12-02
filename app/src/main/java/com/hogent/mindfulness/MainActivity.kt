@@ -17,6 +17,8 @@ import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.exercise_details.ExerciseDetailFragment
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
 import com.hogent.mindfulness.login.LoginActivity
+import com.hogent.mindfulness.post.PostFragment
+import com.hogent.mindfulness.profile.ProfileFragment
 import com.hogent.mindfulness.exercise_details.*
 import com.hogent.mindfulness.group.GroupFragment
 import com.hogent.mindfulness.show_sessions.SessionFragment
@@ -33,21 +35,22 @@ import com.evernote.android.job.JobManager
 import com.hogent.mindfulness.notification_settings.SettingsActivity
 import org.jetbrains.anko.support.v4.toast
 
+class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.SessionAdapterOnClickHandler, ExercisesListFragment.ExerciseAdapter.ExerciseAdapterOnClickHandler {
 
-class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.SessionAdapterOnClickHandler,
-    ExercisesListFragment.ExerciseAdapter.ExerciseAdapterOnClickHandler {
+
     //initializing attributes
-    private val mMindfullDB by lazy {
-        MindfulnessDBHelper(this@MainActivity)
-    }
+    private val mMindfullDB = MindfulnessDBHelper(this@MainActivity )
+
     private val postService by lazy {
-        ServiceGenerator.createService(PostApiService::class.java)
+        ServiceGenerator.createService(PostApiService::class.java, this@MainActivity)
     }
 
     private lateinit var disposable: Disposable
     private lateinit var sessionFragment: SessionFragment
     private lateinit var groupFragment: GroupFragment
     private lateinit var exerciseFragment: ExercisesListFragment
+    private lateinit var postFragment: PostFragment
+    private lateinit var profileFragment: ProfileFragment
     private lateinit var exerciseDetailFragment: ExerciseDetailFragment
     private lateinit var currentUser: Model.User
     private var currentPost = Model.Post()
@@ -72,13 +75,15 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
+        Log.i("LOGIN", "BEFORE REDIRECT")
         if (checkIfLoggedIn()) {
+            Log.i("LOGIN", "REDIRECT")
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
         }
-        currentUser = mMindfullDB.getUser()!!
-        Log.d("user", currentUser.toString())
 
+        Log.i("LOGIN", "AFTER REDIRECT")
+        currentUser = mMindfullDB.getUser()!!
         if (checkIfHasGroup()) {
             groupFragment = GroupFragment()
 
@@ -87,6 +92,9 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                 .commit()
         } else {
             sessionFragment = SessionFragment()
+
+            postFragment = PostFragment()
+            profileFragment = ProfileFragment()
 
             supportFragmentManager.beginTransaction()
                 .add(R.id.session_container, sessionFragment)
@@ -107,16 +115,13 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
     override fun onResume() {
         super.onResume()
 
-        if (intent.hasExtra("code")) {
-            Log.d("code", intent.getStringExtra("code"))
+        if (intent.hasExtra("code")){
             if (checkIfHasGroup()) {
                 val sharedPref =
                     getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
                         .getString(getString(R.string.userIdKey), "")
                 val user_group = Model.user_group(intent.getStringExtra("code"))
-                val userService = ServiceGenerator.createService(UserApiService::class.java,
-                    getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-                        .getString(getString(R.string.authTokenKey), null))
+                val userService = ServiceGenerator.createService(UserApiService::class.java, this@MainActivity)
                 val group = Model.Group(intent.getStringExtra("code"), "", "", null)
 
                 mMindfullDB.addGroup(group)
@@ -133,9 +138,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                     .getString(getString(R.string.userIdKey), "")
                 Log.d("user", sharedPref)
                 val unlock_session = Model.unlock_session(sharedPref, intent.getStringExtra("code"))
-                val userService = ServiceGenerator.createService(UserApiService::class.java,
-                    getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-                        .getString(getString(R.string.authTokenKey), null))
+                val userService = ServiceGenerator.createService(UserApiService::class.java, this@MainActivity)
 
                 disposable = userService.updateUser(unlock_session)
                     .subscribeOn(Schedulers.io())
@@ -185,6 +188,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
      */
     override fun onClickExercise(exercise: Model.Exercise) {
         exerciseDetailFragment = ExerciseDetailFragment()
+        Log.i("EX ID", exercise._id)
         exerciseDetailFragment.manager = supportFragmentManager
         exerciseDetailFragment.exerciseId = exercise._id
         currentPost.exercise_name = exercise.title
@@ -199,9 +203,10 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         currentPost.page_name = page.title
         currentPost.inhoud = description
         currentPost.user_id = currentUser._id
-
-        Log.i("POST", "$newPost")
-        if (newPost._id == "none"){
+        currentPost._id = newPost._id
+        Log.i("FUCKING_POST", "$newPost")
+        if (currentPost._id == "none" || currentPost._id == null){
+            currentPost._id = null
             disposable = postService.addPost(currentPost)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -215,17 +220,15 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     { result -> Log.i("oldPost", "$result") },
-                    { error -> showError("MOTHERFUCK") }
+                    { error -> Log.i("ERRORCHECK",error.message) }
                 )
         }
-        Log.i("POST", "${currentPost.session_name} > ${currentPost.exercise_name} > ${currentPost.page_name} - ${currentPost.page_id}")
         return currentPost
     }
 
-    fun onPostResult(savedPost: Model.Post) {
+    fun onPostResult(savedPost:Model.Post){
         currentPost = savedPost
     }
-
     /**
      * Initialize NavigationListener
      * Specify Fragment to add to Activity via itemId in Navigation
@@ -235,6 +238,18 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
             R.id.navigation_home -> {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.session_container, sessionFragment)
+                    .commit()
+                return@OnNavigationItemSelectedListener true
+            }
+            R.id.navigation_feedback -> {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.session_container, postFragment)
+                    .commit()
+                return@OnNavigationItemSelectedListener true
+            }
+            R.id.navigation_profile -> {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.session_container, profileFragment)
                     .commit()
                 return@OnNavigationItemSelectedListener true
             }
@@ -256,6 +271,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         } else {
             supportFragmentManager.popBackStack()
         }
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -269,6 +285,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
 
         val itemThatWasClickedId = item.getItemId()
         if (itemThatWasClickedId == R.id.logout) {
+            this@MainActivity.deleteDatabase("mindfulness.db")
             getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
                 .edit()
                 .remove(getString(R.string.userIdKey))
