@@ -5,7 +5,7 @@
 ### Downloaden
 
 Surf naar deze link, en download de mindfulness APK.
-> [Mindfulness APK](http://www.example.com/)
+> [Mindfulness APK](https://drive.google.com/open?id=1xx4wGdRWcwuH9KaXlA9yspizGNjIgf3Y)
 
 
 ### Toestel Instellingen
