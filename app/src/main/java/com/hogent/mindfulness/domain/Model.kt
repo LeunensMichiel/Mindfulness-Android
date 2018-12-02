@@ -16,7 +16,9 @@ object Model {
     data class Session(
         val _id: String,
         val position: Int,
-        val title: String
+        val title: String,
+        @SerializedName("image_filename")
+        val imageFilename: String
     )
 
 
@@ -26,8 +28,8 @@ object Model {
     )
 
     data class Page(
-        val pathaudio: String,
-        val path_audio: String,
+        @SerializedName("audio_filename")
+        val audioFilename: String,
         val type: String,
         val _id: String,
         val title: String,
@@ -40,8 +42,8 @@ object Model {
         val _id: String,
         @SerializedName("form_type")
         val type: String,
-        val filename: String,
-        val pathname: String,
+        @SerializedName("image_filename")
+        val imageFilename: String,
         val description: String
     )
 

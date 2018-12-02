@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.data.PageApiService
 import com.hogent.mindfulness.data.ServiceGenerator
@@ -91,10 +90,10 @@ class ExerciseDetailFragment(): Fragment(){
                 "AUDIO" ->
                 {
                     val fragment = FragmentExerciseAudio()
-                    Log.i("FUCKINGAUDIO", it.path_audio)
-                    fragment.audioPath = it.path_audio
+                    Log.i("FUCKINGAUDIO", it.audioFilename)
+                    fragment.audioFilename = it.audioFilename
                     val arg = Bundle()
-                    arg.putString("audiopad", it.pathaudio)
+                    arg.putString("audioFilename", it.audioFilename)
                     fragment.arguments = arg
                     adapter.addFragment(fragment, "Audio")
                 }

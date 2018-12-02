@@ -38,7 +38,7 @@ class FragmentExerciseAudio : Fragment() {
      * bron voor mediaplayer: https://www.youtube.com/watch?v=zCYQBIcePaw
      */
     var mp: MediaPlayer? = null
-    lateinit var audioPath:String
+    lateinit var audioFilename:String
     lateinit var disposable: Disposable
     lateinit var fileService: FIleApiService
     /**
