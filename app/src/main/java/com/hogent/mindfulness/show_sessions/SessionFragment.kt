@@ -149,7 +149,6 @@ class SessionFragment : Fragment() {
     override fun onStart() {
         super.onStart()
 
-
         fabCamera.setOnClickListener { view ->
             val intent = Intent(activity, ScannerActivity::class.java)
             startActivity(intent)
@@ -344,15 +343,13 @@ class SessionFragment : Fragment() {
                 holder.title.visibility = View.VISIBLE
                 holder.lock.visibility = View.INVISIBLE
                 holder.button.isClickable = true
-
             } else {
                 holder.title.visibility = View.INVISIBLE
                 holder.lock.visibility = View.VISIBLE
                 holder.button.isClickable = false
-
+                holder.button.setOnClickListener(null)
             }
-
-
+            Log.i("BOOLCHECK","${holder.button.isClickable}")
         }
 
         /**

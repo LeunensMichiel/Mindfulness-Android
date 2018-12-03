@@ -4,18 +4,18 @@ package com.hogent.mindfulness.exercise_details
 import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.provider.MediaStore
 import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import kotlinx.android.synthetic.main.fragment_fragment_oefeninginvoer.*
-import android.content.pm.PackageManager
-import android.util.Log
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.data.PostApiService
@@ -25,6 +25,8 @@ import com.hogent.mindfulness.domain.Model
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.fragment_fragment_oefeninginvoer.*
+import kotlin.properties.Delegates
 
 
 /**
@@ -33,24 +35,27 @@ import io.reactivex.schedulers.Schedulers
  */
 class FragmentExerciseInvoer : Fragment() {
 
-    private var postId:String? = null
+    private var postId: String? = null
     private lateinit var disposable: Disposable
-    private lateinit var post:Model.Post
+    private lateinit var post: Model.Post
 
-    private lateinit var postService:PostApiService
+    private lateinit var postService: PostApiService
 
-    lateinit var page:Model.Page
+    lateinit var page: Model.Page
 
     /**
      * in de onCreateView-methode inflaten we onze layout fragment_fragment_oefeninginvoer
      */
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         //beginRetrievePost()
         // Inflate the layout for this fragment
         postService = ServiceGenerator.createService(PostApiService::class.java, (activity as MainActivity))
         return inflater.inflate(R.layout.fragment_fragment_oefeninginvoer, container, false)
     }
+
     /**
      * Dit is een methode om eventuele fouten te tonen
      */
@@ -75,14 +80,14 @@ class FragmentExerciseInvoer : Fragment() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
-                {result ->
+                { result ->
                     post = result
                     showResult()
                     Log.i("OBSERVABLE", "$post")
                 },
-                {error -> Log.i("fuck", "fuck")}
+                { error -> Log.i("fuck", "fuck") }
             )
-        if(this.arguments!!.containsKey("opgave")){
+        if (this.arguments!!.containsKey("opgave")) {
             inputlayout.hint = this.arguments!!.getString("opgave", "check")
         }
 
@@ -96,21 +101,17 @@ class FragmentExerciseInvoer : Fragment() {
                 var intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
                 startActivityForResult(intent, 0)
             }
-        }
-        else
-        {
+        } else {
             btnCamera.setOnClickListener {
-                Toast.makeText(context,"Geen camera gedetecteerd",Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Geen camera gedetecteerd", Toast.LENGTH_SHORT).show()
             }
         }
 
         btnOpslaan.setOnClickListener {
             // TEDOEN: nog een check: als er niets is veranderd, dan moet er geen nieuwe post gemaakt worden of geupdate wordenge
-            Log.i("FUCKINGINVOER", "$post")
             post = (activity as MainActivity).updatePost(page!!, text_edit.text.toString(), post)
-            Log.d("button","-----------test1--------------")
+            Log.d("button", "-----------test1--------------")
         }
-
     }
 
     /**
@@ -122,7 +123,7 @@ class FragmentExerciseInvoer : Fragment() {
 
         val ft = fragmentManager!!.beginTransaction()
         ft.detach(this).attach(this).commit()
-        if(this.arguments!!.containsKey("opgave")){
+        if (this.arguments!!.containsKey("opgave")) {
             inputlayout.hint = this.arguments!!.getString("opgave", "check")
         }
         text_edit.setText("Test")
@@ -143,11 +144,10 @@ class FragmentExerciseInvoer : Fragment() {
      */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(RESULT_OK == resultCode){
+        if (RESULT_OK == resultCode) {
             var bitmap: Bitmap = data!!.extras.get("data") as Bitmap
             imageView.setImageBitmap(bitmap)
-        }
-        else{
+        } else {
             Toast.makeText(activity, "Geen foto genomen", Toast.LENGTH_SHORT).show()
         }
     }

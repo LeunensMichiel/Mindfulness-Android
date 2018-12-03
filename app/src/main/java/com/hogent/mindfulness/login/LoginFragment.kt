@@ -3,6 +3,7 @@ package com.hogent.mindfulness.login
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.TargetApi
+import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -29,7 +30,7 @@ import org.jetbrains.anko.support.v4.toast
 class LoginFragment : Fragment() {
     private lateinit var disposable: Disposable
     private val mMindfullDB by lazy {
-        MindfulnessDBHelper( context!! )
+        MindfulnessDBHelper(context!!)
     }
 
     override fun onCreateView(
@@ -38,6 +39,7 @@ class LoginFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
+        Log.i("FRAGMENT", "LOGINFRAGMENT CREATED")
         return inflater.inflate(R.layout.fragment_login, container, false)
     }
 
@@ -49,6 +51,7 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         // Set up the login form.
 //        populateAutoComplete()
+        Log.i("FRAGMENT", "LOGINFRAGMENT VIEW CREATED")
         login_password.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
             if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
                 attemptLogin()
@@ -56,13 +59,15 @@ class LoginFragment : Fragment() {
             }
             false
         })
-
+        Log.i("Count", "1")
         email_sign_in_button.setOnClickListener { attemptLogin() }
 
         login_form_register_btn.setOnClickListener {
             val loginCallback = activity as LoginFragmentCallBack
             loginCallback.onclickRegister()
         }
+
+        Log.i("Count", "2")
     }
 
     interface LoginFragmentCallBack {
@@ -190,7 +195,8 @@ class LoginFragment : Fragment() {
 
     private fun successfulLogin(user: Model.User) {
         if (mMindfullDB.addUser(user)) toast("User added to local db") else toast("User not added to local db")
-
+        Log.i("DATABASE AFTER LOGIN", "${mMindfullDB.getUser()}")
+        Log.i("USERCHECK AFTER LOGIN", "$user")
         showProgress(false)
         activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
             .edit()

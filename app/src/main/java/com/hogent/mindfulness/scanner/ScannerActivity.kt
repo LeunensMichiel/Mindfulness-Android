@@ -24,6 +24,7 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler{
     private var scannerView: ZXingScannerView? = null
     private val camId = CAMERA_FACING_BACK
     private lateinit var code:String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

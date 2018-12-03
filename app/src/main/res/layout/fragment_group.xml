@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.design.widget.CoordinatorLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!--<android.support.v7.widget.AppCompatImageView android:id="@+id/iv_lock"-->
+                                                  <!--android:layout_width="wrap_content"-->
+                                                  <!--android:layout_height="wrap_content"-->
+                                                  <!--android:src="@drawable/outline_lock_24"-->
+                                                  <!--android:layout_gravity="center_horizontal|center_vertical"-->
+                                                  <!--android:elevation="16dp"/>-->
+    <android.support.design.widget.FloatingActionButton
+            android:id="@+id/rv_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fabCustomSize="80dp"
+            app:borderWidth="5dp"
+            app:backgroundTint="@color/colorPrimaryDark"
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:src="@drawable/ic_camera_24dp">
+
+    </android.support.design.widget.FloatingActionButton>
+    <EditText
+            android:layout_width="match_parent"
+            android:layout_height="88dp"
+            android:inputType="textPersonName"
+            android:text="Scan je groepscode"
+            android:ems="10"
+            android:id="@+id/editText"/>
+
+
+</android.support.design.widget.CoordinatorLayout>

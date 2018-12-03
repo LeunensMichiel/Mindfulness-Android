@@ -24,10 +24,16 @@ interface UserApiService {
     @POST("/API/users/user")
     fun updateUser(@Body unlocksession: Model.unlock_session) : Observable<Model.Result>
 
+    /**
+     * registers a user in a group with a code (code == group_id)
+     */
+    @PUT("/users/user{id}")
+    fun updateUserGroup(@Path("id") id: String, @Body usergroup: Model.user_group) : Observable<Model.Result>
+
     @GET("/API/users/group/{id}")
     fun getUserGroup(@Path("id") id:String?):Observable<Model.Group>
+
     //Updates a USER so its feedback field is true or false
     @PUT("/API/users/user/feedback")
     fun updateUserFeedback(@Body wantsFeedback : Model.User) : Observable<Model.Result>
-
 }
