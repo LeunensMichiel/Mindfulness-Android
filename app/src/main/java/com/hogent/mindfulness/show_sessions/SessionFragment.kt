@@ -39,6 +39,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.session_fragment.*
 import kotlinx.android.synthetic.main.session_item_list.view.*
+import org.jetbrains.anko.backgroundColor
 import java.util.*
 
 
@@ -338,6 +339,7 @@ class SessionFragment : Fragment() {
             if (sessionBools[position]) {
                 holder.title.visibility = View.VISIBLE
                 holder.lock.visibility = View.INVISIBLE
+                holder.button.backgroundColor = Color.parseColor("#bedacd")
                 holder.button.isClickable = true
 //                holder.progressAnimation.setOnClickListener() {
 //                    Log.d("frame", holder.progressAnimation.frame.toString())

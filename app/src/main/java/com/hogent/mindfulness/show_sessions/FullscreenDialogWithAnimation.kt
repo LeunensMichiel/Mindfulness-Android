@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.airbnb.lottie.LottieAnimationView
+import com.airbnb.lottie.TextDelegate
 import com.hogent.mindfulness.R
 import kotlinx.android.synthetic.main.full_screen_animation_dialog.*
 import kotlinx.android.synthetic.main.full_screen_animation_dialog.view.*
@@ -45,9 +46,14 @@ class FullscreenDialogWithAnimation : DialogFragment() {
             dialog.window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         }
 
+        initAnimation()
+
+    }
+
+    private fun initAnimation() {
+        val textDelegate = TextDelegate(MONSTER)
+        textDelegate.setText("Monster", "Monster")
         MONSTER.setMaxFrame(90)
         MONSTER.playAnimation()
-
-
     }
 }
