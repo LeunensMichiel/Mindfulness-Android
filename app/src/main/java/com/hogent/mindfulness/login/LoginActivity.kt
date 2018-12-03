@@ -20,18 +20,16 @@ class LoginActivity : AppCompatActivity(), LoginFragment.LoginFragmentCallBack, 
         setContentView(R.layout.activity_login)
         Log.i("wtf", "MOTHERFUCKER")
         loginFragment = LoginFragment()
-
+        Log.i("Count","1")
         supportFragmentManager.beginTransaction()
             .add(R.id.login_container, loginFragment)
             .commit()
+
+        Log.i("Count","2")
     }
 
     override fun onStart() {
         super.onStart()
-
-        if (!checkedIfLoggedIn()) {
-            sendToMain()
-        }
     }
 
     private fun checkedIfLoggedIn(): Boolean {

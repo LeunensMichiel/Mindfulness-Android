@@ -3,6 +3,7 @@ package com.hogent.mindfulness
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -39,7 +40,9 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
 
 
     //initializing attributes
-    private val mMindfullDB = MindfulnessDBHelper(this@MainActivity )
+    private val mMindfullDB by lazy {
+        MindfulnessDBHelper(this@MainActivity )
+    }
 
     private val postService by lazy {
         ServiceGenerator.createService(PostApiService::class.java, this@MainActivity)
@@ -76,32 +79,43 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
         Log.i("LOGIN", "BEFORE REDIRECT")
-        if (checkIfLoggedIn()) {
+
+        if (checkIfHasUser()){
+            currentUser = mMindfullDB.getUser()!!
+            if (checkIfHasGroup()) {
+                groupFragment = GroupFragment()
+
+                supportFragmentManager.beginTransaction()
+                    .add(R.id.session_container, groupFragment)
+                    .commit()
+            } else {
+                sessionFragment = SessionFragment()
+
+                postFragment = PostFragment()
+                profileFragment = ProfileFragment()
+
+                supportFragmentManager.beginTransaction()
+                    .add(R.id.session_container, sessionFragment)
+                    .commit()
+            }
+        } else {
             Log.i("LOGIN", "REDIRECT")
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
         }
-
         Log.i("LOGIN", "AFTER REDIRECT")
-        currentUser = mMindfullDB.getUser()!!
-        if (checkIfHasGroup()) {
-            groupFragment = GroupFragment()
 
-            supportFragmentManager.beginTransaction()
-                .add(R.id.session_container, groupFragment)
-                .commit()
-        } else {
-            sessionFragment = SessionFragment()
-
-            postFragment = PostFragment()
-            profileFragment = ProfileFragment()
-
-            supportFragmentManager.beginTransaction()
-                .add(R.id.session_container, sessionFragment)
-                .commit()
-        }
     }
 
+    override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
+        super.onSaveInstanceState(outState, outPersistentState)
+        Log.i("ACTIVITY", "SAVE_INSTANCE_STATE")
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+        super.onRestoreInstanceState(savedInstanceState)
+        Log.i("ACTIVITY", "RESTORE_INSTANCE_STATE")
+    }
     private fun checkIfLoggedIn(): Boolean {
         val token = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
             .getString(getString(R.string.authTokenKey), null)
@@ -110,6 +124,12 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
 
     private fun checkIfHasGroup(): Boolean {
         return currentUser.group == null
+    }
+
+    private fun checkIfHasUser():Boolean {
+        Log.i("DB_NULL_CHECK","${mMindfullDB.getUser()}")
+        Log.i("DB_NULL_CHECK","${mMindfullDB}")
+        return mMindfullDB.getUser() != null
     }
 
     override fun onResume() {
