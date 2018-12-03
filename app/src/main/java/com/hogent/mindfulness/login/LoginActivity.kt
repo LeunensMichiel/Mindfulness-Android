@@ -18,14 +18,10 @@ class LoginActivity : AppCompatActivity(), LoginFragment.LoginFragmentCallBack, 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-        Log.i("wtf", "MOTHERFUCKER")
         loginFragment = LoginFragment()
-        Log.i("Count","1")
         supportFragmentManager.beginTransaction()
             .add(R.id.login_container, loginFragment)
             .commit()
-
-        Log.i("Count","2")
     }
 
     override fun onStart() {

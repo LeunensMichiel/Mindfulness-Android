@@ -1,6 +1,8 @@
 package com.hogent.mindfulness.show_sessions
 
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
@@ -20,6 +22,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import com.airbnb.lottie.LottieAnimationView
+import com.airbnb.lottie.LottieProperty
+import com.airbnb.lottie.model.KeyPath
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.data.FeedbackApiService
@@ -99,7 +103,7 @@ class SessionFragment : Fragment() {
 
         beginRetrieveSessionmap(user.group!!.sessionmap_id)
 
-        mAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler, sessionBools, user)
+        mAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler, sessionBools, user, activity as SessionAdapter.SessionAdapterOnUnlockSession)
 
         val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
 
@@ -247,19 +251,11 @@ class SessionFragment : Fragment() {
         //mClickHandler is for communicating whit the activity when item clicked
         private val mClickHandler: SessionAdapterOnClickHandler,
         var sessionBools: BooleanArray,
-        val user: Model.User
+        val user: Model.User,
+        private val sessionAdapterOnUnlockSession: SessionAdapterOnUnlockSession
     ) : RecyclerView.Adapter<SessionAdapter.SessionViewHolder>() {
 
         private lateinit var disposable: Disposable
-        private val LIKE_START = 0.4f
-        private val LIKE_END = 0.7f
-        private val UNLIKE_START = 0.93f
-        private val UNLIKE_END = 1f
-        private val PLAY_START = 0f
-        private val PLAY_END = 0.5f
-        private val PAUSE_START = 0.5f
-        private val PAUSE_END = 1f
-
 
         /**
          * This function loads in the item view
@@ -343,13 +339,51 @@ class SessionFragment : Fragment() {
                 holder.title.visibility = View.VISIBLE
                 holder.lock.visibility = View.INVISIBLE
                 holder.button.isClickable = true
+//                holder.progressAnimation.setOnClickListener() {
+//                    Log.d("frame", holder.progressAnimation.frame.toString())
+//                }
+
+                if(holder.progressAnimation.progress == 0f){
+                    holder.progressAnimation.setMaxFrame(50)
+                    holder.progressAnimation.playAnimation()
+                }else{
+                    holder.progressAnimation.progress = 0f
+                }
+
+                holder.progressAnimation.addAnimatorListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator?) {
+                        holder.progressAnimation.addValueCallback(KeyPath("**"), LottieProperty.COLOR) {
+                            Color.parseColor("#f9a825")
+                        }
+                        holder.glowing_orbAnimation.playAnimation()
+                    }
+                })
+                holder.glowing_orbAnimation.addAnimatorListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator?) {
+                        holder.glowing_orbAnimation.addValueCallback(KeyPath("**"), LottieProperty.COLOR) {
+                            Color.parseColor("#f9a825")
+                        }
+                        sessionAdapterOnUnlockSession.showMonsterDialog()
+                    }
+                })
+
             } else {
                 holder.title.visibility = View.INVISIBLE
                 holder.lock.visibility = View.VISIBLE
                 holder.button.isClickable = false
                 holder.button.setOnClickListener(null)
+
+                //Animations
+                holder.glowing_orbAnimation.cancelAnimation()
+                holder.progressAnimation.cancelAnimation()
+                holder.progressAnimation.addValueCallback(KeyPath("**"), LottieProperty.COLOR) {
+                    Color.parseColor("#BDBDBD")
+                }
+                holder.glowing_orbAnimation.addValueCallback(KeyPath("**"), LottieProperty.COLOR) {
+                   Color.parseColor("#BDBDBD")
+                }
+
             }
-            Log.i("BOOLCHECK","${holder.button.isClickable}")
         }
 
         /**
@@ -367,7 +401,8 @@ class SessionFragment : Fragment() {
             val title: TextView = view.tv_session_title
             val button: FloatingActionButton = view.fab
             val lock: ImageView = view.iv_lock
-            val glowing_orb: LottieAnimationView = view.glowing_orb_animation
+            val glowing_orbAnimation: LottieAnimationView = view.glowing_orb_animation
+            val progressAnimation: LottieAnimationView = view.progressbar_animation
 
             init {
 //                view.fab.setOnClickListener {
@@ -376,6 +411,10 @@ class SessionFragment : Fragment() {
 //                }
             }
 
+        }
+
+        interface  SessionAdapterOnUnlockSession {
+            fun showMonsterDialog()
         }
 
 

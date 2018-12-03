@@ -61,25 +61,14 @@ class ProfileFragment : Fragment() {
 
     private fun initUserScreen(result: Model.User) {
         icons  = intArrayOf(R.drawable.ic_email_black_24dp, R.drawable.ic_group_black_24dp, R.drawable.ic_feedback_black_24dp)
-        info = arrayOf(result.email, result.group!!.name, "Wenst Feedbacknotificaties: " + if (result.feedbackSubscribed) "Ja" else "Neen")
+        info = arrayOf(result.email, result.group!!.name, "Feedback: " + if (result.feedbackSubscribed) "ingeschreven" else "uitgeschreven")
 
-        Log.d("FUCKINGFUCK","$icons - $info")
-        Log.d("FUCKINGFUCK","W U K")
 
         profileFragment_profilename.text = result.firstname + " " + result.lastname
-        Log.d("FUCKINGFUCK","W U K 1")
         profileFragment_Unlockedsessioncount.text = result.unlocked_sessions.size.toString()
-        Log.d("FUCKINGFUCK","W U K 2")
-        //APARTE API CALL MAKEN VOOR SESSION NAME. IK BEN MICHIEL EN IK BEN GAY NET ZOALS MIJN MAMA.
+        //APARTE API CALL MAKEN VOOR SESSION NAME.
         //profileFragment_CurrentSession.text = result.current_session!!.title
-        Log.d("FUCKINGFUCK","W U K 3")
-        Log.i("POST_IDS", "$dbUser")
         profileFragment_postCount.text = dbUser.post_ids.size.toString()
-        Log.d("FUCKINGFUCK","W U K 4")
-
-        Log.d("FUCKINGFUCK","$icons - $info")
-
-
         (profileFragment_lv.adapter as ProfileAdapter).setdatasets(icons, info)
     }
 }
@@ -91,7 +80,6 @@ class ProfileAdapter(private val context: Context, private var icons: IntArray, 
     fun setdatasets(iconData:IntArray, infoData:Array<String>){
         icons = iconData
         info = infoData
-        Log.i("FUCKINGFUCK", "${info} - $icons")
         this.notifyDataSetChanged()
     }
 

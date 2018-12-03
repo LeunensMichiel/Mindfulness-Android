@@ -24,8 +24,8 @@
                 android:scaleType="centerCrop"
                 app:lottie_rawRes="@raw/progress_bar"
                 app:lottie_scale="2"
-                app:lottie_autoPlay="true"
-                app:lottie_loop="true"/>
+                app:lottie_autoPlay="false"
+                app:lottie_loop="false"/>
 
 
         <LinearLayout
@@ -48,8 +48,7 @@
                     app:lottie_rawRes="@raw/button_touch_effect"
                     app:lottie_scale="1"
                     app:lottie_autoPlay="false"
-                    app:lottie_colorFilter="#2979ff"
-                    app:lottie_loop="true"
+                    app:lottie_loop="false"
             />
 
 

@@ -59,7 +59,6 @@ class LoginFragment : Fragment() {
             }
             false
         })
-        Log.i("Count", "1")
         email_sign_in_button.setOnClickListener { attemptLogin() }
 
         login_form_register_btn.setOnClickListener {
@@ -67,7 +66,6 @@ class LoginFragment : Fragment() {
             loginCallback.onclickRegister()
         }
 
-        Log.i("Count", "2")
     }
 
     interface LoginFragmentCallBack {
