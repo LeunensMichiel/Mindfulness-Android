@@ -87,5 +87,6 @@
     <string name="feedback_titel">GEEF ONS UW FEEDBACK!</string>
     <string name="title_history">Profiel</string>
     <string name="post_image_desc">back icon</string>
+    <string name="settings">Instellingen</string>
 
 </resources>
