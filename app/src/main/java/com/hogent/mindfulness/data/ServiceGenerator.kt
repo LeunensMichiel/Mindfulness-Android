@@ -2,9 +2,7 @@ package com.hogent.mindfulness.data
 
 import android.app.Activity
 import android.content.Context
-import android.content.SharedPreferences
 import android.text.TextUtils
-import android.util.Log
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory

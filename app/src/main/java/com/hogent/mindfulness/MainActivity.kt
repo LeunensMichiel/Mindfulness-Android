@@ -1,5 +1,7 @@
 package com.hogent.mindfulness
 
+// Notificaties
+// Settings
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -10,6 +12,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import com.evernote.android.job.JobManager
 import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
 import com.hogent.mindfulness.data.PostApiService
 import com.hogent.mindfulness.data.ServiceGenerator
@@ -17,24 +20,19 @@ import com.hogent.mindfulness.data.UserApiService
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.exercise_details.ExerciseDetailFragment
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
+import com.hogent.mindfulness.group.GroupFragment
 import com.hogent.mindfulness.login.LoginActivity
+import com.hogent.mindfulness.notification_settings.SettingsActivity
 import com.hogent.mindfulness.post.PostFragment
 import com.hogent.mindfulness.profile.ProfileFragment
-import com.hogent.mindfulness.exercise_details.*
-import com.hogent.mindfulness.group.GroupFragment
+import com.hogent.mindfulness.services.NotifyJobCreator
+import com.hogent.mindfulness.services.PeriodicNotificationJob
 import com.hogent.mindfulness.show_sessions.SessionFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
-// Notificaties
 import java.util.concurrent.TimeUnit
-import com.hogent.mindfulness.services.NotifyJobCreator
-import com.hogent.mindfulness.services.PeriodicNotificationJob
-import com.evernote.android.job.JobManager
-// Settings
-import com.hogent.mindfulness.notification_settings.SettingsActivity
-import org.jetbrains.anko.support.v4.toast
 
 class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.SessionAdapterOnClickHandler, ExercisesListFragment.ExerciseAdapter.ExerciseAdapterOnClickHandler {
 
@@ -224,7 +222,6 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         currentPost.inhoud = description
         currentPost.user_id = currentUser._id
         currentPost._id = newPost._id
-        Log.i("FUCKING_POST", "$newPost")
         if (currentPost._id == "none" || currentPost._id == null){
             currentPost._id = null
             disposable = postService.addPost(currentPost)
@@ -232,7 +229,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     { postResult ->  onPostResult(postResult) },
-                    { error ->  showError("FUCK") }
+                    { error ->  showError(error.message) }
                 )
         } else {
             disposable = postService.changePost(currentPost)
@@ -315,6 +312,9 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
             startActivity(intent)
             finish()
             return true
+        }
+        if (itemThatWasClickedId == R.id.settings) {
+            
         }
         return super.onOptionsItemSelected(item)
     }

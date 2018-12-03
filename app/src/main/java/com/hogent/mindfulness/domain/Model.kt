@@ -68,7 +68,7 @@ object Model {
         var group: Group?,
 //        @ColumnInfo(name = "token")
         var token: String?,
-        var post_ids: Array<String>,
+        var post_ids: ArrayList<String>,
         var feedbackSubscribed: Boolean
     )
 
