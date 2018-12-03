@@ -15,11 +15,11 @@ class ServiceGenerator {
     companion object {
 
         val API_BASE_URL = "http://projecten3studserver03.westeurope.cloudapp.azure.com:3000"
-        val LOCAL_BASE_URL = "http://10.1.48.141:3000"
+        val LOCAL_BASE_URL = "http://172.18.155.92:3000"
         val httpClient = OkHttpClient.Builder()
 
         val builder = Retrofit.Builder()
-            .baseUrl(LOCAL_BASE_URL)
+            .baseUrl(API_BASE_URL)
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
 

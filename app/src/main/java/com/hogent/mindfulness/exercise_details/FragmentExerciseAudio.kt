@@ -1,5 +1,6 @@
 package com.hogent.mindfulness.exercise_details
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.media.AudioManager
@@ -24,12 +25,20 @@ import com.hogent.mindfulness.domain.Model
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import okhttp3.ResponseBody
+import org.jetbrains.anko.support.v4.toast
+import java.io.File
+import java.io.IOException
+import java.util.*
+import io.reactivex.Observable
+import java.io.FileInputStream
+import java.io.FileOutputStream
 
 /**
  * Deze klasse is een Fragment die verantwoordelijk is voor de audiopagina van de oefening
  * De layout die hiermee gelinkt is is fragment_fragment_oefeningaudio
  */
-class FragmentExerciseAudio : Fragment() {
+class FragmentExerciseAudio : Fragment(), MediaPlayer.OnPreparedListener {
 
     /**
      * de variabele mp is van het type MediaPlayer
@@ -37,22 +46,20 @@ class FragmentExerciseAudio : Fragment() {
      * android documentatie: https://developer.android.com/reference/android/media/MediaPlayer
      * bron voor mediaplayer: https://www.youtube.com/watch?v=zCYQBIcePaw
      */
-    var mp: MediaPlayer? = null
-    lateinit var audioFilename:String
+    var mp: MediaPlayer? = MediaPlayer()
+    private lateinit var audioFile: File
+    private lateinit var fos: FileOutputStream
+    private lateinit var fis: FileInputStream
+    lateinit var audioFilename: String
     lateinit var disposable: Disposable
     lateinit var fileService: FIleApiService
-    /**
-     * variabele totalTime om dit later gelijk te zetten aan het totale aantal van de duratie van de audiofile
-     */
     var totalTime: Int = 0
 
-    /**
-     * in de onCreateView-methode inflaten we onze layout fragment_fragment_oefeningaudio
-     */
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         fileService = ServiceGenerator.createService(FIleApiService::class.java, (activity as MainActivity))
-
         return inflater.inflate(R.layout.fragment_fragment_oefeningaudio, container, false)
     }
 
@@ -65,21 +72,42 @@ class FragmentExerciseAudio : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if(!hasAudio()){
-            playButn.setOnClickListener{
-                Toast.makeText(activity, "Geen audio gedetecteerd!",Toast.LENGTH_LONG).show()
+        initializeMediaPlayer()
+    }
+
+    private fun convertByteArrayToAudio(result: ResponseBody) {
+        try {
+            audioFile = File.createTempFile(audioFilename, "aac")
+            audioFile.deleteOnExit()
+            fos = FileOutputStream(audioFile)
+            fos.write(result.bytes())
+            fos.close()
+            fis = FileInputStream(audioFile)
+            prepareMediaPlayer()
+        } catch (ex: IOException) {
+            toast("File loading failed.").show()
+        }
+    }
+
+
+    fun initializeMediaPlayer() {
+        if (hasAudio()) {
+            if (::audioFile.isInitialized) {
+                prepareMediaPlayer()
+            } else {
+                disposable = fileService.getFile("page_audio", audioFilename)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                        { result -> convertByteArrayToAudio(result) },
+                        { error -> Log.i("AUDIO_FUCK", "$error") }
+                    )
+            }
+        } else {
+            playButn.setOnClickListener {
+                Toast.makeText(activity, "Geen audio gedetecteerd!", Toast.LENGTH_LONG).show()
             }
         }
-        else {
-            /*disposable = fileService.getFile(Model.File(audioPath))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    { result -> Log.i("motherfuckingAudio", "$result") },
-                    { error -> Log.i("ERROR", "$error") }
-                )*/
-            audioVoorbereiden()
-       }
     }
 
     /**
@@ -91,56 +119,42 @@ class FragmentExerciseAudio : Fragment() {
      */
     override fun onResume() {
         super.onResume()
-
-        if(hasAudio()) {
-            if(mp == null){
-                audioVoorbereiden()
-            }
-            playButn.setOnClickListener {
-                if (!mp!!.isPlaying) {
-                    // Stopping
-                    mp!!.start()
-                    playButn.setBackgroundResource(R.drawable.stop)
-
-                } else {
-                    // Playing
-                    mp!!.pause()
-                    playButn.setBackgroundResource(R.drawable.play)
-                }
-            }
-        }
-        else{
-            playButn.setOnClickListener{
-                Toast.makeText(activity, "Geen audio gedetecteerd!",Toast.LENGTH_LONG).show()
-            }
-        }
+        Log.i("AUDIO", "RESUME")
+        initializeMediaPlayer()
     }
-/**
-    * we steken hier een handler object in een variabele
-    * handlers worden gebruikt om threads te beheren, we creeren hier een handler voor een nieuwe thread
-    * een handler object ontvangt messages en runt code om die messages te handlen
-    * de handler is gebonden aan de thread of message wachtrij van de thread die het gemaakt heeft
-    * de sendMessage laat je toe om een Message-object in de wachtrij te plaatsen dat een bundle van data bevat, die verwerkt zal worden door de
-    * handleMessage-methode van de Handler
-    * zie ook de Thread... van de functie audioVoorbereiden():
-    * daar wordt een Message-object gemaakt
-    * er wordt daar ook een message code meegegeven met daarin de message en dit wordt verzonden naar de handler hier
-    *
-    * we setten de huidige positie naar de waarde die we als message hebben meegekregen en veranderen onze vooruitgang daarnaar
-    * we setten ook de elapsedtime en de remainingtime
- */
-    private val handler = object : Handler() {
+
+    /**
+     * we steken hier een handler object in een variabele
+     * handlers worden gebruikt om threads te beheren, we creeren hier een handler voor een nieuwe thread
+     * een handler object ontvangt messages en runt code om die messages te handlen
+     * de handler is gebonden aan de thread of message wachtrij van de thread die het gemaakt heeft
+     * de sendMessage laat je toe om een Message-object in de wachtrij te plaatsen dat een bundle van data bevat, die verwerkt zal worden door de
+     * handleMessage-methode van de Handler
+     * zie ook de Thread... van de functie audioVoorbereiden():
+     * daar wordt een Message-object gemaakt
+     * er wordt daar ook een message code meegegeven met daarin de message en dit wordt verzonden naar de handler hier
+     *
+     * we setten de huidige positie naar de waarde die we als message hebben meegekregen en veranderen onze vooruitgang daarnaar
+     * we setten ook de elapsedtime en de remainingtime
+     */
+    private val handler = @SuppressLint("HandlerLeak")
+    object : Handler() {
         override fun handleMessage(msg: Message) {
             val currentPosition = msg.what
             // Update positionBar.
-            positionBar.progress = currentPosition
-
+            if (positionBar != null){
+                positionBar.progress = currentPosition
+            }
             // Update Labels.
-            val elapsedTime = createTimeLabel(currentPosition)
-            elapsedTimeLabel.text = elapsedTime
+            if (elapsedTimeLabel != null){
+                val elapsedTime = createTimeLabel(currentPosition)
+                elapsedTimeLabel.text = elapsedTime
+            }
 
-            val remainingTime = createTimeLabel(totalTime - currentPosition)
-            remainingTimeLabel.text = "- $remainingTime"
+            if (remainingTimeLabel != null){
+                val remainingTime = createTimeLabel(totalTime - currentPosition)
+                remainingTimeLabel.text = "- $remainingTime"
+            }
         }
     }
 
@@ -148,8 +162,9 @@ class FragmentExerciseAudio : Fragment() {
      * Als de onPause-methode uitgevoerd wordt, zorgen we dat de playbutton niet meer luistert, dus geen click listener meer heeft
      */
     override fun onPause() {
+        Log.i("AUDIO", "PAUSE")
         super.onPause()
-        playButn.setOnClickListener (null)
+        playButn.setOnClickListener(null)
     }
 
     /**
@@ -173,24 +188,15 @@ class FragmentExerciseAudio : Fragment() {
      * Dit is een functie die true of false retourneert, afhankelijk van of het device audio kan afspelen of niet
      * we checken hier op verschillende dingen om te weten of audio kan afgespeeld worden of niet
      */
-    fun hasAudio(): Boolean{
-        var audioManager:AudioManager = this.context!!.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        var packageManager:PackageManager = this.context!!.packageManager
+    fun hasAudio(): Boolean {
+        var audioManager: AudioManager = this.context!!.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        var packageManager: PackageManager = this.context!!.packageManager
 
-        if(audioManager.isWiredHeadsetOn)
-        {
+        if (audioManager.isWiredHeadsetOn) {
             return true
-        }
-        else if(audioManager.isSpeakerphoneOn)
-        {
+        } else if (audioManager.isSpeakerphoneOn) {
             return true
-        }
-        else if(packageManager.hasSystemFeature(PackageManager.FEATURE_AUDIO_OUTPUT)){
-            return true
-        }
-        else{
-            return false
-        }
+        } else return packageManager.hasSystemFeature(PackageManager.FEATURE_AUDIO_OUTPUT)
     }
 
     /**
@@ -210,9 +216,37 @@ class FragmentExerciseAudio : Fragment() {
      */
     override fun onStop() {
         super.onStop()
-        mp?.release();
-        mp = null;
+        mp?.pause()
+        mp = null
         playButn.setBackgroundResource(R.drawable.play)
+    }
+
+    private fun prepareMediaPlayer() {
+        Log.i("W U K", "MEDIAPLAYER PREPARATION")
+        mp = MediaPlayer()
+        mp!!.reset()
+        mp!!.setDataSource(fis.fd)
+        mp!!.prepare()
+        mp!!.setOnPreparedListener(this)
+    }
+
+    override fun onPrepared(mp: MediaPlayer?) {
+        if (mp != null) {
+            audioVoorbereiden()
+            if (playButn != null){
+                playButn.setOnClickListener {
+                    if (!mp!!.isPlaying) {
+                        mp!!.start()
+                        playButn.setBackgroundResource(R.drawable.stop)
+
+                    } else {
+                        mp!!.pause()
+                        playButn.setBackgroundResource(R.drawable.play)
+                    }
+                }
+            }
+
+        }
     }
 
     /**
@@ -224,30 +258,31 @@ class FragmentExerciseAudio : Fragment() {
      * we maken de positiebar in orde, dit is een SeekBar die toont hoe ver je in de audiofile zit, deze verandert steeds als de vooruitgang van de file verandert
      * We updaten de positiebar en de timelabel in een aparte thread
      */
-    fun audioVoorbereiden(){
-        mp = MediaPlayer.create(activity, R.raw.mindfulnesssample)
+    fun audioVoorbereiden() {
+
         mp!!.isLooping = false
         mp!!.seekTo(0)
         totalTime = mp!!.duration
-
-        positionBar.max = totalTime
-        positionBar.setOnSeekBarChangeListener(
-            object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                    if (fromUser) {
-                        mp!!.seekTo(progress)
-                        positionBar.progress = progress
+        if (positionBar != null){
+            positionBar.max = totalTime
+            positionBar.setOnSeekBarChangeListener(
+                object : SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                        if (fromUser) {
+                            mp!!.seekTo(progress)
+                            positionBar.progress = progress
+                        }
                     }
-                }
 
-                override fun onStartTrackingTouch(seekBar: SeekBar) {
+                    override fun onStartTrackingTouch(seekBar: SeekBar) {
 
-                }
+                    }
 
-                override fun onStopTrackingTouch(seekBar: SeekBar) {
+                    override fun onStopTrackingTouch(seekBar: SeekBar) {
 
-                }
-            })
+                    }
+                })
+        }
 
         Thread(Runnable {
             while (mp != null) {
@@ -262,4 +297,5 @@ class FragmentExerciseAudio : Fragment() {
             }
         }).start()
     }
+
 }

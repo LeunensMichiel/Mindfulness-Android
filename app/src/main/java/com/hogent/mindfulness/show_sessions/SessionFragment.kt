@@ -35,6 +35,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.session_fragment.*
 import kotlinx.android.synthetic.main.session_item_list.view.*
+import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.util.*
 
 
@@ -99,7 +100,7 @@ class SessionFragment : Fragment() {
 
         beginRetrieveSessionmap(user.group!!.sessionmap_id)
 
-        mAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler, sessionBools, user)
+        mAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler, sessionBools, user, (activity as MainActivity))
 
         val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
 
@@ -247,7 +248,8 @@ class SessionFragment : Fragment() {
         //mClickHandler is for communicating whit the activity when item clicked
         private val mClickHandler: SessionAdapterOnClickHandler,
         var sessionBools: BooleanArray,
-        val user: Model.User
+        val user: Model.User,
+        var context: Context
     ) : RecyclerView.Adapter<SessionAdapter.SessionViewHolder>() {
 
         private lateinit var disposable: Disposable
@@ -347,7 +349,12 @@ class SessionFragment : Fragment() {
                 holder.title.visibility = View.INVISIBLE
                 holder.lock.visibility = View.VISIBLE
                 holder.button.isClickable = false
-                holder.button.setOnClickListener(null)
+                holder.button.onClick {
+                    Toast
+                        .makeText(context, "Deze sessie is nog niet unlocked.", Toast.LENGTH_SHORT)
+                        .show()
+
+                }
             }
             Log.i("BOOLCHECK","${holder.button.isClickable}")
         }
