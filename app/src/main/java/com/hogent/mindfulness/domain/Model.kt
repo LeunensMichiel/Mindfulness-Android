@@ -1,5 +1,6 @@
 package com.hogent.mindfulness.domain
 
+import android.graphics.Bitmap
 import com.google.gson.annotations.SerializedName
 import java.util.*
 
@@ -44,7 +45,10 @@ object Model {
         val type: String,
         @SerializedName("image_filename")
         val imageFilename: String,
-        val description: String
+        val description: String,
+        val position: Int,
+        val pathname:String,
+        var bitmap: Bitmap? = null
     )
 
     data class User(

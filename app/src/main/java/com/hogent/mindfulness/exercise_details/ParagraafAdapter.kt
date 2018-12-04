@@ -51,7 +51,10 @@ class ParagraafAdapter(private val mParagrafen: Array<Model.Paragraph>): Recycle
             holder.title.text = paragraafTitle.description
         }
         else if(paragraafTitle.type == "IMAGE"){
-            holder.foto.imageResource = tweedetestfoto
+            if (mParagrafen[position].bitmap == null)
+                holder.foto.imageResource = tweedetestfoto
+            else
+                holder.foto.setImageBitmap(mParagrafen[position].bitmap)
         }
     }
 

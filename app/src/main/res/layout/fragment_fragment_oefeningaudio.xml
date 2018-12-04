@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                             xmlns:app="http://schemas.android.com/apk/res-auto"
-                                             xmlns:tools="http://schemas.android.com/tools"
-                                             android:layout_width="match_parent"
-                                             android:layout_height="match_parent"
-                                             tools:context=".exercise_details.FragmentExerciseAudio"
-                                             android:id="@+id/linearLayout"
-    android:orientation="vertical">
+<android.support.constraint.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".exercise_details.FragmentExerciseAudio"
+        android:id="@+id/linearLayout"
+        android:orientation="vertical">
 
 
     <ImageView
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:src="@drawable/image"
-            android:id="@+id/imageView" app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginTop="50dp"
+            android:id="@+id/imageView"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="50dp"
             app:layout_constraintEnd_toEndOf="parent"/>
 
     <SeekBar
@@ -40,13 +43,14 @@
             android:id="@+id/remainingTimeLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="-3:28"
+            android:text="0:00"
             app:layout_constraintEnd_toEndOf="@+id/positionBar"
             android:layout_marginBottom="208dp"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
 
     <Button
+            android:backgroundTint="@color/colorAccent"
             android:id="@+id/playButn"
             android:layout_width="30dp"
             android:layout_height="30dp"

@@ -39,6 +39,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.session_fragment.*
 import kotlinx.android.synthetic.main.session_item_list.view.*
+import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.backgroundColor
 import java.util.*
 
@@ -104,7 +105,7 @@ class SessionFragment : Fragment() {
 
         beginRetrieveSessionmap(user.group!!.sessionmap_id)
 
-        mAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler, sessionBools, user, activity as SessionAdapter.SessionAdapterOnUnlockSession)
+        mAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler, sessionBools, user, activity as SessionAdapter.SessionAdapterOnUnlockSession, (activity as MainActivity))
 
         val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
 
@@ -254,9 +255,19 @@ class SessionFragment : Fragment() {
         var sessionBools: BooleanArray,
         val user: Model.User,
         private val sessionAdapterOnUnlockSession: SessionAdapterOnUnlockSession
+        var context: Context
     ) : RecyclerView.Adapter<SessionAdapter.SessionViewHolder>() {
 
         private lateinit var disposable: Disposable
+        private val LIKE_START = 0.4f
+        private val LIKE_END = 0.7f
+        private val UNLIKE_START = 0.93f
+        private val UNLIKE_END = 1f
+        private val PLAY_START = 0f
+        private val PLAY_END = 0.5f
+        private val PAUSE_START = 0.5f
+        private val PAUSE_END = 1f
+
 
         /**
          * This function loads in the item view
@@ -375,6 +386,12 @@ class SessionFragment : Fragment() {
                 holder.button.isClickable = false
                 holder.button.setOnClickListener(null)
 
+                holder.button.onClick {
+                    Toast
+                        .makeText(context, "Deze sessie is nog niet unlocked.", Toast.LENGTH_SHORT)
+                        .show()
+
+                }
                 //Animations
                 holder.glowing_orbAnimation.cancelAnimation()
                 holder.progressAnimation.cancelAnimation()
@@ -386,6 +403,7 @@ class SessionFragment : Fragment() {
                 }
 
             }
+            Log.i("BOOLCHECK","${holder.button.isClickable}")
         }
 
         /**
