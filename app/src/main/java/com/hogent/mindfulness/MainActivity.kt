@@ -11,7 +11,6 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
 import com.evernote.android.job.JobManager
 import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
@@ -28,14 +27,13 @@ import com.hogent.mindfulness.post.PostFragment
 import com.hogent.mindfulness.profile.ProfileFragment
 import com.hogent.mindfulness.services.NotifyJobCreator
 import com.hogent.mindfulness.services.PeriodicNotificationJob
-import com.hogent.mindfulness.show_sessions.FullscreenDialogWithAnimation
-import com.hogent.mindfulness.show_sessions.SessionFragment
-import com.hogent.mindfulness.show_sessions.SessionFragment.SessionAdapter.SessionAdapterOnUnlockSession
+import com.hogent.mindfulness.sessions.FullscreenDialogWithAnimation
+import com.hogent.mindfulness.sessions.SessionFragment
+import com.hogent.mindfulness.sessions.SessionFragment.SessionAdapter.SessionAdapterOnUnlockSession
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.full_screen_animation_dialog.*
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.SessionAdapterOnClickHandler, SessionAdapterOnUnlockSession, ExercisesListFragment.ExerciseAdapter.ExerciseAdapterOnClickHandler {

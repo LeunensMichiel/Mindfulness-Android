@@ -1,4 +1,4 @@
-package com.hogent.mindfulness.show_sessions
+package com.hogent.mindfulness.sessions
 
 
 import android.animation.Animator
@@ -6,6 +6,7 @@ import android.animation.AnimatorListenerAdapter
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -40,33 +41,10 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.session_fragment.*
 import kotlinx.android.synthetic.main.session_item_list.view.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
-import org.jetbrains.anko.backgroundColor
 import java.util.*
 
 
 class SessionFragment : Fragment() {
-
-    private val coordinates: Array<Point> = arrayOf(
-        Point(50, 1840, true),
-        Point(500, 1860, true),
-        Point(910, 1836, true),
-        Point(847, 1740, false),
-        Point(500, 1715, false),
-        Point(164, 1670, false),
-        Point(200, 1550, true),
-        Point(500, 1555, true),
-        Point(825, 1553, true),
-        Point(732, 1455, false),
-        Point(360, 1440, false),
-        Point(370, 1355, true),
-        Point(663, 1348, true),
-        Point(545, 1255, false),
-        Point(560, 1160, false)
-    )
-
-    private val imgWidth = 1080.0
-    private val imgHeight = 1920.0
-
     /**
      * Here will the sessionData be stored
      * Disposable used for calling api calls
@@ -254,21 +232,14 @@ class SessionFragment : Fragment() {
         private val mClickHandler: SessionAdapterOnClickHandler,
         var sessionBools: BooleanArray,
         val user: Model.User,
-        private val sessionAdapterOnUnlockSession: SessionAdapterOnUnlockSession
+        private val sessionAdapterOnUnlockSession: SessionAdapterOnUnlockSession,
         var context: Context
     ) : RecyclerView.Adapter<SessionAdapter.SessionViewHolder>() {
 
         private lateinit var disposable: Disposable
-        private val LIKE_START = 0.4f
-        private val LIKE_END = 0.7f
-        private val UNLIKE_START = 0.93f
-        private val UNLIKE_END = 1f
-        private val PLAY_START = 0f
-        private val PLAY_END = 0.5f
-        private val PAUSE_START = 0.5f
-        private val PAUSE_END = 1f
-
-
+        val lastUnlockedSession = context.getSharedPreferences(context.getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+            .getString(context.getString(R.string.lastUnlockedSession), null)
+        // This is for knowing what the last unlocked session was. If user gets an update, this will trigger the animations
         /**
          * This function loads in the item view
          */
@@ -339,48 +310,59 @@ class SessionFragment : Fragment() {
                 val session = mSessionData[position]
                 mClickHandler.onClick(session)
             }
-//            val animator = ValueAnimator.ofFloat(LIKE_START, LIKE_END).setDuration(500)
-//            animator.addUpdateListener {
-//                animation -> holder.glowing_orb.progress = animation.getAnimatedValue() as Float
-//            }
-//            animator.start()
-            sessionBools.forEach {
-                Log.d("codes", it.toString())
-            }
+
+            //De sessies die unlocked zijn
             if (sessionBools[position]) {
                 holder.title.visibility = View.VISIBLE
                 holder.lock.visibility = View.INVISIBLE
-                holder.button.backgroundColor = Color.parseColor("#bedacd")
+                holder.button.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#bedacd"))
                 holder.button.isClickable = true
-//                holder.progressAnimation.setOnClickListener() {
-//                    Log.d("frame", holder.progressAnimation.frame.toString())
-//                }
 
-                if(holder.progressAnimation.progress == 0f){
-                    holder.progressAnimation.setMaxFrame(50)
-                    holder.progressAnimation.playAnimation()
-                }else{
-                    holder.progressAnimation.progress = 0f
+                //Controleren of het de laatste unclocked session is
+                if (user.unlocked_sessions.lastIndex  > user.unlocked_sessions.indexOf(lastUnlockedSession)) {
+                    // Als de animatie nog niet begonnen is
+                    if(holder.progressAnimation.progress == 0f){
+                        holder.progressAnimation.setMaxFrame(50)
+                        holder.progressAnimation.playAnimation()
+
+                        holder.progressAnimation.addAnimatorListener(object : AnimatorListenerAdapter() {
+                            override fun onAnimationEnd(animation: Animator?) {
+                                holder.progressAnimation.addValueCallback(KeyPath("**"), LottieProperty.COLOR) {
+                                    Color.parseColor("#f9a825")
+                                }
+                                holder.glowing_orbAnimation.playAnimation()
+                            }
+                        })
+                        holder.glowing_orbAnimation.addAnimatorListener(object : AnimatorListenerAdapter() {
+                            override fun onAnimationEnd(animation: Animator?) {
+                                holder.glowing_orbAnimation.addValueCallback(KeyPath("**"), LottieProperty.COLOR) {
+                                    Color.parseColor("#f9a825")
+                                }
+                                sessionAdapterOnUnlockSession.showMonsterDialog()
+                                context.getSharedPreferences(context.getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+                                    .edit()
+                                    .putString(context.getString(R.string.lastUnlockedSession), user.current_session_id)
+                                    .apply()
+                            }
+                        })
+                    }else{
+                        // Als de animatie wel al begonnen was
+                        holder.progressAnimation.frame = 50
+                        holder.progressAnimation.cancelAnimation()
+                    }
+                //Het zijn de vorige Unlocked Sessions
+                } else {
+                    holder.progressAnimation.frame = 50
+                    holder.progressAnimation.addValueCallback(KeyPath("**"), LottieProperty.COLOR) {
+                        Color.parseColor("#f9a825")
+                    }
+                    holder.glowing_orbAnimation.addValueCallback(KeyPath("**"), LottieProperty.COLOR) {
+                        Color.parseColor("#f9a825")
+                    }
                 }
-
-                holder.progressAnimation.addAnimatorListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator?) {
-                        holder.progressAnimation.addValueCallback(KeyPath("**"), LottieProperty.COLOR) {
-                            Color.parseColor("#f9a825")
-                        }
-                        holder.glowing_orbAnimation.playAnimation()
-                    }
-                })
-                holder.glowing_orbAnimation.addAnimatorListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator?) {
-                        holder.glowing_orbAnimation.addValueCallback(KeyPath("**"), LottieProperty.COLOR) {
-                            Color.parseColor("#f9a825")
-                        }
-                        sessionAdapterOnUnlockSession.showMonsterDialog()
-                    }
-                })
-
-            } else {
+            }
+            else // de sessies die gelocked zijn
+            {
                 holder.title.visibility = View.INVISIBLE
                 holder.lock.visibility = View.VISIBLE
                 holder.button.isClickable = false
@@ -403,7 +385,6 @@ class SessionFragment : Fragment() {
                 }
 
             }
-            Log.i("BOOLCHECK","${holder.button.isClickable}")
         }
 
         /**

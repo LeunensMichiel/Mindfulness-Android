@@ -1,16 +1,13 @@
-package com.hogent.mindfulness.show_sessions
+package com.hogent.mindfulness.sessions
 
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
-import android.util.Log
-import android.util.MonthDisplayHelper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.TextDelegate
 import com.hogent.mindfulness.R
-import kotlinx.android.synthetic.main.full_screen_animation_dialog.*
 import kotlinx.android.synthetic.main.full_screen_animation_dialog.view.*
 
 class FullscreenDialogWithAnimation : DialogFragment() {
