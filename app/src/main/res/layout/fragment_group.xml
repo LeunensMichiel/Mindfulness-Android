@@ -22,13 +22,21 @@
     </android.support.design.widget.FloatingActionButton>
     <EditText
             android:layout_width="0dp"
-            android:layout_height="88dp"
+            android:layout_height="wrap_content"
             android:ems="10"
             android:id="@+id/groepscodeScanner" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="8dp" android:layout_marginTop="32dp" app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp" android:hint="Scan je groepscode"
             android:singleLine="true" android:selectAllOnFocus="true" android:textAlignment="viewStart"
-            android:inputType="number"/>
+            android:inputType="number" android:padding="20dp"/>
+    <Button
+            android:text="Button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/groepscanners_BtnConfirm" android:layout_marginBottom="32dp"
+            app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
+            style="@style/Widget.AppCompat.Button.Colored" android:padding="20dp" tools:text="OPSLAAN"/>
 
 
 </android.support.constraint.ConstraintLayout>

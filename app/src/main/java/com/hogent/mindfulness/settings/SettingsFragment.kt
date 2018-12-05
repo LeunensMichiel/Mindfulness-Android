@@ -2,6 +2,7 @@ package com.hogent.mindfulness.settings
 
 import android.content.Context
 import android.os.Bundle
+import android.preference.SwitchPreference
 import android.support.v4.app.DialogFragment
 import com.hogent.mindfulness.R
 import android.support.v7.preference.Preference
@@ -36,12 +37,12 @@ class SettingsFragment: PreferenceFragmentCompat()  {
         versionPreference.summary = BuildConfig.VERSION_NAME
 
         //Voor de huidige switches enzo in te stellen op de huidige waaren en de changelisteners als er iets moet gebeuren on change van die items
-        val wantsFeedbackPreference = findPreference(getString(R.string.pref_feedback))
-        val feedback = sharedPref.getString(getString(R.string.authTokenKey), null)
-        wantsFeedbackPreference.setDefaultValue(feedback)
+        val wantsFeedbackPreference = findPreference(getString(R.string.pref_feedback)) as android.support.v14.preference.SwitchPreference
+        val feedback = sharedPref.getBoolean(getString(R.string.wantsFeedback), true)
+        wantsFeedbackPreference.isChecked = feedback
 
         wantsFeedbackPreference.setOnPreferenceChangeListener { preference, value ->
-            wantsFeedbackPreference.setDefaultValue(value as String)
+            wantsFeedbackPreference.isChecked = value as Boolean
             true
         }
     }
@@ -50,6 +51,18 @@ class SettingsFragment: PreferenceFragmentCompat()  {
         return when (preference!!.key) {
             getString(R.string.pref_groep) -> {
                     clicker!!.onPreferenceClick(FragmentType.GROUP)
+                true
+            }
+            getString(R.string.pref_email) -> {
+                    clicker!!.onPreferenceClick(FragmentType.EMAIL)
+                true
+            }
+            getString(R.string.pref_wachtwoord) -> {
+                    clicker!!.onPreferenceClick(FragmentType.PASSWORD)
+                true
+            }
+            getString(R.string.pref_privacy) -> {
+                    clicker!!.onPreferenceClick(FragmentType.EULA)
                 true
             }
             else -> {

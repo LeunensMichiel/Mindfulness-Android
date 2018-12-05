@@ -4,6 +4,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
+import com.hogent.mindfulness.EULAFragment
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.group.GroupFragment
 
@@ -11,6 +12,9 @@ import com.hogent.mindfulness.group.GroupFragment
 class SettingsActivity : AppCompatActivity(), SettingsFragment.OnPreferenceClickforFragment {
 
     private lateinit var groupFragment: GroupFragment
+    private lateinit var emailFragmentFragment: ChangeEmailSettingsFragment
+    private lateinit var passwordFragment: ChangePasswordFragment
+    private lateinit var EULAFragment: EULAFragment
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +43,30 @@ class SettingsActivity : AppCompatActivity(), SettingsFragment.OnPreferenceClick
                 groupFragment = GroupFragment()
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.pref_container, groupFragment)
+                    .addToBackStack(null)
+                    .setTransition(R.anim.slide_up)
+                    .commit()
+            }
+            FragmentType.EMAIL -> {
+                emailFragmentFragment = ChangeEmailSettingsFragment()
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.pref_container, emailFragmentFragment)
+                    .addToBackStack(null)
+                    .setTransition(R.anim.slide_up)
+                    .commit()
+            }
+            FragmentType.PASSWORD -> {
+                passwordFragment = ChangePasswordFragment()
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.pref_container, passwordFragment)
+                    .addToBackStack(null)
+                    .setTransition(R.anim.slide_up)
+                    .commit()
+            }
+            FragmentType.EULA -> {
+                EULAFragment = EULAFragment()
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.pref_container, EULAFragment)
                     .addToBackStack(null)
                     .setTransition(R.anim.slide_up)
                     .commit()

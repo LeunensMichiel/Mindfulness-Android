@@ -85,7 +85,9 @@
     <string name="prompt_repeat_password">Herhaal wachtwoord</string>
     <string name="action_register_short">Registreer</string>
     <string name="welcome_screen">MindFulness</string>
-    <string name="feedback_beschrijving">Wij zouden het ten zeerste appreciëren moest u even tijd maken om deze sessie te beoordelen. Zo kunnen wij u een betere ervaring geven.</string>
+    <string name="feedback_beschrijving">Wij zouden het ten zeerste appreciëren moest u even tijd maken om deze sessie
+        te beoordelen. Zo kunnen wij u een betere ervaring geven.
+    </string>
     <string name="feedback_titel">GEEF ONS UW FEEDBACK!</string>
     <string name="title_history">Profiel</string>
     <string name="post_image_desc">back icon</string>
@@ -94,5 +96,8 @@
     <string name="pref_feedback">pref_feedback</string>
     <string name="wantsFeedback">wantsFeedback</string>
     <string name="pref_groep">pref_groep</string>
+    <string name="pref_email">pref_email</string>
+    <string name="pref_wachtwoord">pref_wachtwoord</string>
+    <string name="pref_privacy">pref_privacy</string>
 
 </resources>

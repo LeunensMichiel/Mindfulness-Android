@@ -36,12 +36,12 @@
         <Preference
                 android:summary="Emailadres wijzigen"
                 android:title="Email"
-                android:key="pref_email">
+                android:key="@string/pref_email">
         </Preference>
         <Preference
                 android:summary="Wachtwoord wijzigen"
                 android:title="Wachtwoord"
-                android:key="pref_wachtwoord">
+                android:key="@string/pref_wachtwoord">
         </Preference>
         <SwitchPreference
                 android:key="@string/pref_feedback"
@@ -54,7 +54,7 @@
         <Preference
                 android:summary="Onze voorwaarden"
                 android:title="Beleid en GDPR"
-                android:key="pref_privacy">
+                android:key="@string/pref_privacy">
         </Preference>
     </PreferenceCategory>
     <Preference

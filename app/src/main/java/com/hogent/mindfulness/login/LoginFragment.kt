@@ -201,7 +201,7 @@ class LoginFragment : Fragment() {
             .putString(getString(R.string.authTokenKey), user.token)
             .putString(getString(R.string.userIdKey), user._id)
             .putString(getString(R.string.lastUnlockedSession), user.current_session_id)
-            .putString(getString(R.string.wantsFeedback), user.feedbackSubscribed.toString())
+            .putBoolean(getString(R.string.wantsFeedback), user.feedbackSubscribed)
             .apply()
 //        val repository = UserRepository(AppDatabase.getDatabase(activity!!.applicationContext))
 //        repository.insertUser(user)
