@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.hogent.mindfulness">
+          xmlns:tools="http://schemas.android.com/tools" package="com.hogent.mindfulness">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.CAMERA"/>
@@ -21,12 +21,14 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
-            android:usesCleartextTraffic="true">
+            android:usesCleartextTraffic="true" tools:ignore="GoogleAppIndexingWarning">
         <activity
                 android:name=".MainActivity"
                 android:screenOrientation="portrait"
                 android:configChanges="keyboard|orientation|locale|fontScale|screenLayout|screenSize|uiMode|navigation|touchscreen|keyboardHidden|layoutDirection|smallestScreenSize"
-                android:windowSoftInputMode="adjustPan|adjustResize">
+                android:windowSoftInputMode="adjustPan|adjustResize"
+                android:theme="@style/AppTheme.Launcher"
+        >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY"/>
