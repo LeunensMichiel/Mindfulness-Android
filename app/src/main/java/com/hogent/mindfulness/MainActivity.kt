@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.support.design.widget.BottomNavigationView
+import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
@@ -22,7 +23,6 @@ import com.hogent.mindfulness.exercise_details.ExerciseDetailFragment
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
 import com.hogent.mindfulness.group.GroupFragment
 import com.hogent.mindfulness.login.LoginActivity
-import com.hogent.mindfulness.settings.SettingsActivity
 import com.hogent.mindfulness.post.PostFragment
 import com.hogent.mindfulness.profile.ProfileFragment
 import com.hogent.mindfulness.services.NotifyJobCreator
@@ -30,6 +30,7 @@ import com.hogent.mindfulness.services.PeriodicNotificationJob
 import com.hogent.mindfulness.sessions.FullscreenDialogWithAnimation
 import com.hogent.mindfulness.sessions.SessionFragment
 import com.hogent.mindfulness.sessions.SessionFragment.SessionAdapter.SessionAdapterOnUnlockSession
+import com.hogent.mindfulness.settings.SettingsActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -64,6 +65,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
      * add SessionFragment to activity
      */
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -264,6 +266,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         when (item.itemId) {
             R.id.navigation_home -> {
                 supportFragmentManager.beginTransaction()
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                     .replace(R.id.session_container, sessionFragment)
                     .addToBackStack(null)
                     .commit()
@@ -271,6 +274,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
             }
             R.id.navigation_feedback -> {
                 supportFragmentManager.beginTransaction()
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                     .replace(R.id.session_container, postFragment)
                     .addToBackStack(null)
                     .commit()
@@ -278,6 +282,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
             }
             R.id.navigation_profile -> {
                 supportFragmentManager.beginTransaction()
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                     .replace(R.id.session_container, profileFragment)
                     .addToBackStack(null)
                     .commit()
