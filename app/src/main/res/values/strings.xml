@@ -55,7 +55,7 @@
     <string name="pref_title_user">Gebruiker</string>
     <string name="pref_title_privacy">Privacy</string>
     <string name="switch_notifications">switch_notifications</string>
-    <string name="switch_title_notifications">Give notifications</string>
+    <string name="switch_title_notifications">Notificaties</string>
     <string name="title_activity_settings">Settings</string>
 
     <string name="timePreference_key">t</string>
@@ -63,8 +63,8 @@
     <string name="timePreference_title">Notificatie tijdstip</string>
 
     <string name="key_vibrate">key_vibrate</string>
-    <string name="summary_vibrate">Vibrate on new notification</string>
-    <string name="title_vibrate">Vibrate</string>
+    <string name="summary_vibrate">Vibreer als ik een notificatie krijg</string>
+    <string name="title_vibrate">Vibreer</string>
 
     <!-- Strings related to login -->
     <string name="title_activity_login">Account</string>
@@ -90,5 +90,9 @@
     <string name="title_history">Profiel</string>
     <string name="post_image_desc">back icon</string>
     <string name="settings">Instellingen</string>
+    <string name="pref_key_version">1.0.0</string>
+    <string name="pref_feedback">pref_feedback</string>
+    <string name="wantsFeedback">wantsFeedback</string>
+    <string name="pref_groep">pref_groep</string>
 
 </resources>

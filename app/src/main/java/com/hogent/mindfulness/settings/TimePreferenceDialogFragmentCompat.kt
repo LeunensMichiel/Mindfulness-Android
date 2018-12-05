@@ -1,4 +1,4 @@
-package com.hogent.mindfulness.notification_settings
+package com.hogent.mindfulness.settings
 
 import android.os.Build
 import android.support.v7.preference.PreferenceDialogFragmentCompat

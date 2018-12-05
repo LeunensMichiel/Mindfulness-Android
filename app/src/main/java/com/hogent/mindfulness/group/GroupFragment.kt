@@ -8,9 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.scanner.ScannerActivity
-import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.fragment_group.*
-import kotlinx.android.synthetic.main.session_fragment.*
 
 class GroupFragment() : Fragment() {
     override fun onCreateView(
@@ -25,9 +23,5 @@ class GroupFragment() : Fragment() {
     override fun onStart() {
         super.onStart()
 
-        rv_group.setOnClickListener { view ->
-            val intent = Intent(activity, ScannerActivity::class.java)
-            startActivity(intent)
-        }
     }
 }

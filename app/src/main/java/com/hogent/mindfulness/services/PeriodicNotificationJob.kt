@@ -7,7 +7,7 @@ import com.evernote.android.job.Job
 import com.evernote.android.job.JobRequest
 import com.hogent.mindfulness.MainActivity
 import com.evernote.android.job.util.support.PersistableBundleCompat
-import com.hogent.mindfulness.notification_settings.Notifications
+import com.hogent.mindfulness.settings.Notifications
 
 
 class PeriodicNotificationJob : Job() {

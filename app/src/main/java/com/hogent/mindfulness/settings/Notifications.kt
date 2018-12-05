@@ -1,4 +1,4 @@
-package com.hogent.mindfulness.notification_settings
+package com.hogent.mindfulness.settings
 
 import android.app.Notification
 import android.app.PendingIntent

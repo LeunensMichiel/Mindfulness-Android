@@ -22,7 +22,7 @@ import com.hogent.mindfulness.exercise_details.ExerciseDetailFragment
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
 import com.hogent.mindfulness.group.GroupFragment
 import com.hogent.mindfulness.login.LoginActivity
-import com.hogent.mindfulness.notification_settings.SettingsActivity
+import com.hogent.mindfulness.settings.SettingsActivity
 import com.hogent.mindfulness.post.PostFragment
 import com.hogent.mindfulness.profile.ProfileFragment
 import com.hogent.mindfulness.services.NotifyJobCreator
@@ -264,18 +264,21 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
             R.id.navigation_home -> {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.session_container, sessionFragment)
+                    .addToBackStack(null)
                     .commit()
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_feedback -> {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.session_container, postFragment)
+                    .addToBackStack(null)
                     .commit()
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_profile -> {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.session_container, profileFragment)
+                    .addToBackStack(null)
                     .commit()
                 return@OnNavigationItemSelectedListener true
             }

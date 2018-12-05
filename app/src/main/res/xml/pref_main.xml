@@ -1,37 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.preference.PreferenceScreen
+<PreferenceScreen
         xmlns:android="http://schemas.android.com/apk/res/android">
 
 
-    <android.support.v7.preference.PreferenceCategory
+    <PreferenceCategory
             android:title="@string/pref_title_notifications">
 
-        <android.support.v7.preference.SwitchPreferenceCompat
+        <SwitchPreference
                 android:defaultValue="true"
                 android:key="@string/switch_notifications"
                 android:title="@string/switch_title_notifications"/>
 
-        <com.hogent.mindfulness.notification_settings.TimePreference
+        <com.hogent.mindfulness.settings.TimePreference
                 android:key="pref_time"
                 android:title="@string/timePreference_title"
                 android:defaultValue="90"
                 android:summary="@string/timePreference_summary"
                 style="@style/AppPreference.DialogPreference"/>
 
-        <android.support.v7.preference.SwitchPreferenceCompat
+        <SwitchPreference
                 android:defaultValue="true"
                 android:key="@string/key_vibrate"
                 android:summary="@string/summary_vibrate"
                 android:title="@string/title_vibrate"
                 android:dependency="@string/switch_notifications"/>
-    </android.support.v7.preference.PreferenceCategory>
+    </PreferenceCategory>
 
-    <android.support.v7.preference.PreferenceCategory
+    <PreferenceCategory
             android:title="@string/pref_title_user">
         <Preference
                 android:summary="Groepscode wijzigen"
                 android:title="Mijn Groep"
-                android:key="pref_groep">
+                android:key="@string/pref_groep">
         </Preference>
         <Preference
                 android:summary="Emailadres wijzigen"
@@ -44,19 +44,22 @@
                 android:key="pref_wachtwoord">
         </Preference>
         <SwitchPreference
-                android:key="pref_feedback"
+                android:key="@string/pref_feedback"
                 android:title="Feedback"
                 android:summary="De instructeur mag me vragen om feedback"
                 android:defaultValue="true"/>
-    </android.support.v7.preference.PreferenceCategory>
-    <android.support.v7.preference.PreferenceCategory
+    </PreferenceCategory>
+    <PreferenceCategory
             android:title="@string/pref_title_privacy">
         <Preference
                 android:summary="Onze voorwaarden"
                 android:title="Beleid en GDPR"
                 android:key="pref_privacy">
         </Preference>
-    </android.support.v7.preference.PreferenceCategory>
+    </PreferenceCategory>
+    <Preference
+            android:key="@string/pref_key_version"
+            android:title="Version"
+    />
 
-
-</android.support.v7.preference.PreferenceScreen>
+</PreferenceScreen>
