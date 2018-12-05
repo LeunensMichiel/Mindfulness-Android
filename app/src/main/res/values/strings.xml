@@ -92,7 +92,7 @@
     <string name="title_history">Profiel</string>
     <string name="post_image_desc">back icon</string>
     <string name="settings">Instellingen</string>
-    <string name="pref_key_version">1.0.0</string>
+    <string name="pref_key_version">1.0.5</string>
     <string name="pref_feedback">pref_feedback</string>
     <string name="wantsFeedback">wantsFeedback</string>
     <string name="pref_groep">pref_groep</string>

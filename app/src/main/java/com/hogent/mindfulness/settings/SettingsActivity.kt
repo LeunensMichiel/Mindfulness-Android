@@ -4,13 +4,14 @@ import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
-import com.hogent.mindfulness.EULAFragment
 import com.hogent.mindfulness.R
+import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
 import com.hogent.mindfulness.group.GroupFragment
 
 
 class SettingsActivity : AppCompatActivity(), SettingsFragment.OnPreferenceClickforFragment {
 
+    private var  mMindfullDB: MindfulnessDBHelper = MindfulnessDBHelper(this@SettingsActivity)
     private lateinit var groupFragment: GroupFragment
     private lateinit var emailFragmentFragment: ChangeEmailSettingsFragment
     private lateinit var passwordFragment: ChangePasswordFragment
@@ -23,7 +24,10 @@ class SettingsActivity : AppCompatActivity(), SettingsFragment.OnPreferenceClick
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val model = ViewModelProviders.of(this).get(SettingsViewModel::class.java)
+        val model = ViewModelProviders.of(this@SettingsActivity).get(SettingsViewModel(application)::class.java)
+
+        model.user?.value = mMindfullDB.getUser()
+        model.user?.value?.group = mMindfullDB.getGroup()
 
         val preferenceFragment = SettingsFragment()
         supportFragmentManager.beginTransaction().add(R.id.pref_container, preferenceFragment).commit()

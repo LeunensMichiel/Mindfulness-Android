@@ -84,6 +84,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
             currentUser = mMindfullDB.getUser()!!
             if (checkIfHasGroup()) {
                 groupFragment = GroupFragment()
+                groupFragment.mMindfullDB = MindfulnessDBHelper(this)
 
                 supportFragmentManager.beginTransaction()
                     .add(R.id.session_container, groupFragment)
