@@ -279,10 +279,6 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                     .commit()
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_notifications -> {
-                val intent = Intent(this, SettingsActivity::class.java)
-                startActivity(intent)
-            }
         }
         false
     }
@@ -310,20 +306,24 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         val itemThatWasClickedId = item.getItemId()
-        if (itemThatWasClickedId == R.id.logout) {
-            this@MainActivity.deleteDatabase("mindfulness.db")
-            getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-                .edit()
-                .remove(getString(R.string.userIdKey))
-                .remove(getString(R.string.authTokenKey))
-                .apply()
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-            finish()
-            return true
-        }
-        if (itemThatWasClickedId == R.id.settings) {
-            
+        when (itemThatWasClickedId) {
+            R.id.settings -> {
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
+                return true
+            }
+            R.id.logout -> {
+                this@MainActivity.deleteDatabase("mindfulness.db")
+                getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+                    .edit()
+                    .remove(getString(R.string.userIdKey))
+                    .remove(getString(R.string.authTokenKey))
+                    .apply()
+                val intent = Intent(this, LoginActivity::class.java)
+                startActivity(intent)
+                finish()
+                return true
+            }
         }
         return super.onOptionsItemSelected(item)
     }

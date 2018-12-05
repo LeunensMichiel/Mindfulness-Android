@@ -52,6 +52,8 @@
 
     <!-- settings for Notifications -->
     <string name="pref_title_notifications">Notificaties</string>
+    <string name="pref_title_user">Gebruiker</string>
+    <string name="pref_title_privacy">Privacy</string>
     <string name="switch_notifications">switch_notifications</string>
     <string name="switch_title_notifications">Give notifications</string>
     <string name="title_activity_settings">Settings</string>

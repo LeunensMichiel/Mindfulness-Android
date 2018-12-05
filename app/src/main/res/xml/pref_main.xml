@@ -26,5 +26,37 @@
                 android:dependency="@string/switch_notifications"/>
     </android.support.v7.preference.PreferenceCategory>
 
+    <android.support.v7.preference.PreferenceCategory
+            android:title="@string/pref_title_user">
+        <Preference
+                android:summary="Groepscode wijzigen"
+                android:title="Mijn Groep"
+                android:key="pref_groep">
+        </Preference>
+        <Preference
+                android:summary="Emailadres wijzigen"
+                android:title="Email"
+                android:key="pref_email">
+        </Preference>
+        <Preference
+                android:summary="Wachtwoord wijzigen"
+                android:title="Wachtwoord"
+                android:key="pref_wachtwoord">
+        </Preference>
+        <SwitchPreference
+                android:key="pref_feedback"
+                android:title="Feedback"
+                android:summary="De instructeur mag me vragen om feedback"
+                android:defaultValue="true"/>
+    </android.support.v7.preference.PreferenceCategory>
+    <android.support.v7.preference.PreferenceCategory
+            android:title="@string/pref_title_privacy">
+        <Preference
+                android:summary="Onze voorwaarden"
+                android:title="Beleid en GDPR"
+                android:key="pref_privacy">
+        </Preference>
+    </android.support.v7.preference.PreferenceCategory>
+
 
 </android.support.v7.preference.PreferenceScreen>
