@@ -1,5 +1,7 @@
 package com.hogent.mindfulness.domain
 
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.PrimaryKey
 import android.graphics.Bitmap
 import com.google.gson.annotations.SerializedName
 import java.util.*
@@ -51,7 +53,9 @@ object Model {
         var bitmap: Bitmap? = null
     )
 
+    @Entity(tableName = "user_table")
     data class User(
+        @PrimaryKey
         val _id: String,
         val firstname: String,
         val lastname: String,
