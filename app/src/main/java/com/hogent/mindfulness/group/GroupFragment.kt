@@ -26,8 +26,6 @@ import java.nio.channels.Selector
 
 class GroupFragment() : Fragment() {
 
-    lateinit var  mMindfullDB:MindfulnessDBHelper
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -41,25 +39,25 @@ class GroupFragment() : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        model = activity?.run {
-            ViewModelProviders.of(this).get(SettingsViewModel::class.java)
-        } ?: throw Exception("Invalid Activity")
+        activity?.let {
+            model = ViewModelProviders.of(it).get(SettingsViewModel::class.java)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        groepscodeScannerTxf.setText("5bf730b27a76ee0b049432a6")
+        val txfield = groepscodeScannerTxf
+
+        txfield.setText("5bf730b27a76ee0b049432a6")
         val photoBtn = fragment_GroupBtn
         photoBtn.setOnClickListener {
             val intent = Intent(activity, ScannerActivity::class.java)
             startActivity(intent)
         }
-
         val saveBtn = groepscanners_BtnConfirm
-        val txfield = groepscodeScannerTxf
-        saveBtn.setOnClickListener {
+        saveBtn.setOnClickListener {v ->
             if (txfield.text.isNotEmpty()) {
-                model.user?.value?.group?._id = txfield.text.toString()
+                model.user.value?.group?._id = txfield.text.toString()
             }
         }
     }

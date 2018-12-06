@@ -1,26 +1,25 @@
 package com.hogent.mindfulness.settings
 
-import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.MutableLiveData
-import android.util.Log
-import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
+import android.arch.lifecycle.ViewModel
 import com.hogent.mindfulness.domain.Model
 
-class SettingsViewModel(application: Application): AndroidViewModel(Application()) {
+class SettingsViewModel(): ViewModel() {
 
-    private var  mMindfullDB:MindfulnessDBHelper = MindfulnessDBHelper(application)
-    var user: MutableLiveData<Model.User>? = null
+//    private var  mMindfullDB:MindfulnessDBHelper = MindfulnessDBHelper(application)
+    lateinit var user: MutableLiveData<Model.User>
 
-    init {
-        user?.value = mMindfullDB.getUser()!!
-        user?.value?.group = mMindfullDB.getGroup()
-    }
-
-//    private fun loadUser( value: Model.User?) {
-//        Log.i("VIEWMODEL_LOADDATA","START")
-//        if (value == null) {
-//            user?.value =
-//        }
+//    init {
+//        user?.value = mMindfullDB.getUser()!!
+//        user?.value?.group = mMindfullDB.getGroup()
 //    }
+
+
+
+    fun loadUser(currentuser: Model.User) {
+        if (!::user.isInitialized) {
+            user = MutableLiveData()
+        }
+        user.value = currentuser
+    }
 }
