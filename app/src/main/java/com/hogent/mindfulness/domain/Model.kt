@@ -1,9 +1,11 @@
 package com.hogent.mindfulness.domain
 
 import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.PrimaryKey
 import android.graphics.Bitmap
 import com.google.gson.annotations.SerializedName
+import io.reactivex.annotations.NonNull
 import java.util.*
 
 
@@ -20,7 +22,7 @@ object Model {
         val _id: String,
         val position: Int,
         val title: String,
-        @SerializedName("image_filename")
+        @SerializedName("image_filename_session")
         val imageFilename: String
     )
 
@@ -55,26 +57,45 @@ object Model {
 
     @Entity(tableName = "user_table")
     data class User(
-        @PrimaryKey
-        val _id: String,
-        val firstname: String,
-        val lastname: String,
-        val email: String,
-        val current_session_id: String,
-        val current_exercise_id: String,
+        var _id: String? = null,
+        var firstname: String? = null,
+        var lastname: String? = null,
+        var email: String? = null,
+        var current_session_id: String? = null,
+        var current_exercise_id: String? = null,
 //        @ColumnInfo(name = "current_session")
+        @Ignore
         var current_session: Session?,
 //        @ColumnInfo(name = "current_exercise")
+        @Ignore
         var current_exercise: Exercise?,
 //        @ColumnInfo(name = "unlocked_sessions")
+        @Ignore
         var unlocked_sessions: Array<String>,
 //        @ColumnInfo(name = "group")
+        @Ignore
         var group: Group?,
 //        @ColumnInfo(name = "token")
         var token: String?,
+        @Ignore
         var post_ids: ArrayList<String>,
-        var feedbackSubscribed: Boolean
-    )
+        var feedbackSubscribed: Boolean = false
+    ) {
+        constructor():this(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null ,
+            null,
+            null,
+            arrayOf(),
+            null,
+            null, arrayListOf(), false)
+        @PrimaryKey(autoGenerate = true)
+        var db_id: Int = 0
+    }
 
     data class Group(
         var _id: String,
@@ -101,6 +122,15 @@ object Model {
     data class unlock_session(
         val id: String,
         val session_id: String
+    )
+
+    data class uiMessage(
+        var data:String
+    )
+
+    data class errorMessage(
+        var data:String,
+        var error:String
     )
 
     data class user_group (

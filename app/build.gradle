@@ -65,9 +65,9 @@ dependencies {
 
     //RETROFIT
     implementation "com.squareup.retrofit2:converter-moshi:2.3.0"
-    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
-//    implementation 'com.squareup.retrofit2:converter-gson:2.4.0' DEPRECATED
+    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
 
     // Data binding
     annotationProcessor "com.android.databinding:compiler:3.1.4"
@@ -79,13 +79,14 @@ dependencies {
     // Backend
     implementation 'android.arch.lifecycle:extensions:1.1.1'
     implementation 'com.google.code.gson:gson:2.6.2'
-    implementation "io.reactivex.rxjava2:rxandroid:2.0.1"
+    kapt "android.arch.lifecycle:compiler:1.1.1"
+
 
     // RxJava
     implementation "io.reactivex.rxjava2:rxjava:2.2.4"
     implementation "io.reactivex.rxjava2:rxandroid:2.1.0"
 
-    implementation("com.squareup.moshi:moshi-kotlin:1.8.0")
+    implementation("com.squareup.moshi:moshi-kotlin:1.7.0")
 
     // Adds libraries defining annotations to only the compile classpath.
     implementation "com.google.dagger:dagger:2.19"

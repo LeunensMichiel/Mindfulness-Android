@@ -48,7 +48,7 @@ class MindfulnessDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
     }
 
     fun addUser(user: Model.User): Boolean {
-        val userExists = doesDataExist(UserEntry.TABLE_NAME, UserEntry.COLUMN_ID, user._id)
+        val userExists = doesDataExist(UserEntry.TABLE_NAME, UserEntry.COLUMN_ID, user._id!!)
         if (!userExists) {
             val values = ContentValues()
             val unlocked_sessions = user.unlocked_sessions.joinToString(",", "", "")

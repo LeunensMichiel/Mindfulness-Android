@@ -45,7 +45,7 @@ class PostFragment : Fragment() {
 
     private var postService:PostApiService? by observable(null) {property, oldValue:PostApiService?, newValue:PostApiService? ->
         dbUser = mMindfulDB.getUser()!!
-        disposable = newValue!!.getPosts(dbUser._id)
+        disposable = newValue!!.getPosts(dbUser._id!!)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(

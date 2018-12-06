@@ -1,5 +1,8 @@
 package com.hogent.mindfulness.injection.module
 
+import android.app.Application
+import android.content.Context
+import com.hogent.mindfulness.data.AuthenticationInterceptor
 import com.hogent.mindfulness.data.UserApiService
 import dagger.Module
 import dagger.Provides
@@ -8,7 +11,9 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
+import javax.inject.Singleton
 
 @Module
 class NetworkModule {
@@ -25,19 +30,26 @@ class NetworkModule {
         return Retrofit.Builder()
             .baseUrl(API_BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
             .build()
     }
 
     @Provides
-    internal fun provideOkHttpClient(): OkHttpClient {
-        val interceptor: HttpLoggingInterceptor = HttpLoggingInterceptor().apply {
-            this.level = HttpLoggingInterceptor.Level.BODY
-        }
+    internal fun provideOkHttpClient(authToken: String?): OkHttpClient {
+
+        val interceptor = AuthenticationInterceptor(authToken!!)
 
         return OkHttpClient.Builder().apply {
             addInterceptor(interceptor)
         }.build()
+    }
+
+    @Provides
+    @Singleton
+    internal fun getAuthToken(context:Context):String? {
+        return context
+            .getSharedPreferences("userDetails", Context.MODE_PRIVATE)
+            .getString("authToken", null)
     }
 }

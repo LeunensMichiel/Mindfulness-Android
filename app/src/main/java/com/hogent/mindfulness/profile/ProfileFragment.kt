@@ -110,7 +110,7 @@ class ProfileFragment : Fragment() {
             R.drawable.ic_feedback_black_24dp
         )
         info = arrayOf(
-            result.email,
+            result.email!!,
             result.group!!.name,
             "Feedback: " + if (result.feedbackSubscribed) "ingeschreven" else "uitgeschreven"
         )

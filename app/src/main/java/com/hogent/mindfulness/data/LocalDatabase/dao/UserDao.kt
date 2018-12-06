@@ -1,4 +1,4 @@
-package com.hogent.mindfulness.data.LocalDatabase
+package com.hogent.mindfulness.data.LocalDatabase.dao
 
 import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.Dao

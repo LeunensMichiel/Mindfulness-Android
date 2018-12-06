@@ -2,6 +2,7 @@ package com.hogent.mindfulness
 
 // Notificaties
 // Settings
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -19,6 +20,7 @@ import com.hogent.mindfulness.data.PostApiService
 import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.data.UserApiService
 import com.hogent.mindfulness.domain.Model
+import com.hogent.mindfulness.domain.UserViewModel
 import com.hogent.mindfulness.exercise_details.ExerciseDetailFragment
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
 import com.hogent.mindfulness.group.GroupFragment
@@ -57,6 +59,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
     private lateinit var exerciseDetailFragment: ExerciseDetailFragment
     private lateinit var fullscreenMonsterDialog : FullscreenDialogWithAnimation
     private lateinit var currentUser: Model.User
+    private lateinit var userView:UserViewModel
     private var currentPost = Model.Post()
     /**
      * Set view to MainActivity
@@ -68,6 +71,8 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        userView = ViewModelProviders.of(this).get(UserViewModel::class.java)
 
         // Starts van notification service
         JobManager.create(this).addJobCreator(NotifyJobCreator())
