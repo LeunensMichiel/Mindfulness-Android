@@ -5,11 +5,11 @@ import dagger.Component
 import javax.inject.Singleton
 
 
-@Singleton
 /**
  * All modules that are required to perform the injections into the listed objects should be listed
  * in this annotation
  */
+@Singleton
 @Component(modules = [NetworkModule::class])
 interface NetworkComponent {
     fun inject(userViewModel: UserViewModel)
