@@ -1,9 +1,10 @@
 package com.hogent.mindfulness.injection.module
 
-import android.app.Application
 import android.content.Context
+import android.util.Log
 import com.hogent.mindfulness.data.AuthenticationInterceptor
-import com.hogent.mindfulness.data.UserApiService
+import com.hogent.mindfulness.data.API.UserApiService
+import com.hogent.mindfulness.data.SessionApiService
 import dagger.Module
 import dagger.Provides
 import io.reactivex.schedulers.Schedulers
@@ -12,7 +13,6 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Singleton
 
 @Module
@@ -26,6 +26,11 @@ class NetworkModule {
     }
 
     @Provides
+    internal fun provideSessionApi(retrofit: Retrofit):SessionApiService {
+        return retrofit.create(SessionApiService::class.java)
+    }
+
+    @Provides
     internal fun provideRetrofitInterface(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .baseUrl(API_BASE_URL)
@@ -36,9 +41,18 @@ class NetworkModule {
     }
 
     @Provides
-    internal fun provideOkHttpClient(authToken: String?): OkHttpClient {
+    internal fun provideOkHttpClient(authToken: String): OkHttpClient {
+        if (authToken != "none") {
+            Log.i("AUTH_TOKEN", authToken)
+            val interceptor = AuthenticationInterceptor(authToken)
+            return OkHttpClient.Builder().apply {
+                addInterceptor(interceptor)
+            }.build()
+        }
 
-        val interceptor = AuthenticationInterceptor(authToken!!)
+        val interceptor: HttpLoggingInterceptor = HttpLoggingInterceptor().apply {
+            this.level = HttpLoggingInterceptor.Level.BODY
+        }
 
         return OkHttpClient.Builder().apply {
             addInterceptor(interceptor)
@@ -46,10 +60,9 @@ class NetworkModule {
     }
 
     @Provides
-    @Singleton
-    internal fun getAuthToken(context:Context):String? {
+    internal fun getAuthToken(context: Context): String {
         return context
             .getSharedPreferences("userDetails", Context.MODE_PRIVATE)
-            .getString("authToken", null)
+            .getString("authToken", "none")!!
     }
 }

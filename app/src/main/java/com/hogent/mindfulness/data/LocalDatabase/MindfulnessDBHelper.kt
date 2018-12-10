@@ -140,7 +140,10 @@ class MindfulnessDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
             val id = cursor.getString(0)
             val current_session_id = cursor.getString(1) ?: ""
             val current_ex_id = cursor.getString(2) ?: ""
-            val unlocked_sessions: Array<String> = cursor.getString(3).split(",").toTypedArray()
+            val unlocked_sessions: ArrayList<String> = arrayListOf()
+            cursor.getString(3).split(",").toTypedArray().forEach {
+                unlocked_sessions.add(it)
+            }
             val post_ids = arrayListOf<String>()
             cursor.getString(4).split(",").toTypedArray().forEach {
                 post_ids.add(it)

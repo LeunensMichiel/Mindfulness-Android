@@ -99,5 +99,7 @@
     <string name="pref_email">pref_email</string>
     <string name="pref_wachtwoord">pref_wachtwoord</string>
     <string name="pref_privacy">pref_privacy</string>
+    <string name="empty_email_err">Email niet ingevuld.</string>
+    <string name="empty_passw_err">Wachtwoord niet ingevuld.</string>
 
 </resources>

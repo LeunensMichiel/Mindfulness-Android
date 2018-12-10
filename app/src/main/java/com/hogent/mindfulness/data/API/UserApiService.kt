@@ -1,4 +1,4 @@
-package com.hogent.mindfulness.data
+package com.hogent.mindfulness.data.API
 
 import com.hogent.mindfulness.domain.Model
 import io.reactivex.Observable

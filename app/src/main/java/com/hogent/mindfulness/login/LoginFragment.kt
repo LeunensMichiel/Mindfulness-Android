@@ -3,11 +3,9 @@ package com.hogent.mindfulness.login
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.TargetApi
-import android.app.Service
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -18,24 +16,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
-import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.data.*
 import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
 import com.hogent.mindfulness.domain.Model
-import com.hogent.mindfulness.domain.UserViewModel
-import io.reactivex.android.schedulers.AndroidSchedulers
+import com.hogent.mindfulness.domain.ViewModels.UserViewModel
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_login.*
-import org.jetbrains.anko.support.v4.toast
+import java.lang.Exception
 
 class LoginFragment : Fragment() {
-    private lateinit var disposable: Disposable
-    private lateinit var userViewModel:UserViewModel
-    private val mMindfullDB by lazy {
-        MindfulnessDBHelper(context!!)
-    }
+    private lateinit var userViewModel: UserViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,7 +33,42 @@ class LoginFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        userViewModel = ViewModelProviders.of(this).get(UserViewModel::class.java)
+        userViewModel = activity?.run {
+            ViewModelProviders.of(this).get(UserViewModel::class.java)
+        } ?: throw Exception("Invalid activity")
+
+        userViewModel.rawUser.observe(this, Observer {
+            if (it != null){
+                Log.d("RAW_USER_OBSERVER", "CHECK")
+                activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+                    .edit()
+                    .putString(getString(R.string.authTokenKey), it.token)
+                    .putString(getString(R.string.userIdKey), it._id)
+                    .putString(getString(R.string.lastUnlockedSession), it.current_session_id)
+                    .putBoolean(getString(R.string.wantsFeedback), it.feedbackSubscribed)
+                    .apply()
+            }
+        })
+
+        userViewModel.uiMessage.observe(this, android.arch.lifecycle.Observer {
+            Log.d("SHOW_PROGRESS_OBSERVER", "$it")
+            when(it!!.data) {
+                "login_start_progress" -> showProgress(true)
+                "login_end_progress" -> showProgress(false)
+            }
+        })
+
+        userViewModel.errorMessage.observe(this, Observer {
+            Log.d("LOGIN_ERR", "$it")
+            when(it!!.data) {
+                "login_api_fail" -> kotlin.run {
+                    login_password.error = getString(R.string.error_incorrect_password)
+                    login_password.requestFocus()
+                    showProgress(false)
+                }
+            }
+        })
+
         return inflater.inflate(R.layout.fragment_login, container, false)
     }
 
@@ -60,44 +85,8 @@ class LoginFragment : Fragment() {
             }
             false
         })
+
         email_sign_in_button.setOnClickListener { attemptLogin() }
-
-        login_form_register_btn.setOnClickListener {
-            val loginCallback = activity as LoginFragmentCallBack
-            loginCallback.onclickRegister()
-        }
-
-        userViewModel.rawUser.observe(this, Observer {
-            if (it != null){
-                showProgress(false)
-                activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-                    .edit()
-                    .putString(getString(R.string.authTokenKey), it.token)
-                    .putString(getString(R.string.userIdKey), it._id)
-                    .putString(getString(R.string.lastUnlockedSession), it.current_session_id)
-                    .putBoolean(getString(R.string.wantsFeedback), it.feedbackSubscribed)
-                    .apply()
-                val intent = Intent(activity, MainActivity::class.java)
-                startActivity(intent)
-            }
-        })
-
-        userViewModel.uiMessage.observe(this, Observer {
-            when(it!!.data) {
-                "Login_On_Subscribe" -> showProgress(true)
-                "Login_On_Terminate" -> showProgress(false)
-            }
-        })
-
-        userViewModel.errorMessage.observe(this, Observer {
-            when(it!!.data) {
-                "login_api_fail" -> kotlin.run {
-                    login_password.error = getString(R.string.error_incorrect_password)
-                    login_password.requestFocus()
-                    showProgress(false)
-                }
-            }
-        })
 
     }
 
@@ -112,9 +101,6 @@ class LoginFragment : Fragment() {
      * errors are presented and no actual login attempt is made.
      */
     private fun attemptLogin() {
-//        if (mAuthTask != null) {
-//            return
-//        }
 
         // Reset errors.
         email.error = null
@@ -177,25 +163,6 @@ class LoginFragment : Fragment() {
 //            )
     }
 
-    private fun successfulLogin(user: Model.User) {
-        if (mMindfullDB.addUser(user)) toast("User added to local db") else toast("User not added to local db")
-        Log.i("DATABASE AFTER LOGIN", "${mMindfullDB.getUser()}")
-        Log.i("USERCHECK AFTER LOGIN", "$user")
-        showProgress(false)
-        activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-        .edit()
-            .putString(getString(R.string.authTokenKey), user.token)
-            .putString(getString(R.string.userIdKey), user._id)
-            .putString(getString(R.string.lastUnlockedSession), user.current_session_id)
-            .putBoolean(getString(R.string.wantsFeedback), user.feedbackSubscribed)
-            .apply()
-//        val repository = UserRepository(AppDatabase.getDatabase(activity!!.applicationContext))
-//        repository.insertUser(user)
-
-        val intent = Intent(activity, MainActivity::class.java)
-        startActivity(intent)
-    }
-
     /**
      * Shows error msg when login failed
      */
@@ -224,6 +191,7 @@ class LoginFragment : Fragment() {
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private fun showProgress(show: Boolean) {
+        Log.d("SHOW_PROGRESS", "FUNCTION_CHECK")
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.

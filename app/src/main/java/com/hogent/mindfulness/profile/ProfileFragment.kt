@@ -23,7 +23,7 @@ import com.hogent.mindfulness.R.id.profileFragment_info_icon
 import com.hogent.mindfulness.R.id.profileFragment_info_text
 import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
 import com.hogent.mindfulness.data.ServiceGenerator
-import com.hogent.mindfulness.data.UserApiService
+import com.hogent.mindfulness.data.API.UserApiService
 import com.hogent.mindfulness.domain.Model
 import com.mikhaellopez.circularimageview.CircularImageView
 import com.theartofdev.edmodo.cropper.CropImage
@@ -111,8 +111,8 @@ class ProfileFragment : Fragment() {
         )
         info = arrayOf(
             result.email!!,
-            result.group!!.name,
-            "Feedback: " + if (result.feedbackSubscribed) "ingeschreven" else "uitgeschreven"
+            result.group!!.name!!,
+            "Feedback: " + if (result.feedbackSubscribed!!) "ingeschreven" else "uitgeschreven"
         )
 
 

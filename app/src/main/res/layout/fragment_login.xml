@@ -83,7 +83,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/action_login_form_register"
-                android:textStyle="bold" android:layout_marginBottom="8dp"
+                android:textStyle="bold"
+                android:onClick="toRegister"
+                android:layout_marginBottom="8dp"
                 app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:padding="18dp"/>

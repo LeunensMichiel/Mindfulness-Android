@@ -4,6 +4,8 @@ package com.hogent.mindfulness.sessions
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.app.Dialog
+import android.arch.lifecycle.LifecycleOwner
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -31,9 +33,9 @@ import com.hogent.mindfulness.data.FeedbackApiService
 import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
 import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.data.SessionApiService
-import com.hogent.mindfulness.data.UserApiService
+import com.hogent.mindfulness.data.API.UserApiService
 import com.hogent.mindfulness.domain.Model
-import com.hogent.mindfulness.domain.Model.Point
+import com.hogent.mindfulness.domain.ViewModels.SessionViewModel
 import com.hogent.mindfulness.scanner.ScannerActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -59,6 +61,7 @@ class SessionFragment : Fragment() {
     private lateinit var user: Model.User
     lateinit var unlockSession: String
     private lateinit var sessionService:SessionApiService
+    private lateinit var sessionView: SessionViewModel
     /**
      * I used this resource: https://developer.android.com/guide/topics/ui/layout/recyclerview
      */
@@ -67,8 +70,11 @@ class SessionFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        user = mMindfullDB.getUser()!!
-        Log.i("DBUSER", "$user")
+        sessionView = ViewModelProviders.of(this).get(SessionViewModel::class.java)
+        Log.d("SESSION_VM", "SESSION_FRAGMENT")
+        sessionView.retrieveSessions()
+        user = sessionView.userRepo.user.value!!
+        //Log.i("DBUSER", "$user")
         //beginRetrieveUser()
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.session_fragment, container, false)
@@ -81,9 +87,9 @@ class SessionFragment : Fragment() {
         sessions = arrayOf<Model.Session>()
         sessionBools = BooleanArray(10)
 
-        beginRetrieveSessionmap(user.group!!.sessionmap_id)
+        //beginRetrieveSessionmap(user.group!!.sessionmap_id!!)
 
-        mAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler, sessionBools, user, activity as SessionAdapter.SessionAdapterOnUnlockSession, (activity as MainActivity))
+        mAdapter = SessionAdapter(this, this , activity as SessionAdapter.SessionAdapterOnClickHandler, sessionBools, activity as SessionAdapter.SessionAdapterOnUnlockSession, (activity as MainActivity))
 
         val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
 
@@ -93,35 +99,6 @@ class SessionFragment : Fragment() {
             layoutManager = viewManager
             adapter = mAdapter
         }
-
-//        view.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener{
-//            override fun onGlobalLayout() {
-//                sessionFragment.post {
-//
-//                    val height = view.height
-//                    val width = view.width
-//
-//                    val centerx = (progress_img.width.toFloat() / 2.0).toFloat()
-//                    val bottomy = progress_img.height
-//
-//                    val currentSession = user.unlocked_sessions.size
-//                    val sessionSize = 15.0
-//                    val coPoint = (currentSession / sessionSize.toFloat()) * coordinates.size.toFloat()
-//                    val point = coordinates[coPoint.toInt()]
-//                    val newHeight = (point.y.toFloat() / imgHeight) * height.toFloat()
-//                    val newWidth = (point.x.toFloat() / imgWidth) * width.toFloat()
-//
-//                    progress_img.x = newWidth.toFloat() - centerx
-//                    progress_img.y = newHeight.toFloat() - bottomy
-//
-//                    Log.d("ventje_x", progress_img.x.toString())
-//                    Log.d("ventje_y", width.toString())
-//
-//                    view.viewTreeObserver.removeOnGlobalLayoutListener(this)
-//
-//                }
-//            }
-//        })
     }
 
     /**
@@ -138,22 +115,6 @@ class SessionFragment : Fragment() {
             startActivity(intent)
         }
     }
-
-    private fun beginRetrieveUser() {
-
-        val userid = activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-                .getString(getString(R.string.userIdKey), "")
-        val userService = ServiceGenerator.createService(UserApiService::class.java, (activity as MainActivity))
-
-        disposable = userService.getUser(userid)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { result -> showResultUser(result) },
-                { error -> showError(error.message) }
-            )
-    }
-
     /**
      * this function retrieves a sessionmap from the database
      */
@@ -171,18 +132,6 @@ class SessionFragment : Fragment() {
             )
     }
 
-    /**
-     * Initialize SessionAdapter
-     * Initialize LayoutManager
-     * Add Manager and Adapter to recyclerview
-     */
-    private fun showResultUser(resultUser: Model.User) {
-        user = resultUser
-        Log.d("testtest", user.group!!.sessionmap_id)
-        beginRetrieveSessionmap(user.group!!.sessionmap_id)
-
-    }
-
     private fun showError(errMsg: String?) {
         Toast.makeText(activity, errMsg, Toast.LENGTH_SHORT).show()
     }
@@ -193,16 +142,6 @@ class SessionFragment : Fragment() {
      * Add Manager and Adapter to recyclerview
      */
     private fun showResult(sessions: Array<Model.Session>) {
-//        val user:Model.User = arguments!!.get("user") as Model.User
-//         mAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler)
-//        val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
-//
-//        Log.d("sessions", sessions.size.toString())
-//
-//        rv_sessions.apply {
-//            layoutManager = viewManager
-//            adapter = mAdapter
-//        }
 
         this.sessions = sessions
 
@@ -214,7 +153,6 @@ class SessionFragment : Fragment() {
             Log.d("bools", it.toString())
 
         }
-        mAdapter.mSessionData = sessions
         mAdapter.sessionBools = sessionBools
         mAdapter.notifyDataSetChanged()
     }
@@ -226,19 +164,36 @@ class SessionFragment : Fragment() {
      */
 
     class SessionAdapter(
+        private var fragment: Fragment,
+        private var lifecycleOwner: LifecycleOwner,
         // This array has the data for the recyclerview adapter
-        var mSessionData: Array<Model.Session>,
         //mClickHandler is for communicating whit the activity when item clicked
         private val mClickHandler: SessionAdapterOnClickHandler,
         var sessionBools: BooleanArray,
-        val user: Model.User,
         private val sessionAdapterOnUnlockSession: SessionAdapterOnUnlockSession,
         var context: Context
     ) : RecyclerView.Adapter<SessionAdapter.SessionViewHolder>() {
 
+        private var mSessionData: Array<Model.Session>
+        private var user:Model.User
+        private var sessionView:SessionViewModel
+
         private lateinit var disposable: Disposable
         val lastUnlockedSession = context.getSharedPreferences(context.getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
             .getString(context.getString(R.string.lastUnlockedSession), null)
+
+        init {
+            sessionView = ViewModelProviders.of(fragment).get(SessionViewModel::class.java)
+            Log.d("SESSION_VM", "SESSION_ADAPTER")
+
+            mSessionData = arrayOf()
+            user = sessionView.userRepo.user.value!!
+            sessionView.sessionList.observe(lifecycleOwner, android.arch.lifecycle.Observer {
+                mSessionData = it!!
+                this.notifyDataSetChanged()
+            })
+        }
+
         // This is for knowing what the last unlocked session was. If user gets an update, this will trigger the animations
         /**
          * This function loads in the item view
@@ -305,14 +260,19 @@ class SessionFragment : Fragment() {
          */
         override fun onBindViewHolder(holder: SessionViewHolder, position: Int) {
 
+            val currentSession = mSessionData[position]
+
             holder.title.text = (position + 1).toString()
             holder.button.setOnClickListener {
-                val session = mSessionData[position]
-                mClickHandler.onClick(session)
+                sessionView.selectedSession?.value = currentSession
+                sessionView.setSelectedSession(currentSession)
+                Log.d("CHECK", "$currentSession")
+//                val session = mSessionData[position]
+//                mClickHandler.onClick(session)
             }
 
             //De sessies die unlocked zijn
-            if (sessionBools[position]) {
+            if (currentSession.unlocked) {
                 holder.title.visibility = View.VISIBLE
                 holder.lock.visibility = View.INVISIBLE
                 holder.button.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#bedacd"))

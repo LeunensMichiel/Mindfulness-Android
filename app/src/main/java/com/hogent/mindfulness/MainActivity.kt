@@ -2,6 +2,7 @@ package com.hogent.mindfulness
 
 // Notificaties
 // Settings
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
@@ -13,18 +14,22 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import com.evernote.android.job.JobManager
 import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
 import com.hogent.mindfulness.data.PostApiService
 import com.hogent.mindfulness.data.ServiceGenerator
-import com.hogent.mindfulness.data.UserApiService
+import com.hogent.mindfulness.data.API.UserApiService
 import com.hogent.mindfulness.domain.Model
-import com.hogent.mindfulness.domain.UserViewModel
+import com.hogent.mindfulness.domain.ViewModels.SessionViewModel
+import com.hogent.mindfulness.domain.ViewModels.UserViewModel
 import com.hogent.mindfulness.exercise_details.ExerciseDetailFragment
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
 import com.hogent.mindfulness.group.GroupFragment
 import com.hogent.mindfulness.login.LoginActivity
+import com.hogent.mindfulness.login.LoginFragment
+import com.hogent.mindfulness.login.RegisterFragment
 import com.hogent.mindfulness.post.PostFragment
 import com.hogent.mindfulness.profile.ProfileFragment
 import com.hogent.mindfulness.services.NotifyJobCreator
@@ -37,6 +42,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.toast
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.SessionAdapterOnClickHandler, SessionAdapterOnUnlockSession, ExercisesListFragment.ExerciseAdapter.ExerciseAdapterOnClickHandler {
@@ -51,6 +57,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
     }
 
     private lateinit var disposable: Disposable
+    lateinit var loginFragment : LoginFragment
     private lateinit var sessionFragment: SessionFragment
     private lateinit var groupFragment: GroupFragment
     private lateinit var exerciseFragment: ExercisesListFragment
@@ -58,8 +65,9 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
     private lateinit var profileFragment: ProfileFragment
     private lateinit var exerciseDetailFragment: ExerciseDetailFragment
     private lateinit var fullscreenMonsterDialog : FullscreenDialogWithAnimation
-    private lateinit var currentUser: Model.User
-    private lateinit var userView:UserViewModel
+    private var currentUser: Model.User? = null
+    private lateinit var userView: UserViewModel
+    private lateinit var sessionView: SessionViewModel
     private var currentPost = Model.Post()
     /**
      * Set view to MainActivity
@@ -72,7 +80,52 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        navigation.visibility = View.GONE
         userView = ViewModelProviders.of(this).get(UserViewModel::class.java)
+        sessionView = ViewModelProviders.of(this).get(SessionViewModel::class.java)
+
+        sessionView.selectedSession.observe(this, Observer {
+
+            Log.d("SELECTED_SESSION", "$it")
+            if (it != null){
+                Log.d("SELECTED_SESSION", "$it")
+            }
+        })
+
+        userView.dbUser.observe(this, Observer<Model.User?> {
+            if (it == null){
+                navigation.visibility = View.GONE
+                loginFragment = LoginFragment()
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.session_container, loginFragment)
+                    .commit()
+            } else {
+                if (it.group != null) {
+                    navigation.visibility = View.VISIBLE
+                    sessionFragment = SessionFragment()
+
+                    postFragment = PostFragment()
+                    profileFragment = ProfileFragment()
+
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.session_container, sessionFragment)
+                        .commit()
+                } else  {
+                    navigation.visibility = View.GONE
+                    groupFragment = GroupFragment()
+
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.session_container, groupFragment)
+                        .commit()
+                }
+            }
+
+        })
+
+        userView.toastMessage.observe(this, Observer {
+            if (it != null)
+                toast(it).show()
+        })
 
         // Starts van notification service
         JobManager.create(this).addJobCreator(NotifyJobCreator())
@@ -84,34 +137,22 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         )
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+    }
 
-        Log.i("LOGIN", "BEFORE REDIRECT")
+    //This function replqces the register fragment back with the login fragment
+    fun toLogin(v:View) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.session_container, loginFragment)
+            .commit()
+    }
 
-        if (checkIfHasUser()){
-            currentUser = mMindfullDB.getUser()!!
-            if (checkIfHasGroup()) {
-                groupFragment = GroupFragment()
-
-                supportFragmentManager.beginTransaction()
-                    .add(R.id.session_container, groupFragment)
-                    .commit()
-            } else {
-                sessionFragment = SessionFragment()
-
-                postFragment = PostFragment()
-                profileFragment = ProfileFragment()
-
-                supportFragmentManager.beginTransaction()
-                    .add(R.id.session_container, sessionFragment)
-                    .commit()
-            }
-        } else {
-            Log.i("LOGIN", "REDIRECT")
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-        }
-        Log.i("LOGIN", "AFTER REDIRECT")
-
+    /**
+     * This function replaces the login fragment with the register fragment
+     */
+    fun toRegister(v:View) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.session_container, RegisterFragment())
+            .commit()
     }
 
     override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
@@ -123,6 +164,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         super.onRestoreInstanceState(savedInstanceState)
         Log.i("ACTIVITY", "RESTORE_INSTANCE_STATE")
     }
+
     private fun checkIfLoggedIn(): Boolean {
         val token = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
             .getString(getString(R.string.authTokenKey), null)
@@ -130,14 +172,9 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
     }
 
     private fun checkIfHasGroup(): Boolean {
-        return currentUser.group == null
+        return currentUser!!.group == null
     }
 
-    private fun checkIfHasUser():Boolean {
-        Log.i("DB_NULL_CHECK","${mMindfullDB.getUser()}")
-        Log.i("DB_NULL_CHECK","${mMindfullDB}")
-        return mMindfullDB.getUser() != null
-    }
 
     override fun onResume() {
         super.onResume()
@@ -236,7 +273,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         currentPost.page_id = page._id
         currentPost.page_name = page.title
         currentPost.inhoud = description
-        currentPost.user_id = currentUser._id
+        currentPost.user_id = currentUser!!._id
         currentPost._id = newPost._id
         if (currentPost._id == "none" || currentPost._id == null){
             currentPost._id = null

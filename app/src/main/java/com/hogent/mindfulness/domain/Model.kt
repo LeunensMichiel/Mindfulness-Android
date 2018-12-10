@@ -23,7 +23,8 @@ object Model {
         val position: Int,
         val title: String,
         @SerializedName("image_filename_session")
-        val imageFilename: String
+        val imageFilename: String,
+        var unlocked:Boolean = false
     )
 
 
@@ -70,15 +71,12 @@ object Model {
         @Ignore
         var current_exercise: Exercise?,
 //        @ColumnInfo(name = "unlocked_sessions")
-        @Ignore
-        var unlocked_sessions: Array<String>,
+        var unlocked_sessions: ArrayList<String> = arrayListOf(),
 //        @ColumnInfo(name = "group")
-        @Ignore
         var group: Group?,
 //        @ColumnInfo(name = "token")
         var token: String?,
-        @Ignore
-        var post_ids: ArrayList<String>,
+        var post_ids: ArrayList<String> = arrayListOf(),
         var feedbackSubscribed: Boolean = false
     ) {
         constructor():this(
@@ -90,19 +88,29 @@ object Model {
             null ,
             null,
             null,
-            arrayOf(),
+            arrayListOf(),
             null,
             null, arrayListOf(), false)
         @PrimaryKey(autoGenerate = true)
         var db_id: Int = 0
     }
 
+    @Entity(tableName = "group_table")
     data class Group(
-        var _id: String,
-        var name: String,
-        var sessionmap_id: String,
+        var _id: String? = null,
+        var name: String? = null,
+        var sessionmap_id: String? = null,
         var sessionmap: Sessionmap? = null
-    )
+    ) {
+        constructor():this(
+            null,
+            null,
+            null,
+            null
+        )
+        @PrimaryKey
+        var db_id: Int = 0
+    }
 
     data class Login(
         val email: String,
@@ -125,12 +133,18 @@ object Model {
     )
 
     data class uiMessage(
-        var data:String
+        var data:String? = "none"
     )
 
     data class errorMessage(
-        var data:String,
-        var error:String
+        var data:String = "none",
+        var error:String = "none"
+    )
+
+    data class loginErrorMessage(
+        var data:String? = null,
+        var email:String? = null,
+        var password:String? = null
     )
 
     data class user_group (
