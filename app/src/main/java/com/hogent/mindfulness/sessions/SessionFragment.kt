@@ -267,8 +267,8 @@ class SessionFragment : Fragment() {
                 sessionView.selectedSession?.value = currentSession
                 sessionView.setSelectedSession(currentSession)
                 Log.d("CHECK", "$currentSession")
-//                val session = mSessionData[position]
-//                mClickHandler.onClick(session)
+                val session = mSessionData[position]
+                mClickHandler.onClick(session)
             }
 
             //De sessies die unlocked zijn
