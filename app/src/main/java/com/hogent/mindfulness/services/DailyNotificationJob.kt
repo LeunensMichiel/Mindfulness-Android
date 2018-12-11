@@ -3,13 +3,20 @@ package com.hogent.mindfulness.services
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import com.evernote.android.job.DailyJob
 import com.evernote.android.job.JobRequest
 import com.evernote.android.job.util.support.PersistableBundleCompat
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.settings.Notifications
+import java.util.*
+import java.util.concurrent.TimeUnit
+import kotlin.math.absoluteValue
+import kotlin.math.floor
 
 class DailyNotificationJob : DailyJob() {
+
+
 
     override fun onRunDailyJob(params: Params): DailyJobResult {
 
@@ -25,25 +32,18 @@ class DailyNotificationJob : DailyJob() {
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            val channel = NotificationChannel(
-//                channelId,
-//                "Mindfulness notifications",
-//                NotificationManager.IMPORTANCE_DEFAULT
-//            )
-//            notificationManager.createNotificationChannel(channel)
-//        }
-
         notificationManager.notify(0, notification)
 
         return DailyJobResult.SUCCESS
     }
 
     companion object {
+        private val WAKE_LOCK_AWAIT_TIME_SECONDS = 60
 
         val TAG = "MyDailyJob"
 
-        fun scheduleJob(startScheduleMs: Long, endScheduleMs: Long, title: String, message: String, channelId: String) {
+        // time is (hours * 60) + minutes
+        fun scheduleJob(time: Int, duration: Long, title: String, message: String, channelId: String, updateCurrent: Boolean) {
             val extras = PersistableBundleCompat()
             extras.apply {
                 putString("title", title)
@@ -51,15 +51,21 @@ class DailyNotificationJob : DailyJob() {
                 putString("channelId", channelId)
             }
 
-            val job = JobRequest.Builder(PeriodicNotificationJob.TAG)
-                .setUpdateCurrent(true)
+            val calendar = Calendar.getInstance()
+            val hour = calendar.get(Calendar.HOUR_OF_DAY)
+            val minute = calendar.get(Calendar.MINUTE)
+
+            Log.i("hour", (time/60).toString())
+            Log.i("minute", (time%60).toString())
+
+            val executionWindow = DailyExecutionWindow(hour, minute, (time/60).toLong(), (time%60).toLong(), duration)
+
+            JobRequest.Builder(PeriodicNotificationJob.TAG)
+                .setExecutionWindow(executionWindow.startMs, executionWindow.endMs)
+                .setUpdateCurrent(updateCurrent)
                 .setExtras(extras)
-
-            DailyJob.schedule(job, startScheduleMs, endScheduleMs)
-
+                .build()
+                .schedule()
         }
-
-
     }
-
 }

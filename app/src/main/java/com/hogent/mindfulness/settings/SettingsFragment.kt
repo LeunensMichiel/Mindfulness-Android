@@ -88,6 +88,5 @@ class SettingsFragment: PreferenceFragmentCompat()  {
         }
     }
 
-    class SettingsView
 }
 

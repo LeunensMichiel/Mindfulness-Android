@@ -62,7 +62,9 @@ dependencies {
      * Evernote Android-job
      */
     implementation 'com.evernote:android-job:1.2.6'
-
+    /*
+     * Notifications
+     */
     /*
      * Anko imports
      */

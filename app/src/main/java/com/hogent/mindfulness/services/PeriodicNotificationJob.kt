@@ -1,8 +1,10 @@
 package com.hogent.mindfulness.services
 
+import android.app.Notification
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.support.v4.app.NotificationCompat
 import com.evernote.android.job.Job
 import com.evernote.android.job.JobRequest
 import com.hogent.mindfulness.MainActivity
@@ -59,7 +61,6 @@ class PeriodicNotificationJob : Job() {
                 .setExtras(extras)
                 .build()
                 .schedule()
-
         }
     }
 

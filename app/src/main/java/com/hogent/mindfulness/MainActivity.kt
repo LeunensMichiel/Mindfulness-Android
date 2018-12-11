@@ -25,6 +25,7 @@ import com.hogent.mindfulness.group.GroupFragment
 import com.hogent.mindfulness.login.LoginActivity
 import com.hogent.mindfulness.post.PostFragment
 import com.hogent.mindfulness.profile.ProfileFragment
+import com.hogent.mindfulness.services.DailyNotificationJob
 import com.hogent.mindfulness.services.NotifyJobCreator
 import com.hogent.mindfulness.services.PeriodicNotificationJob
 import com.hogent.mindfulness.sessions.FullscreenDialogWithAnimation
@@ -36,6 +37,9 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.concurrent.TimeUnit
+import android.content.SharedPreferences
+
+
 
 class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.SessionAdapterOnClickHandler, SessionAdapterOnUnlockSession, ExercisesListFragment.ExerciseAdapter.ExerciseAdapterOnClickHandler {
 
@@ -69,13 +73,19 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val prefs = getSharedPreferences(
+            "com.hogent.mindfulness_preferences", Context.MODE_PRIVATE
+        )
+
         // Starts van notification service
         JobManager.create(this).addJobCreator(NotifyJobCreator())
-        PeriodicNotificationJob.scheduleJob(
+        DailyNotificationJob.scheduleJob(
+            prefs.getInt("pref_time", 12*60),
             TimeUnit.MINUTES.toMillis(15),
             "Mindfulness",
             "clean ur teeth boi",
-            "mindfulness"
+            "mindfulness",
+            true
         )
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
