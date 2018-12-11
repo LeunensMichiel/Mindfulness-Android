@@ -2,6 +2,7 @@ package com.hogent.mindfulness.domain.ViewModels
 
 import android.arch.lifecycle.MutableLiveData
 import android.util.Log
+import com.hogent.mindfulness.data.FeedbackApiService
 import com.hogent.mindfulness.data.LocalDatabase.repository.UserRepository
 import com.hogent.mindfulness.data.SessionApiService
 import com.hogent.mindfulness.domain.InjectedViewModel
@@ -15,10 +16,15 @@ class SessionViewModel:InjectedViewModel() {
 
     var sessionList = MutableLiveData<Array<Model.Session>>()
     var selectedSession = MutableLiveData<Model.Session>()
+    var sessionToast = MutableLiveData<String>()
+
     private lateinit var subscribe: Disposable
 
     @Inject
     lateinit var sessionService: SessionApiService
+
+    @Inject
+    lateinit var feedbackService:FeedbackApiService
 
     @Inject
     lateinit var userRepo: UserRepository
@@ -27,18 +33,12 @@ class SessionViewModel:InjectedViewModel() {
         Log.d("SESSION_VM", "WTF")
     }
 
-    fun setSelectedSession(session:Model.Session){
-        Log.d("SET_SELECTED_SESSION", "$session")
-        selectedSession.postValue(session)
-    }
-
     fun retrieveSessions(){
         subscribe = sessionService.getSessions(userRepo.user.value?.group?.sessionmap_id!!)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
-                { result -> sessionsResult(result)
-                },
+                { result -> sessionsResult(result) },
                 { error -> sessionError(error) }
             )
     }
@@ -55,4 +55,20 @@ class SessionViewModel:InjectedViewModel() {
         Log.d("SESSION_ERR", "$error")
     }
 
+    fun saveFeedBack(feedback: Model.Feedback){
+        feedback.session = selectedSession.value!!._id
+        subscribe = feedbackService.addFeedback(feedback)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result ->
+                    Log.d("FEEDBACK_RESULT", "${result}")
+                    sessionToast?.value = "Feedback opgeslagen."
+                },
+                { error ->
+                    Log.d("FEEDBACK_ERROR", "${error}")
+                    sessionToast?.value = "Er ging iets mis. Feedback is niet opgeslagen."
+                }
+            )
+    }
 }

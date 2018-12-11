@@ -1,6 +1,7 @@
 package com.hogent.mindfulness.exercise_details
 
 import android.annotation.SuppressLint
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.pm.PackageManager
 import android.media.AudioManager
@@ -22,6 +23,7 @@ import com.hogent.mindfulness.R
 import com.hogent.mindfulness.data.FIleApiService
 import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.domain.Model
+import com.hogent.mindfulness.domain.ViewModels.PageViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -33,6 +35,7 @@ import java.util.*
 import io.reactivex.Observable
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.lang.Exception
 
 /**
  * Deze klasse is een Fragment die verantwoordelijk is voor de audiopagina van de oefening
@@ -46,68 +49,50 @@ class FragmentExerciseAudio : Fragment(), MediaPlayer.OnPreparedListener {
      * android documentatie: https://developer.android.com/reference/android/media/MediaPlayer
      * bron voor mediaplayer: https://www.youtube.com/watch?v=zCYQBIcePaw
      */
-    var mp: MediaPlayer? = MediaPlayer()
+    var mp: MediaPlayer? = null
     private lateinit var audioFile: File
     private lateinit var fos: FileOutputStream
     private lateinit var fis: FileInputStream
     lateinit var audioFilename: String
     lateinit var disposable: Disposable
     lateinit var fileService: FIleApiService
+    var position:Int = -1
+    private lateinit var pageView:PageViewModel
     var totalTime: Int = 0
+    private var progress: Int = 0
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        pageView = activity?.run {
+            ViewModelProviders.of(this).get(PageViewModel::class.java)
+        }?: throw Exception("Invalid acitivity")
+
+
+        Log.d("MEDIA_PLAYER_" + position, "ON_CREATE")
+
+        pageView.pages.observe(this, android.arch.lifecycle.Observer {
+            if (it != null){
+                if (it[position].mediaPlayer != null){
+                    mp = it[position].mediaPlayer
+                    onPrepared(mp)
+                    Log.d("MEDIA_PLAYER_" + position, "MP_OBSERVED")
+                }
+            }
+        })
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        if (hasAudio()){
+            if (pageView.pages.value!![position].mediaPlayer == null){
+                pageView.retrieveAudio(position)
+            }
+        }
+
         fileService = ServiceGenerator.createService(FIleApiService::class.java, (activity as MainActivity))
         return inflater.inflate(R.layout.fragment_fragment_oefeningaudio, container, false)
-    }
-
-    /**
-     * Deze methode wordt direct na de onCreateView-methode uitgevoerd
-     * we checken hier of het toestel waarop de app gerund wordt audio heeft (ga naar methode hasAudio())
-     * Als het device geen audio kan afspelen, dan wordt hiervan een melding getoond
-     * Als het device wel audio kan afspelen, dan gaan we dit voorbereiden (ga naar methode audioVoorbereiden())
-     */
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        initializeMediaPlayer()
-    }
-
-    private fun convertByteArrayToAudio(result: ResponseBody) {
-        try {
-            audioFile = File.createTempFile(audioFilename, "aac")
-            audioFile.deleteOnExit()
-            fos = FileOutputStream(audioFile)
-            fos.write(result.bytes())
-            fos.close()
-            fis = FileInputStream(audioFile)
-            prepareMediaPlayer()
-        } catch (ex: IOException) {
-            toast("File loading failed.").show()
-        }
-    }
-
-
-    fun initializeMediaPlayer() {
-        if (hasAudio()) {
-            if (::audioFile.isInitialized) {
-                prepareMediaPlayer()
-            } else {
-                disposable = fileService.getFile("page_audio", audioFilename)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        { result -> convertByteArrayToAudio(result) },
-                        { error -> Log.i("AUDIO_FUCK", "$error") }
-                    )
-            }
-        } else {
-            playButn.setOnClickListener {
-                Toast.makeText(activity, "Geen audio gedetecteerd!", Toast.LENGTH_LONG).show()
-            }
-        }
     }
 
     /**
@@ -119,8 +104,31 @@ class FragmentExerciseAudio : Fragment(), MediaPlayer.OnPreparedListener {
      */
     override fun onResume() {
         super.onResume()
-        Log.i("AUDIO", "RESUME")
-        initializeMediaPlayer()
+
+        Log.i("MEDIA_PLAYER_" + position, "RESUME")
+        if (mp != null){
+            Log.i("MEDIA_PLAYER_" + position, "RESUME_PREPARE_CHECK")
+//            pageView.pages.value!![position].mediaPlayer?.reset()
+//            pageView.pageReset()
+        }
+
+    }
+
+    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
+        super.setUserVisibleHint(isVisibleToUser)
+        if (isVisibleToUser && isResumed){
+            Log.i("MEDIA_PLAYER_" + position, "IS_VISIBLE_&_RESUMED")
+            onPrepared(mp)
+        } else if (!isVisibleToUser){
+            if (playButn != null)
+                playButn.setBackgroundResource(R.drawable.play)
+            Log.i("MEDIA_PLAYER_" + position, "IS_INVISIBLE")
+            if (mp != null){
+                if (mp?.isPlaying!!){
+                    mp?.pause()
+                }
+            }
+        }
     }
 
     /**
@@ -162,9 +170,13 @@ class FragmentExerciseAudio : Fragment(), MediaPlayer.OnPreparedListener {
      * Als de onPause-methode uitgevoerd wordt, zorgen we dat de playbutton niet meer luistert, dus geen click listener meer heeft
      */
     override fun onPause() {
-        Log.i("AUDIO", "PAUSE")
+        Log.i("MEDIA_PLAYER_" + position, "PAUSE")
         super.onPause()
-        playButn.setOnClickListener(null)
+//        if (mp != null) {
+//            if (mp?.isPlaying!!)
+//                mp?.pause()
+//        }
+        //playButn.setOnClickListener(null)
     }
 
     /**
@@ -216,31 +228,33 @@ class FragmentExerciseAudio : Fragment(), MediaPlayer.OnPreparedListener {
      */
     override fun onStop() {
         super.onStop()
-        mp?.pause()
-        mp = null
+//        Log.d("MEDIA_PLAYER_" + position, "FRAGMENT_ON_STOP")
+//        if (mp != null){
+//            if (mp?.isPlaying!!){
+//                mp?.pause()
+//            }
+//        }
+
+//        pageView.pages.value!![position].progress = positionBar.progress
+//        Log.d("MEDIA_PLAYER" + position, "${positionBar.progress}")
         playButn.setBackgroundResource(R.drawable.play)
     }
 
-    private fun prepareMediaPlayer() {
-        Log.i("W U K", "MEDIAPLAYER PREPARATION")
-        mp = MediaPlayer()
-        mp!!.reset()
-        mp!!.setDataSource(fis.fd)
-        mp!!.prepare()
-        mp!!.setOnPreparedListener(this)
-    }
 
     override fun onPrepared(mp: MediaPlayer?) {
+        Log.d("MEDIA_PLAYER_" + position, "PREPARED")
         if (mp != null) {
             audioVoorbereiden()
             if (playButn != null){
+
+                Log.d("MEDIA_PLAYER_" + position, "PREPARED_ON_CLICK")
                 playButn.setOnClickListener {
-                    if (!mp!!.isPlaying) {
-                        mp!!.start()
+                    if (!mp.isPlaying) {
+                        mp.start()
                         playButn.setBackgroundResource(R.drawable.stop)
 
                     } else {
-                        mp!!.pause()
+                        mp.pause()
                         playButn.setBackgroundResource(R.drawable.play)
                     }
                 }
@@ -259,9 +273,8 @@ class FragmentExerciseAudio : Fragment(), MediaPlayer.OnPreparedListener {
      * We updaten de positiebar en de timelabel in een aparte thread
      */
     fun audioVoorbereiden() {
-
         mp!!.isLooping = false
-        mp!!.seekTo(0)
+        mp!!.seekTo(mp!!.currentPosition)
         totalTime = mp!!.duration
         if (positionBar != null){
             positionBar.max = totalTime

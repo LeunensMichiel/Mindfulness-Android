@@ -2,9 +2,8 @@ package com.hogent.mindfulness.injection.module
 
 import android.content.Context
 import android.util.Log
-import com.hogent.mindfulness.data.AuthenticationInterceptor
+import com.hogent.mindfulness.data.*
 import com.hogent.mindfulness.data.API.UserApiService
-import com.hogent.mindfulness.data.SessionApiService
 import dagger.Module
 import dagger.Provides
 import io.reactivex.schedulers.Schedulers
@@ -28,6 +27,26 @@ class NetworkModule {
     @Provides
     internal fun provideSessionApi(retrofit: Retrofit):SessionApiService {
         return retrofit.create(SessionApiService::class.java)
+    }
+
+    @Provides
+    internal fun provideFeedbackApi(retrofit: Retrofit):FeedbackApiService {
+        return retrofit.create(FeedbackApiService::class.java)
+    }
+
+    @Provides
+    internal fun provideExerciseApi(retrofit: Retrofit):ExerciseApiService {
+        return retrofit.create(ExerciseApiService::class.java)
+    }
+
+    @Provides
+    internal fun providePageApi(retrofit: Retrofit):PageApiService {
+        return retrofit.create(PageApiService::class.java)
+    }
+
+    @Provides
+    internal fun provideFileApi(retrofit: Retrofit):FIleApiService {
+        return retrofit.create(FIleApiService::class.java)
     }
 
     @Provides

@@ -4,6 +4,7 @@ import android.arch.persistence.room.Entity
 import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.PrimaryKey
 import android.graphics.Bitmap
+import android.media.MediaPlayer
 import com.google.gson.annotations.SerializedName
 import io.reactivex.annotations.NonNull
 import java.util.*
@@ -41,7 +42,10 @@ object Model {
         val title: String,
         val description: String,
         val exercise_id: String,
-        val paragraphs: Array<Paragraph>
+        val paragraphs: Array<Paragraph>,
+        var audioFile:File? = null,
+        var mediaPlayer: MediaPlayer? = null,
+        var progress:Int? = 0
     )
 
     data class Paragraph(
@@ -173,12 +177,16 @@ object Model {
     )
 
     data class Feedback(
-        val date: Date,
-        val message: String,
-        val session: String
+        var date: Date,
+        var message: String,
+        var session: String? = null
     )
 
     data class File(
         val path:String?
+    )
+
+    data class toastMessage(
+        var message:String? = null
     )
 }

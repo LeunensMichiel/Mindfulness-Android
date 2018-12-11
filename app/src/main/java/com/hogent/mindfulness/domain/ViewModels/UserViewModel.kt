@@ -61,6 +61,17 @@ class UserViewModel : InjectedViewModel() {
 
     }
 
+    fun updateFeedback(){
+        userRepo.user.value?.feedbackSubscribed = false
+        subscription = userApi.updateUserFeedback(userRepo.user.value!!)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> Log.d("FEEDBACK_RESULT", "$result") },
+                { error -> Log.d("FEEDBACK_ERROR", "$error") }
+            )
+    }
+
     private fun onRetrieveUserSucces(user: Model.User?) {
         rawUser.value = user
         userRepo.insert(user!!)

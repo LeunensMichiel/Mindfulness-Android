@@ -2,10 +2,13 @@ package com.hogent.mindfulness
 
 // Notificaties
 // Settings
+import android.app.Dialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.support.design.widget.BottomNavigationView
@@ -22,8 +25,7 @@ import com.hogent.mindfulness.data.PostApiService
 import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.data.API.UserApiService
 import com.hogent.mindfulness.domain.Model
-import com.hogent.mindfulness.domain.ViewModels.SessionViewModel
-import com.hogent.mindfulness.domain.ViewModels.UserViewModel
+import com.hogent.mindfulness.domain.ViewModels.*
 import com.hogent.mindfulness.exercise_details.ExerciseDetailFragment
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
 import com.hogent.mindfulness.group.GroupFragment
@@ -42,10 +44,14 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.feedback_popup.*
+import kotlinx.android.synthetic.main.feedback_popup.view.*
+import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.toast
+import java.util.*
 import java.util.concurrent.TimeUnit
 
-class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.SessionAdapterOnClickHandler, SessionAdapterOnUnlockSession, ExercisesListFragment.ExerciseAdapter.ExerciseAdapterOnClickHandler {
+class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
 
     //initializing attributes
     private val mMindfullDB by lazy {
@@ -64,10 +70,14 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
     private lateinit var postFragment: PostFragment
     private lateinit var profileFragment: ProfileFragment
     private lateinit var exerciseDetailFragment: ExerciseDetailFragment
+    private lateinit var feedbackDialog:Dialog
     private lateinit var fullscreenMonsterDialog : FullscreenDialogWithAnimation
     private var currentUser: Model.User? = null
     private lateinit var userView: UserViewModel
     private lateinit var sessionView: SessionViewModel
+    private lateinit var exView:ExerciseViewModel
+    private lateinit var pageView:PageViewModel
+    private lateinit var stateView:StateViewModel
     private var currentPost = Model.Post()
     /**
      * Set view to MainActivity
@@ -83,12 +93,56 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         navigation.visibility = View.GONE
         userView = ViewModelProviders.of(this).get(UserViewModel::class.java)
         sessionView = ViewModelProviders.of(this).get(SessionViewModel::class.java)
+        exView = ViewModelProviders.of(this).get(ExerciseViewModel::class.java)
+        pageView = ViewModelProviders.of(this).get(PageViewModel::class.java)
+        stateView = ViewModelProviders.of(this).get(StateViewModel::class.java)
 
-        sessionView.selectedSession.observe(this, Observer {
+        stateView.viewState.observe(this, Observer {
+            when(it!!){
+                "EXERCISE_VIEW" -> {
+                    if (!::exerciseFragment.isInitialized){
+                        exerciseFragment = ExercisesListFragment()
+                    }
+                    exerciseFragment.session = sessionView.selectedSession.value!!
+                    currentPost.session_name = sessionView.selectedSession.value!!.title
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.session_container, exerciseFragment)
+                        .addToBackStack("tag")
+                        .commit()
+                }
+                "PAGE_VIEW" -> {
+                    if (!::exerciseDetailFragment.isInitialized) {
+                        exerciseDetailFragment = ExerciseDetailFragment()
+                        exerciseDetailFragment.manager = supportFragmentManager
+                    }
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.session_container, exerciseDetailFragment)
+                        .addToBackStack("tag")
+                        .commit()
+                }
+            }
+        })
 
-            Log.d("SELECTED_SESSION", "$it")
-            if (it != null){
-                Log.d("SELECTED_SESSION", "$it")
+        stateView.dialogState.observe(this, Observer {
+            when(it!!) {
+                "FEEDBACK_DIALOG" -> {
+                    if (!::feedbackDialog.isInitialized){
+                        feedbackDialog = Dialog(this)
+                        feedbackDialog.setContentView(R.layout.feedback_popup)
+                        feedbackDialog.window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                        feedbackDialog.feedback_cancelBtn.onClick { feedbackDialog.hide() }
+                        feedbackDialog.feedback_sendBtn.onClick {
+                            sessionView.saveFeedBack(Model.Feedback(Date(), feedbackDialog.feedback_description.text.toString()))
+                            feedbackDialog.hide()
+                        }
+                        feedbackDialog.feedback_uitschrijvenBtn.onClick {
+                            userView.updateFeedback()
+                            feedbackDialog.hide()
+                        }
+                    }
+                    feedbackDialog.feedback_namesessie.text = sessionView.selectedSession?.value?.title
+                    feedbackDialog.show()
+                }
             }
         })
 
@@ -125,6 +179,36 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         userView.toastMessage.observe(this, Observer {
             if (it != null)
                 toast(it).show()
+        })
+
+        sessionView.selectedSession.observe(this, Observer<Model.Session> {
+            if (it != null){
+                if (it.unlocked){
+                    exView.session_id = it._id
+                    exView.retrieveExercises()
+                } else {
+                    toast("Sessie nog niet geopend.").show()
+                }
+            }
+        })
+
+        sessionView.sessionToast.observe(this, Observer {
+            if (it != null){
+                toast(it).show()
+            }
+        })
+
+        exView.selectedExercise.observe(this, Observer {
+            if (it != null){
+                pageView.exercise_id = it._id
+                stateView.viewState?.value = "PAGE_VIEW"
+            }
+        })
+
+        pageView.pageError.observe(this, Observer {
+            if (it != null && !it.equals(Model.errorMessage())){
+                toast(it.error).show()
+            }
         })
 
         // Starts van notification service
@@ -229,21 +313,6 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         Toast.makeText(this, errMsg, Toast.LENGTH_SHORT).show()
     }
 
-    /**
-     * Initialize ExercisesListFragment
-     * Initialize session in exerciseFragment
-     * Add exerciseFragment to Activity
-     */
-    override fun onClick(session: Model.Session) {
-        exerciseFragment = ExercisesListFragment()
-        exerciseFragment.session = session
-        currentPost.session_name = session.title
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.session_container, exerciseFragment)
-            .addToBackStack("tag")
-            .commit()
-    }
-
     override fun showMonsterDialog() {
         fullscreenMonsterDialog = FullscreenDialogWithAnimation()
 
@@ -257,17 +326,17 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
      * Initialize exerciseId in exerciseDetailFragment
      * Add ExerciseDetailFragment to Activity
      */
-    override fun onClickExercise(exercise: Model.Exercise) {
-        exerciseDetailFragment = ExerciseDetailFragment()
-        Log.i("EX ID", exercise._id)
-        exerciseDetailFragment.manager = supportFragmentManager
-        exerciseDetailFragment.exerciseId = exercise._id
-        currentPost.exercise_name = exercise.title
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.session_container, exerciseDetailFragment)
-            .addToBackStack("tag")
-            .commit()
-    }
+//    override fun onClickExercise(exercise: Model.Exercise) {
+//        exerciseDetailFragment = ExerciseDetailFragment()
+//        Log.i("EX ID", exercise._id)
+//        exerciseDetailFragment.manager = supportFragmentManager
+//        exerciseDetailFragment.exerciseId = exercise._id
+//        currentPost.exercise_name = exercise.title
+//        supportFragmentManager.beginTransaction()
+//            .replace(R.id.session_container, exerciseDetailFragment)
+//            .addToBackStack("tag")
+//            .commit()
+//    }
 
     fun updatePost(page:Model.Page, description:String, newPost:Model.Post):Model.Post{
         currentPost.page_id = page._id
@@ -377,18 +446,4 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         }
         return super.onOptionsItemSelected(item)
     }
-
-
-/*
-   public fun creerParagraafFragment(description:String){
-       var fragmentje = ParagraafTekst()
-
-       val arg = Bundle()
-       arg.putString("tekst", description)
-       fragmentje.arguments = arg
-
-       supportFragmentManager!!.beginTransaction().add(R.id.paragraafContainer, fragmentje ).commit()
-       Log.d("testtesttest",description)
-    } */
-
 }
