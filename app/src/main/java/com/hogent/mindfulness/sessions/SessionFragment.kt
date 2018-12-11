@@ -7,6 +7,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -27,20 +28,19 @@ import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.model.KeyPath
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.data.FeedbackApiService
+import com.hogent.mindfulness.data.*
 import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
-import com.hogent.mindfulness.data.ServiceGenerator
-import com.hogent.mindfulness.data.SessionApiService
-import com.hogent.mindfulness.data.UserApiService
 import com.hogent.mindfulness.domain.Model
-import com.hogent.mindfulness.domain.Model.Point
 import com.hogent.mindfulness.scanner.ScannerActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.session_fragment.*
 import kotlinx.android.synthetic.main.session_item_list.view.*
+import okhttp3.ResponseBody
 import org.jetbrains.anko.sdk27.coroutines.onClick
+import java.io.File
+import java.io.FileOutputStream
 import java.util.*
 
 
@@ -59,6 +59,8 @@ class SessionFragment : Fragment() {
     private lateinit var user: Model.User
     lateinit var unlockSession: String
     private lateinit var sessionService:SessionApiService
+    private lateinit var fileService: FIleApiService
+
     /**
      * I used this resource: https://developer.android.com/guide/topics/ui/layout/recyclerview
      */
@@ -68,9 +70,9 @@ class SessionFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         user = mMindfullDB.getUser()!!
-        Log.i("DBUSER", "$user")
         //beginRetrieveUser()
         // Inflate the layout for this fragment
+        fileService = ServiceGenerator.createService(FIleApiService::class.java, (activity as MainActivity))
         return inflater.inflate(R.layout.session_fragment, container, false)
     }
 
@@ -87,41 +89,10 @@ class SessionFragment : Fragment() {
 
         val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
 
-        Log.d("sessions", sessions.size.toString())
-
         rv_sessions.apply {
             layoutManager = viewManager
             adapter = mAdapter
         }
-
-//        view.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener{
-//            override fun onGlobalLayout() {
-//                sessionFragment.post {
-//
-//                    val height = view.height
-//                    val width = view.width
-//
-//                    val centerx = (progress_img.width.toFloat() / 2.0).toFloat()
-//                    val bottomy = progress_img.height
-//
-//                    val currentSession = user.unlocked_sessions.size
-//                    val sessionSize = 15.0
-//                    val coPoint = (currentSession / sessionSize.toFloat()) * coordinates.size.toFloat()
-//                    val point = coordinates[coPoint.toInt()]
-//                    val newHeight = (point.y.toFloat() / imgHeight) * height.toFloat()
-//                    val newWidth = (point.x.toFloat() / imgWidth) * width.toFloat()
-//
-//                    progress_img.x = newWidth.toFloat() - centerx
-//                    progress_img.y = newHeight.toFloat() - bottomy
-//
-//                    Log.d("ventje_x", progress_img.x.toString())
-//                    Log.d("ventje_y", width.toString())
-//
-//                    view.viewTreeObserver.removeOnGlobalLayoutListener(this)
-//
-//                }
-//            }
-//        })
     }
 
     /**
@@ -178,7 +149,6 @@ class SessionFragment : Fragment() {
      */
     private fun showResultUser(resultUser: Model.User) {
         user = resultUser
-        Log.d("testtest", user.group!!.sessionmap_id)
         beginRetrieveSessionmap(user.group!!.sessionmap_id)
 
     }
@@ -193,32 +163,38 @@ class SessionFragment : Fragment() {
      * Add Manager and Adapter to recyclerview
      */
     private fun showResult(sessions: Array<Model.Session>) {
-//        val user:Model.User = arguments!!.get("user") as Model.User
-//         mAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler)
-//        val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
-//
-//        Log.d("sessions", sessions.size.toString())
-//
-//        rv_sessions.apply {
-//            layoutManager = viewManager
-//            adapter = mAdapter
-//        }
-
         this.sessions = sessions
+        loadImages()
 
-        sessions.forEach {
+        this.sessions.forEach {
             sessionBools[it.position] = user.unlocked_sessions.contains(it._id)
-
         }
-        sessionBools.forEach {
-            Log.d("bools", it.toString())
 
-        }
-        mAdapter.mSessionData = sessions
+        mAdapter.mSessionData = this.sessions
         mAdapter.sessionBools = sessionBools
         mAdapter.notifyDataSetChanged()
     }
 
+    fun loadImages() {
+        sessions
+            .forEachIndexed {i, it ->
+                disposable = fileService.getFile("session_image", it.imageFilename)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                        { result -> convertToBitmap(result, it.imageFilename, i) },
+                        { error -> Log.i("EXERCISE ERROR", "$error") }
+                    )
+            }
+    }
+
+    private fun convertToBitmap(result: ResponseBody, fileName: String, position: Int) {
+        var imgFile = File.createTempFile(fileName, "png")
+        imgFile.deleteOnExit()
+        val fos = FileOutputStream(imgFile)
+        fos.write(result.bytes())
+        sessions[position].bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
+    }
     /***********************************************************************************************
      * Adapter
      *
@@ -396,22 +372,12 @@ class SessionFragment : Fragment() {
 
 
         inner class SessionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-
-
             // Initialize TextView title
             val title: TextView = view.tv_session_title
             val button: FloatingActionButton = view.fab
             val lock: ImageView = view.iv_lock
             val glowing_orbAnimation: LottieAnimationView = view.glowing_orb_animation
             val progressAnimation: LottieAnimationView = view.progressbar_animation
-
-            init {
-//                view.fab.setOnClickListener {
-//                    val session = mSessionData[position]
-//                    mClickHandler.onClick(session)
-//                }
-            }
-
         }
 
         interface  SessionAdapterOnUnlockSession {
