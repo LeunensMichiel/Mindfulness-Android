@@ -1,6 +1,7 @@
 package com.hogent.mindfulness.exercise_details
 
-import android.content.Context
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
@@ -8,14 +9,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.data.PageApiService
-import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.domain.Model
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
+import com.hogent.mindfulness.domain.ViewModels.PageViewModel
 import kotlinx.android.synthetic.main.oefening_details_fragment.*
 
 /**
@@ -34,7 +30,7 @@ class ExerciseDetailFragment(): Fragment(){
 
     lateinit var exerciseId:String
     lateinit var manager: FragmentManager
-    private lateinit var disposable: Disposable
+    private lateinit var pageView:PageViewModel
 
     /**
      * we halen eerst de exercise op en dan inflaten we de layout
@@ -44,35 +40,20 @@ class ExerciseDetailFragment(): Fragment(){
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-        beginRetrieveExercise(exerciseId)
+        pageView = activity?.run {
+            ViewModelProviders.of(this).get(PageViewModel::class.java)
+        }?: throw Exception("Invalid activity.")
+        pageView.retrievePages()
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.oefening_details_fragment, container, false)
     }
 
-    /**
-     * We halen hier de oefening op via de mindfulnessApiService
-     * * de exercisedata wordt in de variabele disposable gestored, disposable wordt gebruikt voor het aanroepen van api calls
-     */
-    private fun beginRetrieveExercise(exerciseId: String) {
-        val PageApiService = ServiceGenerator.createService(PageApiService::class.java,
-            activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-                .getString(getString(R.string.authTokenKey), null))
-        disposable = PageApiService.getPages(exerciseId)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { result -> showResultExercise(result)
-                },
-                { error -> showError(error.message) }
-            )
-    }
-
-    /**
-     * Dit is een methode om eventuele fouten te tonen
-     */
-    private fun showError(errMsg: String?) {
-        Toast.makeText(activity, errMsg, Toast.LENGTH_SHORT).show()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        pageView.pages.observe(this, Observer {
+            if (it != null)
+                initializePages(it)
+        })
     }
 
     /**
@@ -83,14 +64,15 @@ class ExerciseDetailFragment(): Fragment(){
      * we voegen dan de fragment toe aan de adapter
      * op het einde zeggen we dat de adapter die we gemaakt hebben de adapter is van onze viewpager
      */
-    private fun showResultExercise(pages: Array<Model.Page>) {
+    private fun initializePages(pages: Array<Model.Page>) {
         val adapter = OefeningViewPagerAdapter(manager)
-        pages.forEach {
+        pages.forEachIndexed { index, it ->
             when (it.type) {
                 "AUDIO" ->
                 {
                     val fragment = FragmentExerciseAudio()
-                    Log.i("FUCKINGAUDIO", it.audioFilename)
+                    fragment.position = index
+                    Log.i("FUCKINGAUDIO_" + index, it.audioFilename)
                     fragment.audioFilename = it.audioFilename
                     val arg = Bundle()
                     arg.putString("audioFilename", it.audioFilename)
@@ -112,6 +94,7 @@ class ExerciseDetailFragment(): Fragment(){
                 "INPUT" ->
                 {
                     val fragment = FragmentExerciseInvoer()
+                    fragment.position = index
                     fragment.page = it
                     val arg = Bundle()
                     arg.putString("opgave", it.title)

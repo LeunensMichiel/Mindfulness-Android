@@ -2,7 +2,8 @@ package com.hogent.mindfulness.exercise_details
 
 
 import android.app.Activity.RESULT_OK
-import android.content.Context
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -15,18 +16,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import kotlinx.android.synthetic.main.fragment_fragment_oefeninginvoer.*
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.data.PostApiService
-import com.hogent.mindfulness.data.PostInformation
 import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.domain.Model
-import io.reactivex.android.schedulers.AndroidSchedulers
+import com.hogent.mindfulness.domain.ViewModels.PageViewModel
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_fragment_oefeninginvoer.*
-import kotlin.properties.Delegates
 
 
 /**
@@ -38,10 +35,27 @@ class FragmentExerciseInvoer : Fragment() {
     private var postId: String? = null
     private lateinit var disposable: Disposable
     private lateinit var post: Model.Post
+    private lateinit var pageView:PageViewModel
+    var position:Int = -1
 
     private lateinit var postService: PostApiService
 
     lateinit var page: Model.Page
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        pageView = activity?.run {
+            ViewModelProviders.of(this).get(PageViewModel::class.java)
+        }?: throw Exception("Invalid activity.")
+
+        pageView.pages.observe(this, Observer {
+            Log.d("PAGE_VIEW", "FUCK_OFF")
+            if(pageView.pages.value!![position].post != null){
+                post = pageView.pages.value!![position].post!!
+                showResult()
+            }
+        })
+    }
 
     /**
      * in de onCreateView-methode inflaten we onze layout fragment_fragment_oefeninginvoer
@@ -57,13 +71,6 @@ class FragmentExerciseInvoer : Fragment() {
     }
 
     /**
-     * Dit is een methode om eventuele fouten te tonen
-     */
-    fun showError(errMsg: String?) {
-        Toast.makeText(activity, errMsg, Toast.LENGTH_SHORT).show()
-    }
-
-    /**
      * Deze methode wordt direct na de onCreateView-methode uitgevoerd
      *
      * we checken of de arguments van de fragment een key opgave heeft, als dit zo is, dan stellen we de hint van input (zie xml) gelijk aan de
@@ -76,21 +83,18 @@ class FragmentExerciseInvoer : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        disposable = postService.checkPageId(page!!._id)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { result ->
-                    post = result
-                    showResult()
-                    Log.i("OBSERVABLE", "$post")
-                },
-                { error -> Log.i("fuck", "fuck") }
-            )
+
         if (this.arguments!!.containsKey("opgave")) {
             inputlayout.hint = this.arguments!!.getString("opgave", "check")
         }
 
+    }
+
+    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
+        super.setUserVisibleHint(isVisibleToUser)
+        if (isVisibleToUser && pageView.pages.value!![position].post == null){
+            pageView.checkInputPage(page._id, position)
+        }
     }
 
     fun showResult() {
@@ -108,9 +112,7 @@ class FragmentExerciseInvoer : Fragment() {
         }
 
         btnOpslaan.setOnClickListener {
-            // TEDOEN: nog een check: als er niets is veranderd, dan moet er geen nieuwe post gemaakt worden of geupdate wordenge
-            post = (activity as MainActivity).updatePost(page!!, text_edit.text.toString(), post)
-            Log.d("button", "-----------test1--------------")
+            post = pageView.updatePost(position, page, text_edit.text.toString(), post)
         }
     }
 

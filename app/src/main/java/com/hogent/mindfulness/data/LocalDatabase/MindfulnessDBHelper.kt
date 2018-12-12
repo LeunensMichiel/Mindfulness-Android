@@ -48,7 +48,7 @@ class MindfulnessDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
     }
 
     fun addUser(user: Model.User): Boolean {
-        val userExists = doesDataExist(UserEntry.TABLE_NAME, UserEntry.COLUMN_ID, user._id)
+        val userExists = doesDataExist(UserEntry.TABLE_NAME, UserEntry.COLUMN_ID, user._id!!)
         if (!userExists) {
             val values = ContentValues()
             val unlocked_sessions = user.unlocked_sessions.joinToString(",", "", "")
@@ -92,7 +92,7 @@ class MindfulnessDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
 
         Log.i("dbGroup", values.toString())
         val db = this.writableDatabase
-        db.insert(GroupEntry.TABLE_NAME, null, values)
+        db.insertOrThrow(GroupEntry.TABLE_NAME, null, values)
         db.close()
     }
 
@@ -132,7 +132,7 @@ class MindfulnessDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
 
     fun getUser(): Model.User? {
         val query = "SELECT * FROM " + UserEntry.TABLE_NAME
-        val db = this.writableDatabase
+        val db = this.readableDatabase
         val cursor = db.rawQuery(query, null)
         var user: Model.User? = null
         if (cursor.moveToFirst()) {
@@ -141,7 +141,10 @@ class MindfulnessDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
             val id = cursor.getString(0)
             val current_session_id = cursor.getString(1) ?: ""
             val current_ex_id = cursor.getString(2) ?: ""
-            val unlocked_sessions: Array<String> = cursor.getString(3).split(",").toTypedArray()
+            val unlocked_sessions: ArrayList<String> = arrayListOf()
+            cursor.getString(3).split(",").toTypedArray().forEach {
+                unlocked_sessions.add(it)
+            }
             val post_ids = arrayListOf<String>()
             cursor.getString(4).split(",").toTypedArray().forEach {
                 post_ids.add(it)
@@ -170,6 +173,31 @@ class MindfulnessDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
             )
         }
         db.close()
+        return user
+    }
+
+    fun updateUser(user: Model.User): Model.User {
+        val values = ContentValues()
+        val unlocked_sessions = user.unlocked_sessions.joinToString(",", "", "")
+        val post_ids = user.post_ids.joinToString(",", "", "")
+        val feedbackBooleon: Int = if (user.feedbackSubscribed) 1 else 0
+        val firstname = user.firstname
+        val lastname = user.lastname
+        val email = user.email
+
+        values.put(UserEntry.COLUMN_ID, user._id)
+        values.put(UserEntry.COLUMN_CURRENT_SESSION_ID, user.current_session_id)
+        values.put(UserEntry.COLUMN_CURRENT_EXERCISE_ID, user.current_exercise_id)
+        values.put(UserEntry.COLUMN_UNLOCKED_SESSIONS, unlocked_sessions)
+        values.put(UserEntry.COLUMN_POSTS, post_ids)
+        values.put(UserEntry.COLUMN_FEEDBACK_IS_SUBSCRIBED, feedbackBooleon)
+        values.put(UserEntry.COLUMN_EMAIL, email)
+        values.put(UserEntry.COLUMN_FIRSTNAME, firstname)
+        values.put(UserEntry.COLUMN_LASTNAME, lastname)
+
+        val db = this.writableDatabase
+        db.update(UserEntry.TABLE_NAME, values, UserEntry.COLUMN_ID + "= ?", arrayOf(user._id) )
+
         return user
     }
 
