@@ -9,6 +9,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -31,6 +32,7 @@ import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.R.id.feedback_description
 import com.hogent.mindfulness.data.FeedbackApiService
+import com.hogent.mindfulness.data.*
 import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
 import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.data.SessionApiService
@@ -45,8 +47,11 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.feedback_popup.*
 import kotlinx.android.synthetic.main.session_fragment.*
 import kotlinx.android.synthetic.main.session_item_list.view.*
+import okhttp3.ResponseBody
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.lang.Exception
+import java.io.File
+import java.io.FileOutputStream
 import java.util.*
 
 
@@ -55,10 +60,20 @@ class SessionFragment : Fragment() {
      * Here will the sessionData be stored
      * Disposable used for calling api calls
      */
+    private val mMindfullDB by lazy {
+        MindfulnessDBHelper(activity as MainActivity )
+    }
+    private lateinit var sessions: Array<Model.Session>
     private lateinit var mAdapter: SessionAdapter
+    private lateinit var sessionBools: BooleanArray
+    private lateinit var disposable: Disposable
     private lateinit var user: Model.User
     private lateinit var sessionView: SessionViewModel
     private lateinit var stateView:StateViewModel
+    lateinit var unlockSession: String
+    private lateinit var sessionService:SessionApiService
+    private lateinit var fileService: FIleApiService
+
     /**
      * I used this resource: https://developer.android.com/guide/topics/ui/layout/recyclerview
      */
@@ -112,6 +127,26 @@ class SessionFragment : Fragment() {
         }
     }
 
+    fun loadImages() {
+        sessions
+            .forEachIndexed {i, it ->
+                disposable = fileService.getFile("session_image", it.imageFilename)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                        { result -> convertToBitmap(result, it.imageFilename, i) },
+                        { error -> Log.i("EXERCISE ERROR", "$error") }
+                    )
+            }
+    }
+
+    private fun convertToBitmap(result: ResponseBody, fileName: String, position: Int) {
+        var imgFile = File.createTempFile(fileName, "png")
+        imgFile.deleteOnExit()
+        val fos = FileOutputStream(imgFile)
+        fos.write(result.bytes())
+        sessions[position].bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
+    }
     /***********************************************************************************************
      * Adapter
      *
@@ -260,6 +295,7 @@ class SessionFragment : Fragment() {
 
         inner class SessionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
+            // Initialize TextView title
             val title: TextView = view.tv_session_title
             val button: FloatingActionButton = view.fab
             val lock: ImageView = view.iv_lock

@@ -6,12 +6,14 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.CardView
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
@@ -25,6 +27,7 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.exercise_list_item.view.*
 import kotlinx.android.synthetic.main.fragment_exercises_pane.*
 import java.lang.Exception
+import org.jetbrains.anko.imageBitmap
 
 class ExercisesListFragment : Fragment() {
 
@@ -57,8 +60,8 @@ class ExercisesListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val viewAdapter = ExerciseAdapter(this, exView)
-        val viewManager = GridLayoutManager(activity, 2)
+        val viewAdapter = ExerciseAdapter(this, exView, session)
+        val viewManager = LinearLayoutManager(activity)
 
         rv_exercises.apply {
 
@@ -85,11 +88,10 @@ class ExercisesListFragment : Fragment() {
 
     private fun showResultExercises(exercises: Array<Model.Exercise>) {
 
-        val viewAdapter = ExerciseAdapter(this, exView)
-        val viewManager = GridLayoutManager(activity, 2)
+        val viewAdapter = ExerciseAdapter(this,exView, session)
+        val viewManager = LinearLayoutManager(activity)
 
         rv_exercises.apply {
-
             layoutManager = viewManager
             adapter = viewAdapter
         }
@@ -101,7 +103,8 @@ class ExercisesListFragment : Fragment() {
      ***********************************************************************************************/
     class ExerciseAdapter(
         private val lifecycleOwner: LifecycleOwner,
-        private val exView:ExerciseViewModel
+        private val exView:ExerciseViewModel,
+        val session: Model.Session
     ) : RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder>() {
 
         private var mExercisesData: Array<Model.Exercise> = arrayOf()
@@ -133,14 +136,17 @@ class ExercisesListFragment : Fragment() {
         override fun onBindViewHolder(holder: ExerciseViewHolder, position: Int) {
             val exerciseTitle = mExercisesData[position]
             holder.title.text = exerciseTitle.title
+            holder.image.imageBitmap = session.bitmap
         }
 
         inner class ExerciseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val title: Button = view.btn_exercise
+            val title: TextView = view.exerciseName
+            val card: CardView = view.btn_exercise
+            val image: ImageView = view.exerciseImage
 
             // Add clicklistener on the item from the recyclerview
             init {
-                title.setOnClickListener {
+                card.setOnClickListener {
                     // Get the correct exercise out of the data array
                     val adapterPosition = adapterPosition
                     exView.selectedExercise?.value = mExercisesData[adapterPosition]

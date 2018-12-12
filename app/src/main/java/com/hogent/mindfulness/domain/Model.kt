@@ -23,8 +23,9 @@ object Model {
         val _id: String,
         val position: Int,
         val title: String,
-        @SerializedName("image_filename_session")
+        @SerializedName("image_filename")
         val imageFilename: String,
+        var bitmap: Bitmap? = null,
         var unlocked:Boolean = false
     )
 
@@ -159,6 +160,7 @@ object Model {
         var _id:String? = "none",
         var inhoud:String? = null,
         var afbeelding:String? = null,
+        var image_file_name: String? = null,
         var sessionmap_id:String? = null,
         var session_id:String? = null,
         var exercise_id:String? = null,
@@ -167,7 +169,8 @@ object Model {
         var session_map_name:String? = null,
         var session_name:String? = null,
         var exercise_name:String? = null,
-        var page_name:String? = null
+        var page_name:String? = null,
+        var bitmap: Bitmap? = null
     )
 
     data class Point(
