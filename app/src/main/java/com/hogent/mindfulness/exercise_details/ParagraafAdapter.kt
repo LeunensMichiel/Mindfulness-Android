@@ -47,6 +47,7 @@ class ParagraafAdapter(private val mParagrafen: Array<Model.Paragraph>): Recycle
     @SuppressLint("WrongConstant")
     override fun onBindViewHolder(holder: ParagraafAdapter.ParagraafViewHolder, position: Int) {
         val paragraafTitle = mParagrafen[position]
+        holder.setIsRecyclable(false)
         if(paragraafTitle.type == "TEXT"){
             holder.title.text = paragraafTitle.description
         }

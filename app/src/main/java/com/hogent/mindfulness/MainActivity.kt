@@ -78,6 +78,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
     private lateinit var exView:ExerciseViewModel
     private lateinit var pageView:PageViewModel
     private lateinit var stateView:StateViewModel
+    private lateinit var postView:PostViewModel
     private var currentPost = Model.Post()
     /**
      * Set view to MainActivity
@@ -96,6 +97,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
         exView = ViewModelProviders.of(this).get(ExerciseViewModel::class.java)
         pageView = ViewModelProviders.of(this).get(PageViewModel::class.java)
         stateView = ViewModelProviders.of(this).get(StateViewModel::class.java)
+        postView = ViewModelProviders.of(this).get(PostViewModel::class.java)
 
         stateView.viewState.observe(this, Observer {
             when(it!!){
@@ -186,6 +188,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
                 if (it.unlocked){
                     exView.session_id = it._id
                     exView.retrieveExercises()
+                    pageView.session_name = it.title
                 } else {
                     toast("Sessie nog niet geopend.").show()
                 }
@@ -202,10 +205,17 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
             if (it != null){
                 pageView.exercise_id = it._id
                 stateView.viewState?.value = "PAGE_VIEW"
+                pageView.ex_name = it.title
             }
         })
 
         pageView.pageError.observe(this, Observer {
+            if (it != null && !it.equals(Model.errorMessage())){
+                toast(it.error).show()
+            }
+        })
+
+        postView.error.observe(this, Observer {
             if (it != null && !it.equals(Model.errorMessage())){
                 toast(it.error).show()
             }

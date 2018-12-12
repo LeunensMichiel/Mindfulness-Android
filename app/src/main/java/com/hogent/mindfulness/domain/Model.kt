@@ -8,6 +8,9 @@ import android.media.MediaPlayer
 import com.google.gson.annotations.SerializedName
 import io.reactivex.annotations.NonNull
 import java.util.*
+import com.google.gson.annotations.Expose
+
+
 
 
 object Model {
@@ -46,7 +49,8 @@ object Model {
         val paragraphs: Array<Paragraph>,
         var audioFile:File? = null,
         var mediaPlayer: MediaPlayer? = null,
-        var progress:Int? = 0
+        var progress:Int? = 0,
+        var post:Post? = null
     )
 
     data class Paragraph(
@@ -160,7 +164,6 @@ object Model {
         var _id:String? = "none",
         var inhoud:String? = null,
         var afbeelding:String? = null,
-        var image_file_name: String? = null,
         var sessionmap_id:String? = null,
         var session_id:String? = null,
         var exercise_id:String? = null,
@@ -168,9 +171,12 @@ object Model {
         var user_id:String? = null,
         var session_map_name:String? = null,
         var session_name:String? = null,
-        var exercise_name:String? = null,
+        var exercise_name:String? = null
+        ,
         var page_name:String? = null,
-        var bitmap: Bitmap? = null
+        @Transient
+        var bitmap: Bitmap? = null,
+        var image_file_name: String? = null
     )
 
     data class Point(

@@ -1,10 +1,7 @@
 package com.hogent.mindfulness.domain
 
 import android.arch.lifecycle.ViewModel
-import com.hogent.mindfulness.domain.ViewModels.ExerciseViewModel
-import com.hogent.mindfulness.domain.ViewModels.PageViewModel
-import com.hogent.mindfulness.domain.ViewModels.SessionViewModel
-import com.hogent.mindfulness.domain.ViewModels.UserViewModel
+import com.hogent.mindfulness.domain.ViewModels.*
 import com.hogent.mindfulness.injection.App
 
 abstract class InjectedViewModel:ViewModel() {
@@ -19,6 +16,7 @@ abstract class InjectedViewModel:ViewModel() {
             is SessionViewModel -> App.component.inject(this)
             is ExerciseViewModel -> App.component.inject(this)
             is PageViewModel -> App.component.inject(this)
+            is PostViewModel -> App.component.inject(this)
         }
     }
 }

@@ -1,10 +1,8 @@
 package com.hogent.mindfulness.domain.ViewModels
 
-import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.util.Log
-import com.hogent.mindfulness.R
 import com.hogent.mindfulness.data.LocalDatabase.repository.UserRepository
 import com.hogent.mindfulness.data.API.UserApiService
 import com.hogent.mindfulness.domain.InjectedViewModel

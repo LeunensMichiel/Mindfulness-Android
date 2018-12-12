@@ -1,29 +1,19 @@
 package com.hogent.mindfulness.exercise_details
 
 
+import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.data.FIleApiService
-import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.domain.Model
+import com.hogent.mindfulness.domain.ViewModels.PageViewModel
 import kotlinx.android.synthetic.main.recyclerview_paragrafen.*
-import java.util.*
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
-import okhttp3.ResponseBody
-import java.io.File
-import java.io.FileOutputStream
+import java.lang.Exception
 
 
 /**
@@ -32,8 +22,14 @@ import java.io.FileOutputStream
 class FragmentExerciseText : Fragment() {
 
     lateinit var paragraphs: Array<Model.Paragraph>
-    private lateinit var fileService: FIleApiService
-    private lateinit var disposable: Disposable
+    private  lateinit var pageView:PageViewModel
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        pageView = activity?.run {
+            ViewModelProviders.of(this).get(PageViewModel::class.java)
+        }?: throw Exception("Invalid activity.")
+    }
 
     /**
      * in de onCreateView-methode inflaten we onze layout, hierin zit een recyclerview (we tonen een lijst van paragrafen in deze page)
@@ -43,7 +39,6 @@ class FragmentExerciseText : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        fileService = ServiceGenerator.createService(FIleApiService::class.java, (activity as MainActivity))
         return inflater.inflate(R.layout.recyclerview_paragrafen, container, false)
     }
 
@@ -53,7 +48,7 @@ class FragmentExerciseText : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadImages()
+        pageView.retrieveTextPageImg(paragraphs)
         val viewAdapter = ParagraafAdapter(paragraphs)
         val viewManager = LinearLayoutManager(activity)
 
@@ -93,28 +88,5 @@ class FragmentExerciseText : Fragment() {
             layoutManager = viewManager
             adapter = viewAdapter
         }
-    }
-
-    fun loadImages() {
-        paragraphs
-            .filter { it.type == "IMAGE" }
-            .forEach {
-                Log.i("IMAGE_FILE_PATH", it.imageFilename)
-                disposable = fileService.getFile("paragraphs_image", it.imageFilename)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        { result -> convertToBitmap(result, it.imageFilename, it.position) },
-                        { error -> Log.i("EXERCISE ERROR", "$error") }
-                    )
-            }
-    }
-
-    private fun convertToBitmap(result: ResponseBody, fileName: String, position: Int) {
-        var imgFile = File.createTempFile(fileName, "png")
-        imgFile.deleteOnExit()
-        val fos = FileOutputStream(imgFile)
-        fos.write(result.bytes())
-        paragraphs[position].bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
     }
 }

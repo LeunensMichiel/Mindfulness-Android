@@ -45,6 +45,11 @@ class NetworkModule {
     }
 
     @Provides
+    internal fun providePostApi(retrofit: Retrofit):PostApiService {
+        return retrofit.create(PostApiService::class.java)
+    }
+
+    @Provides
     internal fun provideFileApi(retrofit: Retrofit):FIleApiService {
         return retrofit.create(FIleApiService::class.java)
     }

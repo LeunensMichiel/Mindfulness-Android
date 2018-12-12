@@ -95,6 +95,7 @@ class ExerciseDetailFragment(): Fragment(){
                 "INPUT" ->
                 {
                     val fragment = FragmentExerciseInvoer()
+                    fragment.position = index
                     fragment.page = it
                     val arg = Bundle()
                     arg.putString("opgave", it.title)

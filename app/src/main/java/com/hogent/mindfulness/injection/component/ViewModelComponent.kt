@@ -1,9 +1,6 @@
 package com.hogent.mindfulness.injection.component
 
-import com.hogent.mindfulness.domain.ViewModels.ExerciseViewModel
-import com.hogent.mindfulness.domain.ViewModels.PageViewModel
-import com.hogent.mindfulness.domain.ViewModels.SessionViewModel
-import com.hogent.mindfulness.domain.ViewModels.UserViewModel
+import com.hogent.mindfulness.domain.ViewModels.*
 import com.hogent.mindfulness.injection.App
 import com.hogent.mindfulness.injection.module.DatabaseModule
 import com.hogent.mindfulness.injection.module.NetworkModule
@@ -18,4 +15,5 @@ interface ViewModelComponent {
     fun inject(sessionViewModel: SessionViewModel)
     fun inject(exerciseViewModel: ExerciseViewModel)
     fun inject(pageViewModel: PageViewModel)
+    fun inject(postViewModel: PostViewModel)
 }
