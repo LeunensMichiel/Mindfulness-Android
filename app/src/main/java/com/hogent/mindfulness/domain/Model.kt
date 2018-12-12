@@ -82,7 +82,8 @@ object Model {
 //        @ColumnInfo(name = "token")
         var token: String?,
         var post_ids: ArrayList<String> = arrayListOf(),
-        var feedbackSubscribed: Boolean = false
+        var feedbackSubscribed: Boolean = false,
+        var image_file_name: String? = null
     ) {
         constructor():this(
             null,
@@ -95,7 +96,10 @@ object Model {
             null,
             arrayListOf(),
             null,
-            null, arrayListOf(), false)
+            null, arrayListOf(),
+            false,
+            null
+            )
         @PrimaryKey(autoGenerate = true)
         var db_id: Int = 0
     }

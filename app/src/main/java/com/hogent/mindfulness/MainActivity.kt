@@ -29,7 +29,6 @@ import com.hogent.mindfulness.domain.ViewModels.*
 import com.hogent.mindfulness.exercise_details.ExerciseDetailFragment
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
 import com.hogent.mindfulness.group.GroupFragment
-import com.hogent.mindfulness.login.LoginActivity
 import com.hogent.mindfulness.login.LoginFragment
 import com.hogent.mindfulness.login.RegisterFragment
 import com.hogent.mindfulness.post.PostFragment
@@ -137,7 +136,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
                             feedbackDialog.hide()
                         }
                         feedbackDialog.feedback_uitschrijvenBtn.onClick {
-                            userView.updateFeedback()
+                            userView.updateFeedback(false)
                             feedbackDialog.hide()
                         }
                     }

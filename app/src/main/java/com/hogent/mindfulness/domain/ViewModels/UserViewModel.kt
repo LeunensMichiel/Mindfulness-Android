@@ -59,14 +59,25 @@ class UserViewModel : InjectedViewModel() {
 
     }
 
-    fun updateFeedback(){
-        userRepo.user.value?.feedbackSubscribed = false
+    fun updateFeedback(feedback: Boolean){
+        userRepo.user.value?.feedbackSubscribed = feedback
         subscription = userApi.updateUserFeedback(userRepo.user.value!!)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { result -> Log.d("FEEDBACK_RESULT", "$result") },
                 { error -> Log.d("FEEDBACK_ERROR", "$error") }
+            )
+    }
+
+    fun updateProfilePicture(imageFileName : String) {
+        userRepo.user.value?.image_file_name = imageFileName
+        subscription = userApi.updateUserProfilePicture(userRepo.user.value!!._id!!, userRepo.user.value!!)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> Log.d("PROFILE_PICTURE_RESULT", "$result") },
+                { error -> Log.d("PROFILE_PICTURE_ERROR", "$error") }
             )
     }
 
