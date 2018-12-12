@@ -33,7 +33,6 @@ class GroupFragment() : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val txfield = groepscodeScanner
         groepscodeScanner.setText("5bf730b27a76ee0b049432a6")
 
         val photoBtn = fragment_GroupBtn
@@ -43,7 +42,7 @@ class GroupFragment() : Fragment() {
         }
 
         groepscanners_BtnConfirm.onClick {
-            userViewModel.addGroup(Model.user_group("5bf730b27a76ee0b049432a6"))
+            userViewModel.addGroup(Model.user_group(groepscodeScanner.text.toString()))
         }
     }
 

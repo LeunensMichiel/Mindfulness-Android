@@ -71,12 +71,29 @@ class UserViewModel : InjectedViewModel() {
     }
 
     fun addGroup(group: Model.user_group){
+        toastMessage.postValue(null)
         subscription = userApi.updateUserGroup(userRepo.user.value?._id!!, group)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { result ->
                     userRepo.user.value?.group = result
+                    userRepo.updateUser(userRepo.user.value!!)
+                },
+                { error ->
+                    toastMessage.postValue("Code niet herkend.")
+                }
+            )
+    }
+
+    fun unlockSession(unlockedSession: Model.unlock_session){
+        unlockedSession.id = userRepo.user.value?._id!!
+        subscription = userApi.updateUser(unlockedSession)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result ->
+                    userRepo.user.value?.unlocked_sessions!!.add(unlockedSession.session_id)
                     userRepo.updateUser(userRepo.user.value!!)
                 },
                 { error ->

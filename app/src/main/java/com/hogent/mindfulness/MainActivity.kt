@@ -262,55 +262,15 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
 
     override fun onResume() {
         super.onResume()
-        Log.d("MAIN_ACT","ON_RESUME")
         if (intent.hasExtra("code")){
-            if (checkIfHasGroup()) {
-                val sharedPref =
-                    getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-                        .getString(getString(R.string.userIdKey), "")
-                val user_group = Model.user_group(intent.getStringExtra("code"))
-                val userService = ServiceGenerator.createService(UserApiService::class.java, this@MainActivity)
-                val group = Model.Group(intent.getStringExtra("code"), "", "", null)
-                userView.addGroup(user_group)
-//                mMindfullDB.addGroup(group)
-//
-//                disposable = userService.updateUserGroup(sharedPref, user_group)
-//                    .subscribeOn(Schedulers.io())
-//                    .observeOn(AndroidSchedulers.mainThread())
-//                    .subscribe(
-//                        { result -> },
-//                        { error -> showError(error.message) }
-//                    )
+            if (userView.userRepo.user.value?.group == null) {
+                userView.addGroup(Model.user_group(intent.getStringExtra("code")))
             } else {
-                val sharedPref = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-                    .getString(getString(R.string.userIdKey), "")
-                Log.d("user", sharedPref)
-                val unlock_session = Model.unlock_session(sharedPref, intent.getStringExtra("code"))
-                val userService = ServiceGenerator.createService(UserApiService::class.java, this@MainActivity)
-
-                disposable = userService.updateUser(unlock_session)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        { result -> showResult(result) },
-                        { error -> showError(error.message) }
-                    )
+                userView.unlockSession(Model.unlock_session("none", intent.getStringExtra("code")))
             }
 
         }
 
-    }
-
-    private fun showResult(result: Model.Result) {
-        sessionFragment = SessionFragment()
-
-        supportFragmentManager.beginTransaction()
-            .add(R.id.session_container, sessionFragment)
-            .commit()
-    }
-
-    private fun showError(errMsg: String?) {
-        Toast.makeText(this, errMsg, Toast.LENGTH_SHORT).show()
     }
 
     override fun showMonsterDialog() {

@@ -136,7 +136,7 @@ object Model {
     )
 
     data class unlock_session(
-        val id: String,
+        var id: String,
         val session_id: String
     )
 
