@@ -14,7 +14,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import okhttp3.ResponseBody
-import org.jetbrains.anko.support.v4.toast
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream

@@ -20,10 +20,10 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import com.evernote.android.job.JobManager
+import com.hogent.mindfulness.data.API.UserApiService
 import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
 import com.hogent.mindfulness.data.PostApiService
 import com.hogent.mindfulness.data.ServiceGenerator
-import com.hogent.mindfulness.data.API.UserApiService
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.*
 import com.hogent.mindfulness.exercise_details.ExerciseDetailFragment
@@ -45,7 +45,6 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.feedback_popup.*
-import kotlinx.android.synthetic.main.feedback_popup.view.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.toast
 import java.util.*

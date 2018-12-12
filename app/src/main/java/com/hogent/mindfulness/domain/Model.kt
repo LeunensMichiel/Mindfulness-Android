@@ -6,11 +6,7 @@ import android.arch.persistence.room.PrimaryKey
 import android.graphics.Bitmap
 import android.media.MediaPlayer
 import com.google.gson.annotations.SerializedName
-import io.reactivex.annotations.NonNull
 import java.util.*
-import com.google.gson.annotations.Expose
-
-
 
 
 object Model {

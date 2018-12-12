@@ -1,7 +1,9 @@
 package com.hogent.mindfulness.profile
 
 import android.app.Activity.RESULT_OK
-import android.content.Context
+import android.arch.lifecycle.LifecycleOwner
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -10,68 +12,80 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.R.id.profileFragment_info_icon
-import com.hogent.mindfulness.R.id.profileFragment_info_text
-import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
-import com.hogent.mindfulness.data.ServiceGenerator
-import com.hogent.mindfulness.data.API.UserApiService
 import com.hogent.mindfulness.domain.Model
+import com.hogent.mindfulness.domain.ViewModels.SessionViewModel
+import com.hogent.mindfulness.domain.ViewModels.UserViewModel
 import com.mikhaellopez.circularimageview.CircularImageView
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_profile.*
-import kotlin.properties.Delegates.observable
+import kotlinx.android.synthetic.main.profile_info_item.view.*
 
 
 class ProfileFragment : Fragment() {
-    private lateinit var disposable: Disposable
     private lateinit var dbUser: Model.User
-    private val mMindfulDB by lazy {
-        MindfulnessDBHelper((activity as MainActivity))
-    }
+    private lateinit var sessions: Array<Model.Session>
+    private lateinit var userViewModel: UserViewModel
+    private lateinit var sessionView: SessionViewModel
+
     private var icons: IntArray = intArrayOf()
     private var info: Array<String> = arrayOf()
     lateinit var profilePicUri: Uri
     //De circularimage, niet de effectieve profilepic URL
     lateinit var img: CircularImageView
 
-    private var userService: UserApiService? by observable(null) { property, oldValue: UserApiService?, newValue: UserApiService? ->
-        dbUser = mMindfulDB.getUser()!!
-        disposable = newValue!!.getUser(dbUser._id)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { result -> initUserScreen(result) },
-                { error -> Toast.makeText(context, error.message, Toast.LENGTH_SHORT).show() }
-            )
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         //Profile Layout attach to this Fragment
+        userViewModel = activity?.run {
+            ViewModelProviders.of(this).get(UserViewModel::class.java)
+        } ?: throw Exception("Invalid Activity")
+
+        sessionView = activity?.run {
+            ViewModelProviders.of(this).get(SessionViewModel::class.java)
+        } ?: throw Exception("Invalid activity")
+
+        dbUser = userViewModel.dbUser.value!!
+        sessions = sessionView.sessionList.value!!
         return inflater.inflate(R.layout.fragment_profile, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        userService = ServiceGenerator.createService(UserApiService::class.java, (activity as MainActivity))
+
+        icons = intArrayOf(
+            R.drawable.ic_email_black_24dp,
+            R.drawable.ic_group_black_24dp,
+            R.drawable.ic_feedback_black_24dp
+        )
+        info = arrayOf(
+            dbUser.email!!,
+            dbUser.group!!.name!!,
+            "Feedback: " + if (dbUser.feedbackSubscribed!!) "ingeschreven" else "uitgeschreven"
+        )
+
+        val profileAdapter = ProfileAdapter(this, userViewModel, icons, info)
 
         val lv = profileFragment_lv
-        lv.adapter = ProfileAdapter(this.context!!, icons, info)
+        lv.apply {
+            layoutManager = LinearLayoutManager(activity)
+            adapter = profileAdapter
+        }
 
+        initUserScreen()
+    }
 
-
+    private fun initUserScreen() {
+        //profilePic
         img = profileFragment_profilepic
         img.setOnClickListener() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -101,27 +115,16 @@ class ProfileFragment : Fragment() {
                 selectImage()
             }
         }
-    }
 
-    private fun initUserScreen(result: Model.User) {
-        icons = intArrayOf(
-            R.drawable.ic_email_black_24dp,
-            R.drawable.ic_group_black_24dp,
-            R.drawable.ic_feedback_black_24dp
-        )
-        info = arrayOf(
-            result.email!!,
-            result.group!!.name!!,
-            "Feedback: " + if (result.feedbackSubscribed!!) "ingeschreven" else "uitgeschreven"
-        )
-
-
-        profileFragment_profilename.text = result.firstname + " " + result.lastname
-        profileFragment_Unlockedsessioncount.text = result.unlocked_sessions.size.toString()
-        //APARTE API CALL MAKEN VOOR SESSION NAME.
-        //profileFragment_CurrentSession.text = result.current_session!!.title
+        //Name
+        profileFragment_profilename.text = dbUser.firstname + " " + dbUser.lastname
+        //Level
+        profileFragment_Unlockedsessioncount.text = dbUser.unlocked_sessions.size.toString()
+        //SessionName
+        profileFragment_CurrentSession.text = sessions.last().title
+        //Posts
         profileFragment_postCount.text = dbUser.post_ids.size.toString()
-        (profileFragment_lv.adapter as ProfileAdapter).setdatasets(icons, info)
+
     }
 
     private fun selectImage() {
@@ -145,39 +148,38 @@ class ProfileFragment : Fragment() {
     }
 }
 
-class ProfileAdapter(private val context: Context, private var icons: IntArray, private var info: Array<String>) :
-    BaseAdapter() {
+class ProfileAdapter(
+    private val lifecycleOwner: LifecycleOwner,
+    private val userViewModel: UserViewModel,
+    private var icons: IntArray,
+    private var info: Array<String>
+) : RecyclerView.Adapter<ProfileAdapter.ProfileViewHolder>() {
 
-    private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-
-    fun setdatasets(iconData: IntArray, infoData: Array<String>) {
-        icons = iconData
-        info = infoData
-        this.notifyDataSetChanged()
+    init {
+        userViewModel.dbUser.observe(lifecycleOwner, Observer {
+            info[0] = it!!.email!!
+            info[1] = it.group!!.name!!
+            info[2] = "Feedback: " + if (it.feedbackSubscribed) "ingeschreven" else "uitgeschreven"
+        })
     }
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val profielView = inflater.inflate(R.layout.profile_info_item, parent, false)
-        profielView.findViewById<TextView>(R.id.profileFragment_info_text).text = info[position]
-        profielView.findViewById<ImageView>(R.id.profileFragment_info_icon).setImageResource(icons[position])
-        return profielView
+    override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ProfileViewHolder {
+        val view = LayoutInflater.from(p0.context).inflate(R.layout.profile_info_item, p0, false)
+        return ProfileViewHolder(view)
     }
 
-    override fun getItem(position: Int): Any {
-        return position
+    override fun getItemCount(): Int {
+        return icons.size
     }
 
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
+    override fun onBindViewHolder(p0: ProfileViewHolder, p1: Int) {
+            p0.icon.setImageResource(icons[p1])
+            p0.info.text = info[p1]
     }
 
-    override fun getCount(): Int {
-        return info.size
-    }
 
-    inner class ProfileViewHolder(view: View) {
-        val textInfo: TextView = view.findViewById(profileFragment_info_text)
-        var iconInfo: ImageView = view.findViewById(profileFragment_info_icon)
-
+    inner class ProfileViewHolder(view:View) : RecyclerView.ViewHolder(view) {
+        val icon : ImageView = view.profileFragment_info_icon
+        val info : TextView = view.profileFragment_info_text
     }
 }

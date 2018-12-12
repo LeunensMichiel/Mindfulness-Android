@@ -14,19 +14,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
-import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.data.ExerciseApiService
-import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.ExerciseViewModel
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.exercise_list_item.view.*
 import kotlinx.android.synthetic.main.fragment_exercises_pane.*
-import java.lang.Exception
 import org.jetbrains.anko.imageBitmap
 
 class ExercisesListFragment : Fragment() {
@@ -36,7 +28,6 @@ class ExercisesListFragment : Fragment() {
      *This will be used the populate the data for the ExerciseAdapter
      */
     lateinit var session: Model.Session
-    private lateinit var disposable: Disposable
     private lateinit var exView: ExerciseViewModel
 
     /**
@@ -65,33 +56,6 @@ class ExercisesListFragment : Fragment() {
 
         rv_exercises.apply {
 
-            layoutManager = viewManager
-            adapter = viewAdapter
-        }
-    }
-
-    private fun beginRetrieveExercises(session_id: String) {
-        val exerciseApiService = ServiceGenerator.createService(ExerciseApiService::class.java, (activity as MainActivity))
-
-        disposable = exerciseApiService.getExercises(session_id)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { result -> showResultExercises(result) },
-                { error -> showError(error.message) }
-            )
-    }
-
-    private fun showError(errMsg: String?) {
-        Toast.makeText(activity, errMsg, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun showResultExercises(exercises: Array<Model.Exercise>) {
-
-        val viewAdapter = ExerciseAdapter(this,exView, session)
-        val viewManager = LinearLayoutManager(activity)
-
-        rv_exercises.apply {
             layoutManager = viewManager
             adapter = viewAdapter
         }

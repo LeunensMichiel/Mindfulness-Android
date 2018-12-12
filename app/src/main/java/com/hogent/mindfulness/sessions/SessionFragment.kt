@@ -3,7 +3,6 @@ package com.hogent.mindfulness.sessions
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import android.app.Dialog
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
@@ -11,7 +10,6 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.Fragment
@@ -21,7 +19,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -30,13 +27,9 @@ import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.model.KeyPath
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.R.id.feedback_description
-import com.hogent.mindfulness.data.FeedbackApiService
-import com.hogent.mindfulness.data.*
+import com.hogent.mindfulness.data.FIleApiService
 import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
-import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.data.SessionApiService
-import com.hogent.mindfulness.data.API.UserApiService
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.SessionViewModel
 import com.hogent.mindfulness.domain.ViewModels.StateViewModel
@@ -44,15 +37,12 @@ import com.hogent.mindfulness.scanner.ScannerActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.feedback_popup.*
 import kotlinx.android.synthetic.main.session_fragment.*
 import kotlinx.android.synthetic.main.session_item_list.view.*
 import okhttp3.ResponseBody
 import org.jetbrains.anko.sdk27.coroutines.onClick
-import java.lang.Exception
 import java.io.File
 import java.io.FileOutputStream
-import java.util.*
 
 
 class SessionFragment : Fragment() {
