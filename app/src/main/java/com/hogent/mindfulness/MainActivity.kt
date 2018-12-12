@@ -262,7 +262,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
 
     override fun onResume() {
         super.onResume()
-
+        Log.d("MAIN_ACT","ON_RESUME")
         if (intent.hasExtra("code")){
             if (checkIfHasGroup()) {
                 val sharedPref =
@@ -271,16 +271,16 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
                 val user_group = Model.user_group(intent.getStringExtra("code"))
                 val userService = ServiceGenerator.createService(UserApiService::class.java, this@MainActivity)
                 val group = Model.Group(intent.getStringExtra("code"), "", "", null)
-
-                mMindfullDB.addGroup(group)
-
-                disposable = userService.updateUserGroup(sharedPref, user_group)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        { result -> showResult(result) },
-                        { error -> showError(error.message) }
-                    )
+                userView.addGroup(user_group)
+//                mMindfullDB.addGroup(group)
+//
+//                disposable = userService.updateUserGroup(sharedPref, user_group)
+//                    .subscribeOn(Schedulers.io())
+//                    .observeOn(AndroidSchedulers.mainThread())
+//                    .subscribe(
+//                        { result -> },
+//                        { error -> showError(error.message) }
+//                    )
             } else {
                 val sharedPref = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
                     .getString(getString(R.string.userIdKey), "")

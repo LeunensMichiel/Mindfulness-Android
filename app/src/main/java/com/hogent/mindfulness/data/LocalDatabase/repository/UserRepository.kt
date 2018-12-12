@@ -18,4 +18,9 @@ class UserRepository(private val userDao: UserDao) {
     fun nukeUsers(){
         userDao.nukeUsers()
     }
+
+    @WorkerThread
+    fun updateUser(user:Model.User){
+        userDao.updateUser(user)
+    }
 }
