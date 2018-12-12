@@ -6,7 +6,7 @@ import android.text.TextUtils
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 
 class ServiceGenerator {
 
@@ -19,7 +19,7 @@ class ServiceGenerator {
         val builder = Retrofit.Builder()
             .baseUrl(API_BASE_URL)
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(MoshiConverterFactory.create())
 
         var retrofit = builder.build()
 

@@ -18,8 +18,9 @@ import android.widget.TextView
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.data.ServiceGenerator
-import com.hogent.mindfulness.data.UserApiService
+import com.hogent.mindfulness.data.API.UserApiService
 import com.hogent.mindfulness.domain.Model
+import com.hogent.mindfulness.scanner.ScannerActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -50,12 +51,12 @@ class RegisterFragment : Fragment() {
             false
         })
 
-        btn_register.setOnClickListener { attemptLogin() }
-
-        btnBackToLogin.setOnClickListener {
-            val loginCallback = activity as LoginFragmentCallBack
-            loginCallback.onClickGoBackToLogin()
+        registerfragment_GroupBtn.setOnClickListener {
+            val intent = Intent(activity, ScannerActivity::class.java)
+            startActivity(intent)
         }
+
+        btn_register.setOnClickListener { attemptLogin() }
     }
 
     private fun attemptLogin() {

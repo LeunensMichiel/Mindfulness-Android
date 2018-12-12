@@ -3,9 +3,9 @@ package com.hogent.mindfulness.login
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.TargetApi
-import android.app.Service
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -16,22 +16,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
-import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.data.*
 import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
 import com.hogent.mindfulness.domain.Model
-import io.reactivex.android.schedulers.AndroidSchedulers
+import com.hogent.mindfulness.domain.ViewModels.UserViewModel
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_login.*
-import org.jetbrains.anko.support.v4.toast
+import java.lang.Exception
 
 class LoginFragment : Fragment() {
-    private lateinit var disposable: Disposable
-    private val mMindfullDB by lazy {
-        MindfulnessDBHelper(context!!)
-    }
+    private lateinit var userViewModel: UserViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,7 +33,42 @@ class LoginFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        Log.i("FRAGMENT", "LOGINFRAGMENT CREATED")
+        userViewModel = activity?.run {
+            ViewModelProviders.of(this).get(UserViewModel::class.java)
+        } ?: throw Exception("Invalid activity")
+
+        userViewModel.rawUser.observe(this, Observer {
+            if (it != null){
+                Log.d("RAW_USER_OBSERVER", "CHECK")
+                activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+                    .edit()
+                    .putString(getString(R.string.authTokenKey), it.token)
+                    .putString(getString(R.string.userIdKey), it._id)
+                    .putString(getString(R.string.lastUnlockedSession), it.current_session_id)
+                    .putBoolean(getString(R.string.wantsFeedback), it.feedbackSubscribed)
+                    .apply()
+            }
+        })
+
+        userViewModel.uiMessage.observe(this, android.arch.lifecycle.Observer {
+            Log.d("SHOW_PROGRESS_OBSERVER", "$it")
+            when(it!!.data) {
+                "login_start_progress" -> showProgress(true)
+                "login_end_progress" -> showProgress(false)
+            }
+        })
+
+        userViewModel.errorMessage.observe(this, Observer {
+            Log.d("LOGIN_ERR", "$it")
+            when(it!!.data) {
+                "login_api_fail" -> kotlin.run {
+                    login_password.error = getString(R.string.error_incorrect_password)
+                    login_password.requestFocus()
+                    showProgress(false)
+                }
+            }
+        })
+
         return inflater.inflate(R.layout.fragment_login, container, false)
     }
 
@@ -49,9 +78,6 @@ class LoginFragment : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Set up the login form.
-//        populateAutoComplete()
-        Log.i("FRAGMENT", "LOGINFRAGMENT VIEW CREATED")
         login_password.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
             if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
                 attemptLogin()
@@ -59,12 +85,8 @@ class LoginFragment : Fragment() {
             }
             false
         })
-        email_sign_in_button.setOnClickListener { attemptLogin() }
 
-        login_form_register_btn.setOnClickListener {
-            val loginCallback = activity as LoginFragmentCallBack
-            loginCallback.onclickRegister()
-        }
+        email_sign_in_button.setOnClickListener { attemptLogin() }
 
     }
 
@@ -73,63 +95,12 @@ class LoginFragment : Fragment() {
     }
 
 
-//    private fun populateAutoComplete() {
-//        if (!mayRequestContacts()) {
-//            return
-//        }
-//
-//        loaderManager.initLoader(0, null, this)
-//    }
-//
-//    private fun mayRequestContacts(): Boolean {
-//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-//            return true
-//        }
-//        if (checkSelfPermission(READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-//            return true
-//        }
-//        if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
-//            Snackbar.make(email, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
-//                .setAction(android.R.string.ok,
-//                    {
-//                        requestPermissions(
-//                            arrayOf(READ_CONTACTS),
-//                            REQUEST_READ_CONTACTS
-//                        )
-//                    })
-//        } else {
-//            requestPermissions(
-//                arrayOf(READ_CONTACTS),
-//                REQUEST_READ_CONTACTS
-//            )
-//        }
-//        return false
-//    }
-
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-//    override fun onRequestPermissionsResult(
-//        requestCode: Int, permissions: Array<String>,
-//        grantResults: IntArray
-//    ) {
-//        if (requestCode == REQUEST_READ_CONTACTS) {
-//            if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                populateAutoComplete()
-//            }
-//        }
-//    }
-
-
     /**
      * Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
     private fun attemptLogin() {
-//        if (mAuthTask != null) {
-//            return
-//        }
 
         // Reset errors.
         email.error = null
@@ -174,40 +145,22 @@ class LoginFragment : Fragment() {
     }
 
     private fun doLogin(loginDetails: Model.Login) {
-        val loginService = ServiceGenerator.createService(UserApiService::class.java, (activity as LoginActivity))
-        showProgress(true)
-
-        disposable = loginService.login(loginDetails)
-//            .doOnSubscribe {  }
-//            .doOnTerminate {  }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { user ->
-                    Log.i("user", "$user")
-                    successfulLogin(user)
-                },
-                { error -> failedLogin(error.message) }
-            )
-    }
-
-    private fun successfulLogin(user: Model.User) {
-        if (mMindfullDB.addUser(user)) toast("User added to local db") else toast("User not added to local db")
-        Log.i("DATABASE AFTER LOGIN", "${mMindfullDB.getUser()}")
-        Log.i("USERCHECK AFTER LOGIN", "$user")
-        showProgress(false)
-        activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-        .edit()
-            .putString(getString(R.string.authTokenKey), user.token)
-            .putString(getString(R.string.userIdKey), user._id)
-            .putString(getString(R.string.lastUnlockedSession), user.current_session_id)
-            .putBoolean(getString(R.string.wantsFeedback), user.feedbackSubscribed)
-            .apply()
-//        val repository = UserRepository(AppDatabase.getDatabase(activity!!.applicationContext))
-//        repository.insertUser(user)
-
-        val intent = Intent(activity, MainActivity::class.java)
-        startActivity(intent)
+        userViewModel.login(loginDetails)
+//        val loginService = ServiceGenerator.createService(UserApiService::class.java, (activity as LoginActivity))
+//        showProgress(true)
+//
+//        disposable = loginService.login(loginDetails)
+////            .doOnSubscribe {  }
+////            .doOnTerminate {  }
+//            .subscribeOn(Schedulers.io())
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .subscribe(
+//                { user ->
+//                    Log.i("user", "$user")
+//                    successfulLogin(user)
+//                },
+//                { error -> failedLogin(error.message) }
+//            )
     }
 
     /**
@@ -238,6 +191,7 @@ class LoginFragment : Fragment() {
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private fun showProgress(show: Boolean) {
+        Log.d("SHOW_PROGRESS", "FUNCTION_CHECK")
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
@@ -266,59 +220,4 @@ class LoginFragment : Fragment() {
         }
 
     }
-
-//    override fun onCreateLoader(i: Int, bundle: Bundle?): Loader<Cursor> {
-//        return CursorLoader(
-//            this,
-//            // Retrieve data rows for the device user's 'profile' contact.
-//            Uri.withAppendedPath(
-//                ContactsContract.ProfileFragment.CONTENT_URI,
-//                ContactsContract.Contacts.Data.CONTENT_DIRECTORY
-//            ), ProfileQuery.PROJECTION,
-//
-//            // Select only email addresses.
-//            ContactsContract.Contacts.Data.MIMETYPE + " = ?", arrayOf(
-//                ContactsContract.CommonDataKinds.Email
-//                    .CONTENT_ITEM_TYPE
-//            ),
-//
-//            // Show primary email addresses first. Note that there won't be
-//            // a primary email address if the user hasn't specified one.
-//            ContactsContract.Contacts.Data.IS_PRIMARY + " DESC"
-//        )
-//    }
-
-//    override fun onLoadFinished(cursorLoader: Loader<Cursor>, cursor: Cursor) {
-//        val emails = ArrayList<String>()
-//        cursor.moveToFirst()
-//        while (!cursor.isAfterLast) {
-//            emails.add(cursor.getString(ProfileQuery.ADDRESS))
-//            cursor.moveToNext()
-//        }
-//
-//        addEmailsToAutoComplete(emails)
-//    }
-//
-//    override fun onLoaderReset(cursorLoader: Loader<Cursor>) {
-//
-//    }
-
-//    private fun addEmailsToAutoComplete(emailAddressCollection: List<String>) {
-//        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-//        val adapter = ArrayAdapter(
-//            this@LoginActivity,
-//            android.R.layout.simple_dropdown_item_1line, emailAddressCollection
-//        )
-//
-//        email.setAdapter(adapter)
-//    }
-//
-//    object ProfileQuery {
-//        val PROJECTION = arrayOf(
-//            ContactsContract.CommonDataKinds.Email.ADDRESS,
-//            ContactsContract.CommonDataKinds.Email.IS_PRIMARY
-//        )
-//        val ADDRESS = 0
-//        val IS_PRIMARY = 1
-//    }
 }

@@ -4,9 +4,12 @@ package com.hogent.mindfulness.sessions
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.app.Dialog
+import android.arch.lifecycle.LifecycleOwner
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -27,20 +30,28 @@ import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.model.KeyPath
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
+import com.hogent.mindfulness.R.id.feedback_description
 import com.hogent.mindfulness.data.FeedbackApiService
+import com.hogent.mindfulness.data.*
 import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
 import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.data.SessionApiService
-import com.hogent.mindfulness.data.UserApiService
+import com.hogent.mindfulness.data.API.UserApiService
 import com.hogent.mindfulness.domain.Model
-import com.hogent.mindfulness.domain.Model.Point
+import com.hogent.mindfulness.domain.ViewModels.SessionViewModel
+import com.hogent.mindfulness.domain.ViewModels.StateViewModel
 import com.hogent.mindfulness.scanner.ScannerActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.feedback_popup.*
 import kotlinx.android.synthetic.main.session_fragment.*
 import kotlinx.android.synthetic.main.session_item_list.view.*
+import okhttp3.ResponseBody
 import org.jetbrains.anko.sdk27.coroutines.onClick
+import java.lang.Exception
+import java.io.File
+import java.io.FileOutputStream
 import java.util.*
 
 
@@ -57,8 +68,12 @@ class SessionFragment : Fragment() {
     private lateinit var sessionBools: BooleanArray
     private lateinit var disposable: Disposable
     private lateinit var user: Model.User
+    private lateinit var sessionView: SessionViewModel
+    private lateinit var stateView:StateViewModel
     lateinit var unlockSession: String
     private lateinit var sessionService:SessionApiService
+    private lateinit var fileService: FIleApiService
+
     /**
      * I used this resource: https://developer.android.com/guide/topics/ui/layout/recyclerview
      */
@@ -67,10 +82,17 @@ class SessionFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        user = mMindfullDB.getUser()!!
-        Log.i("DBUSER", "$user")
-        //beginRetrieveUser()
-        // Inflate the layout for this fragment
+
+        sessionView = activity?.run {
+            ViewModelProviders.of(this).get(SessionViewModel::class.java)
+        } ?: throw Exception("Invalid activity")
+
+        stateView = activity?.run {
+            ViewModelProviders.of(this).get(StateViewModel::class.java)
+        } ?: throw Exception("Invalid activity")
+
+        sessionView.retrieveSessions()
+        user = sessionView.userRepo.user.value!!
         return inflater.inflate(R.layout.session_fragment, container, false)
     }
 
@@ -78,50 +100,16 @@ class SessionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        sessions = arrayOf<Model.Session>()
-        sessionBools = BooleanArray(10)
+        //beginRetrieveSessionmap(user.group!!.sessionmap_id!!)
 
-        beginRetrieveSessionmap(user.group!!.sessionmap_id)
-
-        mAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler, sessionBools, user, activity as SessionAdapter.SessionAdapterOnUnlockSession, (activity as MainActivity))
+        mAdapter = SessionAdapter( this, sessionView, stateView, activity as SessionAdapter.SessionAdapterOnUnlockSession, (activity as MainActivity))
 
         val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
-
-        Log.d("sessions", sessions.size.toString())
 
         rv_sessions.apply {
             layoutManager = viewManager
             adapter = mAdapter
         }
-
-//        view.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener{
-//            override fun onGlobalLayout() {
-//                sessionFragment.post {
-//
-//                    val height = view.height
-//                    val width = view.width
-//
-//                    val centerx = (progress_img.width.toFloat() / 2.0).toFloat()
-//                    val bottomy = progress_img.height
-//
-//                    val currentSession = user.unlocked_sessions.size
-//                    val sessionSize = 15.0
-//                    val coPoint = (currentSession / sessionSize.toFloat()) * coordinates.size.toFloat()
-//                    val point = coordinates[coPoint.toInt()]
-//                    val newHeight = (point.y.toFloat() / imgHeight) * height.toFloat()
-//                    val newWidth = (point.x.toFloat() / imgWidth) * width.toFloat()
-//
-//                    progress_img.x = newWidth.toFloat() - centerx
-//                    progress_img.y = newHeight.toFloat() - bottomy
-//
-//                    Log.d("ventje_x", progress_img.x.toString())
-//                    Log.d("ventje_y", width.toString())
-//
-//                    view.viewTreeObserver.removeOnGlobalLayoutListener(this)
-//
-//                }
-//            }
-//        })
     }
 
     /**
@@ -139,86 +127,26 @@ class SessionFragment : Fragment() {
         }
     }
 
-    private fun beginRetrieveUser() {
-
-        val userid = activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-                .getString(getString(R.string.userIdKey), "")
-        val userService = ServiceGenerator.createService(UserApiService::class.java, (activity as MainActivity))
-
-        disposable = userService.getUser(userid)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { result -> showResultUser(result) },
-                { error -> showError(error.message) }
-            )
+    fun loadImages() {
+        sessions
+            .forEachIndexed {i, it ->
+                disposable = fileService.getFile("session_image", it.imageFilename)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                        { result -> convertToBitmap(result, it.imageFilename, i) },
+                        { error -> Log.i("EXERCISE ERROR", "$error") }
+                    )
+            }
     }
 
-    /**
-     * this function retrieves a sessionmap from the database
-     */
-    private fun beginRetrieveSessionmap(sessionmap_id: String) {
-        val sessionService = ServiceGenerator.createService(SessionApiService::class.java,
-            activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-            .getString(getString(R.string.authTokenKey), null))
-
-        disposable = sessionService.getSessions(sessionmap_id)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { result -> showResult(result) },
-                { error -> showError(error.message) }
-            )
+    private fun convertToBitmap(result: ResponseBody, fileName: String, position: Int) {
+        var imgFile = File.createTempFile(fileName, "png")
+        imgFile.deleteOnExit()
+        val fos = FileOutputStream(imgFile)
+        fos.write(result.bytes())
+        sessions[position].bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
     }
-
-    /**
-     * Initialize SessionAdapter
-     * Initialize LayoutManager
-     * Add Manager and Adapter to recyclerview
-     */
-    private fun showResultUser(resultUser: Model.User) {
-        user = resultUser
-        Log.d("testtest", user.group!!.sessionmap_id)
-        beginRetrieveSessionmap(user.group!!.sessionmap_id)
-
-    }
-
-    private fun showError(errMsg: String?) {
-        Toast.makeText(activity, errMsg, Toast.LENGTH_SHORT).show()
-    }
-
-    /**
-     * Initialize SessionAdapter
-     * Initialize LayoutManager
-     * Add Manager and Adapter to recyclerview
-     */
-    private fun showResult(sessions: Array<Model.Session>) {
-//        val user:Model.User = arguments!!.get("user") as Model.User
-//         mAdapter = SessionAdapter(sessions, activity as SessionAdapter.SessionAdapterOnClickHandler)
-//        val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
-//
-//        Log.d("sessions", sessions.size.toString())
-//
-//        rv_sessions.apply {
-//            layoutManager = viewManager
-//            adapter = mAdapter
-//        }
-
-        this.sessions = sessions
-
-        sessions.forEach {
-            sessionBools[it.position] = user.unlocked_sessions.contains(it._id)
-
-        }
-        sessionBools.forEach {
-            Log.d("bools", it.toString())
-
-        }
-        mAdapter.mSessionData = sessions
-        mAdapter.sessionBools = sessionBools
-        mAdapter.notifyDataSetChanged()
-    }
-
     /***********************************************************************************************
      * Adapter
      *
@@ -226,19 +154,28 @@ class SessionFragment : Fragment() {
      */
 
     class SessionAdapter(
-        // This array has the data for the recyclerview adapter
-        var mSessionData: Array<Model.Session>,
-        //mClickHandler is for communicating whit the activity when item clicked
-        private val mClickHandler: SessionAdapterOnClickHandler,
-        var sessionBools: BooleanArray,
-        val user: Model.User,
+        private var lifecycleOwner: LifecycleOwner,
+        private var sessionView: SessionViewModel,
+        private var stateView:StateViewModel,
         private val sessionAdapterOnUnlockSession: SessionAdapterOnUnlockSession,
         var context: Context
     ) : RecyclerView.Adapter<SessionAdapter.SessionViewHolder>() {
 
-        private lateinit var disposable: Disposable
+        private var mSessionData: Array<Model.Session>
+        private var user:Model.User
+
         val lastUnlockedSession = context.getSharedPreferences(context.getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
             .getString(context.getString(R.string.lastUnlockedSession), null)
+
+        init {
+            mSessionData = arrayOf()
+            user = sessionView.userRepo.user.value!!
+            sessionView.sessionList.observe(lifecycleOwner, android.arch.lifecycle.Observer {
+                mSessionData = it!!
+                this.notifyDataSetChanged()
+            })
+        }
+
         // This is for knowing what the last unlocked session was. If user gets an update, this will trigger the animations
         /**
          * This function loads in the item view
@@ -249,53 +186,6 @@ class SessionFragment : Fragment() {
             val inflater = LayoutInflater.from(context)
             val view = inflater.inflate(layoutIdForListItem, viewGroup, false)
 
-            //Tijdelijke Manier om van Sessions Feedback Te krijgen
-            val feedbackDialog = Dialog(context)
-            feedbackDialog.setContentView(R.layout.feedback_popup)
-            feedbackDialog.window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            val sessionname = feedbackDialog.findViewById<TextView>(R.id.feedback_namesessie)
-            val description = feedbackDialog.findViewById<TextView>(R.id.feedback_description)
-            val sendBtn = feedbackDialog.findViewById<Button>(R.id.feedback_sendBtn)
-            val cancelBtn = feedbackDialog.findViewById<Button>(R.id.feedback_cancelBtn)
-            val noFeedbackbtn = feedbackDialog.findViewById<Button>(R.id.feedback_uitschrijvenBtn)
-
-            SessionViewHolder(view).button.setOnLongClickListener() {
-                sessionname.text = mSessionData[SessionViewHolder(view).adapterPosition + 1].title
-                sendBtn.setOnClickListener() {
-                    val feedback = Model.Feedback(Date(), description.text.toString(), mSessionData[SessionViewHolder(view).adapterPosition + 1]._id)
-                    val feedbackService = ServiceGenerator.createService(FeedbackApiService::class.java, user.token)
-                    disposable = feedbackService.addFeedback(feedback)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(
-                            { result ->
-                                feedbackDialog.hide()
-                                Toast.makeText(context, "Bedankt voor uw Feedback!", Toast.LENGTH_SHORT).show()
-                            },
-                            { error ->  Log.d("error", error.message)
-                            }
-                        )
-                }
-                cancelBtn.setOnClickListener() {
-                    feedbackDialog.hide()
-                }
-                noFeedbackbtn.setOnClickListener() {
-                    user.feedbackSubscribed = false
-                    val userService = ServiceGenerator.createService(UserApiService::class.java, user.token)
-                    disposable = userService.updateUserFeedback(user)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(
-                            { result ->
-                                    feedbackDialog.hide()
-                            },
-                            { error ->  Log.d("error", error.message)
-                            }
-                        )
-                }
-                feedbackDialog.show()
-                return@setOnLongClickListener true
-            }
             return SessionViewHolder(view)
 
         }
@@ -305,18 +195,26 @@ class SessionFragment : Fragment() {
          */
         override fun onBindViewHolder(holder: SessionViewHolder, position: Int) {
 
+            val currentSession = mSessionData[position]
+
             holder.title.text = (position + 1).toString()
             holder.button.setOnClickListener {
-                val session = mSessionData[position]
-                mClickHandler.onClick(session)
+                sessionView.selectedSession?.value = currentSession
+                stateView.viewState?.value = "EXERCISE_VIEW"
             }
 
             //De sessies die unlocked zijn
-            if (sessionBools[position]) {
+            if (currentSession.unlocked) {
                 holder.title.visibility = View.VISIBLE
                 holder.lock.visibility = View.INVISIBLE
                 holder.button.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#bedacd"))
                 holder.button.isClickable = true
+
+                holder.button.setOnLongClickListener {
+                    sessionView.selectedSession?.value = currentSession
+                    stateView.dialogState?.value = "FEEDBACK_DIALOG"
+                    return@setOnLongClickListener true
+                }
 
                 //Controleren of het de laatste unclocked session is
                 if (user.unlocked_sessions.lastIndex  > user.unlocked_sessions.indexOf(lastUnlockedSession)) {
@@ -397,7 +295,6 @@ class SessionFragment : Fragment() {
 
         inner class SessionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-
             // Initialize TextView title
             val title: TextView = view.tv_session_title
             val button: FloatingActionButton = view.fab
@@ -405,23 +302,10 @@ class SessionFragment : Fragment() {
             val glowing_orbAnimation: LottieAnimationView = view.glowing_orb_animation
             val progressAnimation: LottieAnimationView = view.progressbar_animation
 
-            init {
-//                view.fab.setOnClickListener {
-//                    val session = mSessionData[position]
-//                    mClickHandler.onClick(session)
-//                }
-            }
-
         }
 
         interface  SessionAdapterOnUnlockSession {
             fun showMonsterDialog()
-        }
-
-
-        // Implement this interface for passing click event
-        interface SessionAdapterOnClickHandler {
-            fun onClick(session: Model.Session)
         }
 
     }
