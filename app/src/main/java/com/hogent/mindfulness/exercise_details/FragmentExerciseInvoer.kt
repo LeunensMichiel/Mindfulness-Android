@@ -92,7 +92,7 @@ class FragmentExerciseInvoer : Fragment() {
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
-        if (isVisibleToUser && !isResumed){
+        if (isVisibleToUser && pageView.pages.value!![position].post == null){
             pageView.checkInputPage(page._id, position)
         }
     }
@@ -112,10 +112,7 @@ class FragmentExerciseInvoer : Fragment() {
         }
 
         btnOpslaan.setOnClickListener {
-            pageView.updatePost(position, page, text_edit.text.toString(), post)
-            // TEDOEN: nog een check: als er niets is veranderd, dan moet er geen nieuwe post gemaakt worden of geupdate wordenge
-            post = (activity as MainActivity).updatePost(page!!, text_edit.text.toString(), post)
-            Log.d("button", "-----------test1--------------")
+            post = pageView.updatePost(position, page, text_edit.text.toString(), post)
         }
     }
 

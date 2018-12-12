@@ -330,54 +330,6 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
     }
 
     /**
-     * Initialize ExerciseDetailFragment
-     * Initialize manager in exerciseDetailFragment
-     * Initialize exerciseId in exerciseDetailFragment
-     * Add ExerciseDetailFragment to Activity
-     */
-//    override fun onClickExercise(exercise: Model.Exercise) {
-//        exerciseDetailFragment = ExerciseDetailFragment()
-//        Log.i("EX ID", exercise._id)
-//        exerciseDetailFragment.manager = supportFragmentManager
-//        exerciseDetailFragment.exerciseId = exercise._id
-//        currentPost.exercise_name = exercise.title
-//        supportFragmentManager.beginTransaction()
-//            .replace(R.id.session_container, exerciseDetailFragment)
-//            .addToBackStack("tag")
-//            .commit()
-//    }
-
-    fun updatePost(page:Model.Page, description:String, newPost:Model.Post):Model.Post{
-        currentPost.page_id = page._id
-        currentPost.page_name = page.title
-        currentPost.inhoud = description
-        currentPost.user_id = currentUser!!._id
-        currentPost._id = newPost._id
-        if (currentPost._id == "none" || currentPost._id == null){
-            currentPost._id = null
-            disposable = postService.addPost(currentPost)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    { postResult ->  onPostResult(postResult) },
-                    { error ->  showError(error.message) }
-                )
-        } else {
-            disposable = postService.changePost(currentPost)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    { result -> Log.i("oldPost", "$result") },
-                    { error -> Log.i("ERRORCHECK",error.message) }
-                )
-        }
-        return currentPost
-    }
-
-    fun onPostResult(savedPost:Model.Post){
-        currentPost = savedPost
-    }
-    /**
      * Initialize NavigationListener
      * Specify Fragment to add to Activity via itemId in Navigation
      */
@@ -441,15 +393,17 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
                 return true
             }
             R.id.logout -> {
-                this@MainActivity.deleteDatabase("mindfulness.db")
+                userView.userRepo.nukeUsers()
                 getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
                     .edit()
                     .remove(getString(R.string.userIdKey))
                     .remove(getString(R.string.authTokenKey))
                     .apply()
-                val intent = Intent(this, LoginActivity::class.java)
-                startActivity(intent)
-                finish()
+                navigation.visibility = View.GONE
+                loginFragment = LoginFragment()
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.session_container, loginFragment)
+                    .commit()
                 return true
             }
         }
