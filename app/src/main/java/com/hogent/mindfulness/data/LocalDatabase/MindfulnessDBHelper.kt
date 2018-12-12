@@ -2,6 +2,7 @@ package com.hogent.mindfulness.data.LocalDatabase
 
 import android.content.ContentValues
 import android.content.Context
+import android.database.DatabaseUtils
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
@@ -9,7 +10,7 @@ import com.hogent.mindfulness.data.LocalDatabase.MindfulnessContract.GroupEntry
 import com.hogent.mindfulness.data.LocalDatabase.MindfulnessContract.UserEntry
 import com.hogent.mindfulness.domain.Model
 
-class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+class MindfulnessDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     override fun onCreate(db: SQLiteDatabase?) {
         Log.i("db", "db creation")
@@ -19,7 +20,11 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
                 UserEntry.COLUMN_CURRENT_EXERCISE_ID + " TEXT, " +
                 UserEntry.COLUMN_UNLOCKED_SESSIONS + " TEXT, " +
                 UserEntry.COLUMN_POSTS + " TEXT, " +
-                UserEntry.COLUMN_FEEDBACK_IS_SUBSCRIBED + " INTEGER " +
+                UserEntry.COLUMN_FEEDBACK_IS_SUBSCRIBED + " INTEGER DEFAULT 0 , " +
+                UserEntry.COLUMN_EMAIL + " TEXT , " +
+                UserEntry.COLUMN_FIRSTNAME + " TEXT , " +
+                UserEntry.COLUMN_LASTNAME + " TEXT , " +
+                UserEntry.COLUMN_GROUP_ID + " TEXT" +
                 "); "
 
         Log.i("dbCOunt", "1")
@@ -43,24 +48,34 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
     }
 
     fun addUser(user: Model.User): Boolean {
-        val userExists = doesDataExist(UserEntry.TABLE_NAME, UserEntry.COLUMN_ID, user._id)
+        val userExists = doesDataExist(UserEntry.TABLE_NAME, UserEntry.COLUMN_ID, user._id!!)
         if (!userExists) {
             val values = ContentValues()
             val unlocked_sessions = user.unlocked_sessions.joinToString(",", "", "")
             val post_ids = user.post_ids.joinToString(",", "", "")
-            val michielZijnFuckingBoolean:Int = if (user.feedbackSubscribed) 1 else 0
+            val feedbackBooleon: Int = if (user.feedbackSubscribed) 1 else 0
+            val firstname = user.firstname
+            val lastname = user.lastname
+            val email = user.email
+            val group = user.group!!
 
             values.put(UserEntry.COLUMN_ID, user._id)
             values.put(UserEntry.COLUMN_CURRENT_SESSION_ID, user.current_session_id)
             values.put(UserEntry.COLUMN_CURRENT_EXERCISE_ID, user.current_exercise_id)
             values.put(UserEntry.COLUMN_UNLOCKED_SESSIONS, unlocked_sessions)
             values.put(UserEntry.COLUMN_POSTS, post_ids)
-            values.put(UserEntry.COLUMN_FEEDBACK_IS_SUBSCRIBED, michielZijnFuckingBoolean)
+            values.put(UserEntry.COLUMN_FEEDBACK_IS_SUBSCRIBED, feedbackBooleon)
+            values.put(UserEntry.COLUMN_EMAIL, email)
+            values.put(UserEntry.COLUMN_FIRSTNAME, firstname)
+            values.put(UserEntry.COLUMN_LASTNAME, lastname)
+            //DIT ZOU MISSCHIEN VOOR FOUTEN KUNNEN ZORGEN WOEPSIE DUS ALS JE EEN
+            // BUG HEBT MET DE GROEPEN OF USER 30/11/2018
+            values.put(UserEntry.COLUMN_GROUP_ID, group._id)
 
             val db = this.writableDatabase
             Log.i("dbUser", values.toString())
-            Log.i("FUCKINGFEEDBQCKBULLSHIT", "$values")
-            db.insert(UserEntry.TABLE_NAME,null,  values)
+            Log.i("dbUserValues", "$values")
+            db.insert(UserEntry.TABLE_NAME, null, values)
             db.close()
 
             addGroup(user.group!!)
@@ -68,21 +83,17 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
         return userExists
     }
 
-    fun addGroup(group: Model.Group): Boolean {
-        val groupExists = doesDataExist(GroupEntry.TABLE_NAME, GroupEntry.COLUMN_ID, group._id)
-        if (!groupExists) {
-            val values = ContentValues()
+    fun addGroup(group: Model.Group) {
+        val values = ContentValues()
 
-            values.put(GroupEntry.COLUMN_ID, group._id)
-            values.put(GroupEntry.COLUMN_NAME, group.name)
-            values.put(GroupEntry.COLUMN_SESSIONMAP_ID, group.sessionmap_id)
+        values.put(GroupEntry.COLUMN_ID, group._id)
+        values.put(GroupEntry.COLUMN_NAME, group.name)
+        values.put(GroupEntry.COLUMN_SESSIONMAP_ID, group.sessionmap_id)
 
-            Log.i("dbGroup", values.toString())
-            val db = this.writableDatabase
-            db.insert(GroupEntry.TABLE_NAME, null, values)
-            db.close()
-        }
-        return groupExists
+        Log.i("dbGroup", values.toString())
+        val db = this.writableDatabase
+        db.insertOrThrow(GroupEntry.TABLE_NAME, null, values)
+        db.close()
     }
 
     fun doesDataExist(TableName: String, dbfield: String, fieldValue: String): Boolean {
@@ -97,37 +108,6 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
         return true
     }
 
-    fun getUser(): Model.User? {
-        val query = "SELECT * FROM " + UserEntry.TABLE_NAME
-        val db = this.writableDatabase
-        val cursor = db.rawQuery(query, null)
-        var user: Model.User? = null
-        if (cursor.moveToFirst()) {
-            cursor.moveToFirst()
-            val id = cursor.getString(0)
-            val current_session_id = cursor.getString(1)?:""
-            val current_ex_id = cursor.getString(2)?:""
-            val unlocked_sessions:Array<String> = cursor.getString(3).split(",").toTypedArray()
-            val post_ids = cursor.getString(4).split(",").toTypedArray()
-            val fuckingQWERTY:Boolean = cursor.getInt(5) == 1
-            user = Model.User(id,
-                "",
-                "",
-                "",
-                current_session_id,
-                current_ex_id,
-                null,
-                null,
-                unlocked_sessions,
-                null,
-                "",
-                post_ids,
-                fuckingQWERTY)
-        }
-        db.close()
-        return user
-    }
-
     fun getGroup(): Model.Group? {
         val query = "SELECT * FROM " + GroupEntry.TABLE_NAME
         val db = this.readableDatabase
@@ -136,7 +116,7 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
         if (cursor.moveToFirst()) {
             cursor.moveToFirst()
             val id = cursor.getString(0)
-            val name:String = cursor.getString(1)
+            val name: String = cursor.getString(1)
             val sessionmap_id = cursor.getString(2)
             group = Model.Group(
                 id,
@@ -147,6 +127,77 @@ class MindfulnessDBHelper ( context: Context ):SQLiteOpenHelper(context, DATABAS
         }
         db.close()
         return group
+    }
+
+    fun getUser(): Model.User? {
+        val query = "SELECT * FROM " + UserEntry.TABLE_NAME
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(query, null)
+        var user: Model.User? = null
+        if (cursor.moveToFirst()) {
+            cursor.moveToFirst()
+            Log.d("cursortje", DatabaseUtils.dumpCursorToString(cursor))
+            val id = cursor.getString(0)
+            val current_session_id = cursor.getString(1) ?: ""
+            val current_ex_id = cursor.getString(2) ?: ""
+            val unlocked_sessions: ArrayList<String> = arrayListOf()
+            cursor.getString(3).split(",").toTypedArray().forEach {
+                unlocked_sessions.add(it)
+            }
+            val post_ids = arrayListOf<String>()
+            cursor.getString(4).split(",").toTypedArray().forEach {
+                post_ids.add(it)
+            }
+            post_ids.forEach {
+            }
+            val feedback: Boolean = cursor.getInt(5) == 1
+            val email: String = cursor.getString(6) ?: ""
+            val firstname: String = cursor.getString(7) ?: ""
+            val lastname: String = cursor.getString(8) ?: ""
+            val group: String = cursor.getString(9) ?: ""
+            user = Model.User(
+                id,
+                firstname,
+                lastname,
+                email,
+                current_session_id,
+                current_ex_id,
+                null,
+                null,
+                unlocked_sessions,
+                getGroup(),
+                "",
+                post_ids,
+                feedback
+            )
+        }
+        db.close()
+        return user
+    }
+
+    fun updateUser(user: Model.User): Model.User {
+        val values = ContentValues()
+        val unlocked_sessions = user.unlocked_sessions.joinToString(",", "", "")
+        val post_ids = user.post_ids.joinToString(",", "", "")
+        val feedbackBooleon: Int = if (user.feedbackSubscribed) 1 else 0
+        val firstname = user.firstname
+        val lastname = user.lastname
+        val email = user.email
+
+        values.put(UserEntry.COLUMN_ID, user._id)
+        values.put(UserEntry.COLUMN_CURRENT_SESSION_ID, user.current_session_id)
+        values.put(UserEntry.COLUMN_CURRENT_EXERCISE_ID, user.current_exercise_id)
+        values.put(UserEntry.COLUMN_UNLOCKED_SESSIONS, unlocked_sessions)
+        values.put(UserEntry.COLUMN_POSTS, post_ids)
+        values.put(UserEntry.COLUMN_FEEDBACK_IS_SUBSCRIBED, feedbackBooleon)
+        values.put(UserEntry.COLUMN_EMAIL, email)
+        values.put(UserEntry.COLUMN_FIRSTNAME, firstname)
+        values.put(UserEntry.COLUMN_LASTNAME, lastname)
+
+        val db = this.writableDatabase
+        db.update(UserEntry.TABLE_NAME, values, UserEntry.COLUMN_ID + "= ?", arrayOf(user._id) )
+
+        return user
     }
 
     companion object {

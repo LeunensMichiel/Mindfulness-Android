@@ -7,12 +7,14 @@
              android:orientation="vertical"
 >
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
-                  android:orientation="vertical">
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
         <android.support.design.widget.TextInputLayout
                 android:id="@+id/inputlayout"
                 android:layout_width="match_parent"
-                android:layout_height="120sp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="30sp"
                 android:padding="10sp">
 
@@ -20,42 +22,40 @@
                     android:id="@+id/text_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="20sp"
-            />
+                    android:paddingBottom="20sp"/>
+
         </android.support.design.widget.TextInputLayout>
 
         <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-        >
-        <Button
-                android:id="@+id/btnOpslaan"
-                android:layout_height="wrap_content"
-                android:layout_width="120sp"
-                android:text="Opslaan"
-                android:layout_centerInParent="true"
-                android:background="@drawable/ovalebutton"
-                android:textColor="@android:color/white"
+                android:layout_height="wrap_content">
 
-        >
-        </Button>
+            <Button
+                    android:id="@+id/btnOpslaan"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="Opslaan"
+                    android:layout_centerInParent="true"
+                    android:background="@color/colorPrimaryDark"
+                    android:textColor="@android:color/white"
+                    android:foreground="?attr/selectableItemBackground">
+            </Button>
         </RelativeLayout>
 
         <ImageView
                 android:id="@+id/imageView"
                 android:layout_width="match_parent"
                 android:layout_height="200sp"
-                android:layout_margin="20sp"
-        />
+                android:layout_margin="20sp"/>
 
-        <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/btnCamera"
-                android:background="@android:color/holo_red_dark"
-                android:textColor="@android:color/white"
-                android:layout_marginTop="5sp"
-                android:text="Foto nemen"
-        />
+
     </LinearLayout>
+    <android.support.design.widget.FloatingActionButton
+            android:id="@+id/btnCamera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_camera_24dp"
+            android:layout_margin="16dp"
+            android:layout_gravity="bottom|end"
+            android:backgroundTint="@color/colorPrimaryDark"/>
 </FrameLayout>

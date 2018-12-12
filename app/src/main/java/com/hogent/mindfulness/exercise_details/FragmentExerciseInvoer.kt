@@ -2,7 +2,8 @@ package com.hogent.mindfulness.exercise_details
 
 
 import android.app.Activity.RESULT_OK
-import android.content.Context
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -18,12 +19,10 @@ import android.widget.Toast
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.data.PostApiService
-import com.hogent.mindfulness.data.PostInformation
 import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.domain.Model
-import io.reactivex.android.schedulers.AndroidSchedulers
+import com.hogent.mindfulness.domain.ViewModels.PageViewModel
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_fragment_oefeninginvoer.*
 
 
@@ -33,52 +32,42 @@ import kotlinx.android.synthetic.main.fragment_fragment_oefeninginvoer.*
  */
 class FragmentExerciseInvoer : Fragment() {
 
-    private var postId:String? = null
+    private var postId: String? = null
     private lateinit var disposable: Disposable
-    lateinit var page:Model.Page
+    private lateinit var post: Model.Post
+    private lateinit var pageView:PageViewModel
+    var position:Int = -1
+
+    private lateinit var postService: PostApiService
+
+    lateinit var page: Model.Page
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        pageView = activity?.run {
+            ViewModelProviders.of(this).get(PageViewModel::class.java)
+        }?: throw Exception("Invalid activity.")
+
+        pageView.pages.observe(this, Observer {
+            Log.d("PAGE_VIEW", "FUCK_OFF")
+            if(pageView.pages.value!![position].post != null){
+                post = pageView.pages.value!![position].post!!
+                showResult()
+            }
+        })
+    }
+
     /**
      * in de onCreateView-methode inflaten we onze layout fragment_fragment_oefeninginvoer
      */
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        beginRetrievePost()
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        //beginRetrievePost()
         // Inflate the layout for this fragment
+        postService = ServiceGenerator.createService(PostApiService::class.java, (activity as MainActivity))
         return inflater.inflate(R.layout.fragment_fragment_oefeninginvoer, container, false)
-    }
-
-    private fun beginRetrievePost() {
-        var info = PostInformation()
-        info.sessionmap_id = "5bdc9ecbe9bc22054be4a64d"
-        info.session_id = "5be2a269e19f6a1b2bf7eaae"
-        info.exercise_id = "5bd1922012bbd66b6c19aa31"
-        info.page_id = "5bd837fde39837098a7a7c82"
-        info.user_id = "5bdc6f7cd7371903f9c88bc4"
-        val PostService = ServiceGenerator.createService(PostApiService::class.java,
-            activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-                .getString(getString(R.string.authTokenKey), null))
-
-        disposable = PostService.getPostOfPage(info)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { result -> showResultPost(result) },
-                { error -> showError(error.message) }
-            )
-    }
-
-    /**
-     * Dit is een methode om eventuele fouten te tonen
-     */
-    fun showError(errMsg: String?) {
-        Toast.makeText(activity, errMsg, Toast.LENGTH_SHORT).show()
-    }
-
-    fun showResultPost(post: Model.Post) {
-        text_edit.setText(post.inhoud)
-        if(postId == null){
-            postId = post._id
-            Log.d("PostId","----------"+post._id+"---------")
-        }
     }
 
     /**
@@ -94,70 +83,38 @@ class FragmentExerciseInvoer : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if(this.arguments!!.containsKey("opgave")){
+
+        if (this.arguments!!.containsKey("opgave")) {
             inputlayout.hint = this.arguments!!.getString("opgave", "check")
         }
 
+    }
+
+    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
+        super.setUserVisibleHint(isVisibleToUser)
+        if (isVisibleToUser && pageView.pages.value!![position].post == null){
+            pageView.checkInputPage(page._id, position)
+        }
+    }
+
+    fun showResult() {
+        text_edit.setText(post.inhoud)
         val pm = context!!.getPackageManager()
         if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
             btnCamera.setOnClickListener {
                 var intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
                 startActivityForResult(intent, 0)
             }
-        }
-        else
-        {
+        } else {
             btnCamera.setOnClickListener {
-                Toast.makeText(context,"Geen camera gedetecteerd",Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Geen camera gedetecteerd", Toast.LENGTH_SHORT).show()
             }
         }
 
         btnOpslaan.setOnClickListener {
-            // TEDOEN: nog een check: als er niets is veranderd, dan moet er geen nieuwe post gemaakt worden of geupdate wordenge
-            (activity as MainActivity).updatePost(page, text_edit.text.toString())
-            Log.d("button","-----------test1--------------")
+            post = pageView.updatePost(position, page, text_edit.text.toString(), post)
         }
     }
-
-    private fun updatePost(){
-        var info = PostInformation()
-        info.sessionmap_id = "5bdc9ecbe9bc22054be4a64d"
-        info.session_id = "5be2a269e19f6a1b2bf7eaae"
-        info.exercise_id = "5bd1922012bbd66b6c19aa31"
-        info.page_id = "5bd837fde39837098a7a7c82"
-        info.user_id = "5bdc6f7cd7371903f9c88bc4"
-        info.inhoud = text_edit.text.toString()
-        val postService = ServiceGenerator.createService(PostApiService::class.java,
-            activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-                .getString(getString(R.string.authTokenKey), null))
-
-        disposable = postService.updatePost("5be2ad3d9a683c6576fbabe2",info)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { result -> showResultPost(result) },
-                { error -> showError(error.message) }
-            )
-    }
-
-    /*
- private fun maakPost()
- {
-     var info = PostInformation()
-     info.sessionmap_id = "5bdc9ecbe9bc22054be4a64d"
-     info.session_id = "5be2a269e19f6a1b2bf7eaae"
-     info.exercise_id = "5bd1922012bbd66b6c19aa31"
-     info.page_id = "5bd837fde39837098a7a7c82"
-     info.user_id = "5bdc6f7cd7371903f9c88bc4"
-     info.inhoud = text_edit.text.toString()
-     mindfulnessApiService.maakPost(info)
-         .subscribeOn(Schedulers.io())
-         .observeOn(AndroidSchedulers.mainThread())
-         .subscribe(
-             { result -> showResultPost(result) },
-             { error -> showError(error.message) }
-         )
- } */
 
     /**
      * Als de configuratie verandert, wordt deze methode aangeroepen
@@ -168,7 +125,7 @@ class FragmentExerciseInvoer : Fragment() {
 
         val ft = fragmentManager!!.beginTransaction()
         ft.detach(this).attach(this).commit()
-        if(this.arguments!!.containsKey("opgave")){
+        if (this.arguments!!.containsKey("opgave")) {
             inputlayout.hint = this.arguments!!.getString("opgave", "check")
         }
         text_edit.setText("Test")
@@ -189,11 +146,10 @@ class FragmentExerciseInvoer : Fragment() {
      */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(RESULT_OK == resultCode){
+        if (RESULT_OK == resultCode) {
             var bitmap: Bitmap = data!!.extras.get("data") as Bitmap
             imageView.setImageBitmap(bitmap)
-        }
-        else{
+        } else {
             Toast.makeText(activity, "Geen foto genomen", Toast.LENGTH_SHORT).show()
         }
     }

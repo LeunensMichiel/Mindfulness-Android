@@ -1,6 +1,7 @@
 package com.hogent.mindfulness.exercise_details
 
 
+import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -10,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
+import com.hogent.mindfulness.domain.ViewModels.PageViewModel
 import kotlinx.android.synthetic.main.recyclerview_paragrafen.*
 
 
@@ -18,13 +20,23 @@ import kotlinx.android.synthetic.main.recyclerview_paragrafen.*
  */
 class FragmentExerciseText : Fragment() {
 
-    lateinit var paragraphs:Array<Model.Paragraph>
+    lateinit var paragraphs: Array<Model.Paragraph>
+    private  lateinit var pageView:PageViewModel
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        pageView = activity?.run {
+            ViewModelProviders.of(this).get(PageViewModel::class.java)
+        }?: throw Exception("Invalid activity.")
+    }
 
     /**
      * in de onCreateView-methode inflaten we onze layout, hierin zit een recyclerview (we tonen een lijst van paragrafen in deze page)
      */
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.recyclerview_paragrafen, container, false)
     }
@@ -35,7 +47,7 @@ class FragmentExerciseText : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        pageView.retrieveTextPageImg(paragraphs)
         val viewAdapter = ParagraafAdapter(paragraphs)
         val viewManager = LinearLayoutManager(activity)
 

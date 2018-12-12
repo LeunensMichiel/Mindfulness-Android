@@ -1,10 +1,12 @@
 package com.hogent.mindfulness.data
 
+import android.app.Activity
+import android.content.Context
 import android.text.TextUtils
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 
 class ServiceGenerator {
 
@@ -17,21 +19,14 @@ class ServiceGenerator {
         val builder = Retrofit.Builder()
             .baseUrl(API_BASE_URL)
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(MoshiConverterFactory.create())
 
         var retrofit = builder.build()
 
-        fun <S> createService(serviceClass: Class<S>
-//                              email: String,
-//                              password: String
-        ): S {
-//            if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)) {
-//                val authToken = Credentials.basic(email, password)
-//
-//                return createService(serviceClass, authToken)
-//            }
-
-            return createService(serviceClass, null)
+        fun <S> createService(serviceClass: Class<S>, activity: Activity): S {
+            val token = activity!!.getSharedPreferences("userDetails", Context.MODE_PRIVATE)
+                .getString("authToken", null)
+            return createService(serviceClass, authToken = token)
         }
 
         fun <S> createService(

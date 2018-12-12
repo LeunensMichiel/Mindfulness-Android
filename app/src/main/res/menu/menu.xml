@@ -13,8 +13,8 @@
             android:title="@string/title_feedback"/>
 
     <item
-            android:id="@+id/navigation_notifications"
-            android:icon="@drawable/ic_settings_black_24dp"
-            android:title="@string/title_settings"/>
+            android:id="@+id/navigation_profile"
+            android:icon="@drawable/ic_person_24dp"
+            android:title="@string/title_history"/>
 
 </menu>

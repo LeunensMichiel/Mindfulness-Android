@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 
@@ -17,10 +18,7 @@ class LoginActivity : AppCompatActivity(), LoginFragment.LoginFragmentCallBack, 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-
-
         loginFragment = LoginFragment()
-
         supportFragmentManager.beginTransaction()
             .add(R.id.login_container, loginFragment)
             .commit()
@@ -28,10 +26,6 @@ class LoginActivity : AppCompatActivity(), LoginFragment.LoginFragmentCallBack, 
 
     override fun onStart() {
         super.onStart()
-
-        if (!checkedIfLoggedIn()) {
-            sendToMain()
-        }
     }
 
     private fun checkedIfLoggedIn(): Boolean {

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent"
+                                             android:background="@color/colorPrimary">
+
+    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+              android:id="@+id/TextViewPopupLottie" app:layout_constraintEnd_toEndOf="parent"
+              android:layout_marginEnd="32dp" app:layout_constraintStart_toStartOf="parent"
+              android:layout_marginStart="32dp" android:layout_marginTop="32dp"
+              app:layout_constraintTop_toTopOf="parent" android:text="Nieuw Monster in je bus!"
+              android:textAlignment="center" android:textSize="36sp" android:textColor="@android:color/white"
+              android:textAllCaps="true"/>
+
+
+    <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/monster"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:cropToPadding="true"
+            android:scaleType="centerInside"
+            app:lottie_rawRes="@raw/badge"
+            app:lottie_scale="1"
+            app:lottie_autoPlay="false"
+            app:lottie_loop="false"
+            app:layout_constraintTop_toBottomOf="@+id/TextViewPopupLottie" app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/fullscreenDialogBtn"/>
+    <Button
+            android:text="Oke!"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/fullscreenDialogBtn" android:layout_marginBottom="24dp"
+            app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
+            style="@style/Widget.AppCompat.Button.Colored" android:padding="20dp"/>
+
+
+</android.support.constraint.ConstraintLayout>

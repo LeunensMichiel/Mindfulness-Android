@@ -1,25 +1,25 @@
 package com.hogent.mindfulness.exercises_List_display
 
 
-import android.content.Context
+import android.arch.lifecycle.LifecycleOwner
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.CardView
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.Toast
+import android.widget.ImageView
+import android.widget.TextView
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.data.ExerciseApiService
-import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.domain.Model
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
+import com.hogent.mindfulness.domain.ViewModels.ExerciseViewModel
 import kotlinx.android.synthetic.main.exercise_list_item.view.*
 import kotlinx.android.synthetic.main.fragment_exercises_pane.*
+import org.jetbrains.anko.imageBitmap
 
 class ExercisesListFragment : Fragment() {
 
@@ -28,7 +28,7 @@ class ExercisesListFragment : Fragment() {
      *This will be used the populate the data for the ExerciseAdapter
      */
     lateinit var session: Model.Session
-    private lateinit var disposable: Disposable
+    private lateinit var exView: ExerciseViewModel
 
     /**
      * I used this resource: https://developer.android.com/guide/topics/ui/layout/recyclerview
@@ -38,34 +38,21 @@ class ExercisesListFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        beginRetrieveExercises(session._id)
 
+        exView = activity?.run {
+            ViewModelProviders.of(this).get(ExerciseViewModel::class.java)
+        }?: throw Exception("Invalid activity")
+
+        exView.retrieveExercises()
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_exercises_pane, container, false)
     }
 
-    private fun beginRetrieveExercises(session_id: String) {
-        val exerciseApiService = ServiceGenerator.createService(ExerciseApiService::class.java,
-            activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-            .getString(getString(R.string.authTokenKey), null))
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        disposable = exerciseApiService.getExercises(session_id)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { result -> showResultExercises(result) },
-                { error -> showError(error.message) }
-            )
-    }
-
-    private fun showError(errMsg: String?) {
-        Toast.makeText(activity, errMsg, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun showResultExercises(exercises: Array<Model.Exercise>) {
-
-        val viewAdapter = ExerciseAdapter(exercises, activity as ExerciseAdapter.ExerciseAdapterOnClickHandler)
-        val viewManager = GridLayoutManager(activity, 2)
+        val viewAdapter = ExerciseAdapter(this, exView, session)
+        val viewManager = LinearLayoutManager(activity)
 
         rv_exercises.apply {
 
@@ -74,18 +61,24 @@ class ExercisesListFragment : Fragment() {
         }
     }
 
-
     /***********************************************************************************************
      * Adapter
      *
      ***********************************************************************************************/
-
     class ExerciseAdapter(
-        // This array has the data for the recyclerview adapter
-        private val mExercisesData: Array<Model.Exercise>,
-        //mClickHandler is for communicating whit the activity when item clicked
-        private val mClickHandler: ExerciseAdapterOnClickHandler
+        private val lifecycleOwner: LifecycleOwner,
+        private val exView:ExerciseViewModel,
+        val session: Model.Session
     ) : RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder>() {
+
+        private var mExercisesData: Array<Model.Exercise> = arrayOf()
+
+        init {
+            exView.exercises.observe(lifecycleOwner, Observer {
+                mExercisesData = it!!
+                this.notifyDataSetChanged()
+            })
+        }
 
         // This function loads in the item view
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExerciseViewHolder {
@@ -107,29 +100,23 @@ class ExercisesListFragment : Fragment() {
         override fun onBindViewHolder(holder: ExerciseViewHolder, position: Int) {
             val exerciseTitle = mExercisesData[position]
             holder.title.text = exerciseTitle.title
+            holder.image.imageBitmap = session.bitmap
         }
 
         inner class ExerciseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val title: Button = view.btn_exercise
+            val title: TextView = view.exerciseName
+            val card: CardView = view.btn_exercise
+            val image: ImageView = view.exerciseImage
 
             // Add clicklistener on the item from the recyclerview
             init {
-                title.setOnClickListener {
+                card.setOnClickListener {
                     // Get the correct exercise out of the data array
                     val adapterPosition = adapterPosition
-                    val exercise = mExercisesData[adapterPosition]
-
-                    mClickHandler.onClickExercise(exercise)
+                    exView.selectedExercise?.value = mExercisesData[adapterPosition]
                 }
             }
-
         }
-
-        // Implement this interface for passing click event through
-        interface ExerciseAdapterOnClickHandler {
-            fun onClickExercise(exercise: Model.Exercise)
-        }
-
     }
 
 }
