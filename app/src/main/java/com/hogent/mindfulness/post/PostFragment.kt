@@ -99,7 +99,7 @@ class PostAdapter(private var viewModel: PostViewModel,
         } else {
             holder.postView.post_card_image.visibility = View.GONE
         }
-        
+
         if (dataSet[position].inhoud != null) {
             holder.postView.post_desc.text = dataSet[position].inhoud
         } else {

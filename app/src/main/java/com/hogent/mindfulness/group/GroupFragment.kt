@@ -20,8 +20,22 @@ class GroupFragment() : Fragment() {
         return inflater.inflate(R.layout.fragment_group, container, false)
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val txfield = groepscodeScanner
 
+        val photoBtn = fragment_GroupBtn
+        photoBtn.setOnClickListener {
+            val intent = Intent(activity, ScannerActivity::class.java)
+            startActivity(intent)
+        }
+
+//        val saveBtn = groepscanners_BtnConfirm
+//        saveBtn.setOnClickListener {v ->
+//            if (txfield.text.isNotEmpty()) {
+//                model.user.value?.group?._id = txfield.text.toString()
+//            }
+//        }
     }
+
 }
