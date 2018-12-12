@@ -123,6 +123,7 @@ class PageViewModel:InjectedViewModel() {
     }
 
     fun checkInputPage(id: String, position: Int){
+
         subscription = postService.checkPageId(id)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -138,6 +139,7 @@ class PageViewModel:InjectedViewModel() {
 
 
     fun updatePost(position: Int, page:Model.Page, description:String, newPost:Model.Post):Model.Post {
+        Log.d("POSTUPDATE", "CHECK")
         var currentPost = Model.Post()
         currentPost.page_id = page._id
         currentPost.page_name = page.title
@@ -159,13 +161,14 @@ class PageViewModel:InjectedViewModel() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     { result -> Log.i("oldPost", "$result") },
-                    { error -> Log.i("ERRORCHECK",error.message) }
+                    { error -> pageError.value?.error = "Input niet opgeslagen." }
                 )
         }
         return currentPost
     }
 
     fun onPostSaveResult(position: Int, post:Model.Post) {
+        Log.d("POSTS_SAVED", "CHECK")
         pages.value!![position].post = post
         pages.postValue(pages.value)
         Log.d("PAGE_VIEW", "REPEAT_3")
