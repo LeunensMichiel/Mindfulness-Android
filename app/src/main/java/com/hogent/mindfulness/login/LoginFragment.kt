@@ -204,7 +204,8 @@ class LoginFragment : Fragment() {
                 .alpha((if (show) 0 else 1).toFloat())
                 .setListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationEnd(animation: Animator) {
-                        login_form.visibility = if (show) View.GONE else View.VISIBLE
+                        if (login_form != null)
+                            login_form.visibility = if (show) View.GONE else View.VISIBLE
                     }
                 })
 
@@ -214,7 +215,8 @@ class LoginFragment : Fragment() {
                 .alpha((if (show) 1 else 0).toFloat())
                 .setListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationEnd(animation: Animator) {
-                        login_progress.visibility = if (show) View.VISIBLE else View.GONE
+                        if (login_form != null)
+                            login_progress.visibility = if (show) View.VISIBLE else View.GONE
                     }
                 })
         }
