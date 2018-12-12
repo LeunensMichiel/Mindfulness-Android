@@ -58,10 +58,6 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
         MindfulnessDBHelper(this@MainActivity )
     }
 
-    private val postService by lazy {
-        ServiceGenerator.createService(PostApiService::class.java, this@MainActivity)
-    }
-
     private lateinit var disposable: Disposable
     lateinit var loginFragment : LoginFragment
     private lateinit var sessionFragment: SessionFragment
@@ -259,12 +255,6 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
         Log.i("ACTIVITY", "RESTORE_INSTANCE_STATE")
     }
 
-    private fun checkIfLoggedIn(): Boolean {
-        val token = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-            .getString(getString(R.string.authTokenKey), null)
-        return token == null
-    }
-
     private fun checkIfHasGroup(): Boolean {
         return currentUser!!.group == null
     }
@@ -378,9 +368,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // COMPLETED (9) Within onCreateOptionsMenu, use getMenuInflater().inflate to inflate the menu
         menuInflater.inflate(R.menu.logout_menu, menu)
-        // COMPLETED (10) Return true to display your menu
         return true
     }
 

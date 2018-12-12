@@ -128,8 +128,7 @@ object Model {
 
     data class Register(
         val email: String,
-        val password: String,
-        val groups_code: String
+        val password: String
     )
 
     data class Result(

@@ -36,18 +36,15 @@ class UserViewModel : InjectedViewModel() {
 
         uiMessage.value = Model.uiMessage("login_start_progress")
         subscription = userApi.login(loginDetails)
-            .doOnTerminate {
-                uiMessage.postValue(Model.uiMessage("login_end_progress"))
-            }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { user ->
-                    Log.i("user", "$user")
                     onRetrieveUserSucces(user)
+                    uiMessage.postValue(Model.uiMessage("login_end_progress"))
                 },
                 { error ->
-                    Log.d("USER_ERROR", "${error}")
+                    uiMessage.postValue(Model.uiMessage("login_end_progress"))
                     errorMessage.postValue(Model.loginErrorMessage("login_api_fail"))
                     toastMessage.value = "Login gefaald."
                     toastMessage.value = null
@@ -55,8 +52,22 @@ class UserViewModel : InjectedViewModel() {
             )
     }
     
-    fun register(){
-
+    fun register(registerDetails: Model.Register){
+        uiMessage.postValue(Model.uiMessage("registere_start_progress"))
+        subscription = userApi.register(registerDetails)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { user ->
+                    rawUser.value = user
+                    userRepo.insert(user!!)
+                    uiMessage.postValue(Model.uiMessage("registere_end_progress"))
+                },
+                { error ->
+                    toastMessage.value = "Registreren gefaald."
+                    uiMessage.postValue(Model.uiMessage("registere_end_progress"))
+                }
+            )
     }
 
     fun updateFeedback(){

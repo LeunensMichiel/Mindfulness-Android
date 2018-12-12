@@ -11,7 +11,7 @@
               android:paddingTop="@dimen/activity_vertical_margin">
 
     <ProgressBar
-            android:id="@+id/login_progress"
+            android:id="@+id/register_progress"
             style="?android:attr/progressBarStyleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -33,7 +33,7 @@
                 android:textColor="@color/white"
 
                 android:textAlignment="center"/>
-        <EditText android:id="@+id/email"
+        <EditText android:id="@+id/register_email"
                   android:layout_width="0dp"
                   android:layout_height="wrap_content"
                   android:hint="@string/prompt_email"

@@ -51,7 +51,6 @@ class LoginFragment : Fragment() {
         })
 
         userViewModel.uiMessage.observe(this, android.arch.lifecycle.Observer {
-            Log.d("SHOW_PROGRESS_OBSERVER", "$it")
             when(it!!.data) {
                 "login_start_progress" -> showProgress(true)
                 "login_end_progress" -> showProgress(false)
@@ -59,7 +58,6 @@ class LoginFragment : Fragment() {
         })
 
         userViewModel.errorMessage.observe(this, Observer {
-            Log.d("LOGIN_ERR", "$it")
             when(it!!.data) {
                 "login_api_fail" -> kotlin.run {
                     login_password.error = getString(R.string.error_incorrect_password)
