@@ -25,7 +25,7 @@ class PeriodicNotificationJob : Job() {
         val message = extras.getString("message", "")
         val channelId = extras.getString("channelId", "mindfulness")
 
-        val notification = Notifications.getNotification(title, message, channelId, context, targetIntent)
+        val notification = Notifications.getNotification(title, message, channelId, context, false, targetIntent)
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 

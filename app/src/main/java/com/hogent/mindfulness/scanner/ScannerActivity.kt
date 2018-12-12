@@ -15,6 +15,7 @@ import android.util.Log
 import android.widget.Toast
 import com.google.zxing.Result
 import com.hogent.mindfulness.MainActivity
+import com.hogent.mindfulness.login.LoginActivity
 import me.dm7.barcodescanner.zxing.ZXingScannerView
 
 
@@ -24,6 +25,7 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler{
     private var scannerView: ZXingScannerView? = null
     private val camId = CAMERA_FACING_BACK
     private lateinit var code:String
+    private var returnActivity: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +44,7 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler{
                 requestPermission()
             }
         }
+        returnActivity = intent.getIntExtra("returnActivity", 0)
     }
 
     private fun checkPermission(): Boolean {
@@ -141,9 +144,24 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler{
 //        val alert1 = builder.create()
 //        alert1.show()
         code = result.text
-        val intent = Intent(this, MainActivity::class.java)
+        var intent = Intent(this, MainActivity::class.java)
+        /*
+            0: MainActivity
+            1: LoginActivity
+            2: MainActivity GroupFragment
+         */
+        when(returnActivity) {
+            1 -> {
+                intent = Intent(this, LoginActivity::class.java)
+                intent.putExtra("register", 1)
+            }
+            2 -> {
+                intent.putExtra("group", 1)
+            }
+        }
+
         intent.putExtra("code", code)
         startActivity(intent)
+        finish()
     }
-
 }

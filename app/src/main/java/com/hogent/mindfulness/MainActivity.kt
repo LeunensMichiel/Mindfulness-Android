@@ -2,6 +2,7 @@ package com.hogent.mindfulness
 
 // Notificaties
 // Settings
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -38,6 +39,12 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.concurrent.TimeUnit
 import android.content.SharedPreferences
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.widget.Button
+import android.widget.TextView
+import com.hogent.mindfulness.data.FeedbackApiService
+import java.util.*
 
 
 
@@ -79,14 +86,6 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
 
         // Starts van notification service
         JobManager.create(this).addJobCreator(NotifyJobCreator())
-        DailyNotificationJob.scheduleJob(
-            prefs.getInt("pref_time", 12*60),
-            TimeUnit.MINUTES.toMillis(15),
-            "Mindfulness",
-            "clean ur teeth boi",
-            "mindfulness",
-            true
-        )
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
@@ -101,6 +100,23 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
                     .add(R.id.session_container, groupFragment)
                     .commit()
             } else {
+                // Check for notifications in the group
+                val notifs = getGroupNotifications()
+                if (notifs != null) {
+                    for (i in notifs) {
+                        if (i.notification_launchtijdstip.date == Calendar.DATE) {
+                            DailyNotificationJob.scheduleJob(
+                                (i.notification_launchtijdstip.hours * 60) + i.notification_launchtijdstip.minutes,
+                                TimeUnit.HOURS.toMillis(24),
+                                i.notification_title,
+                                i.notification_beschrijving,
+                                "mindfulness",
+                                true
+                            )
+                        }
+                    }
+                }
+
                 sessionFragment = SessionFragment()
 
                 postFragment = PostFragment()
@@ -115,8 +131,71 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
         }
-        Log.i("LOGIN", "AFTER REDIRECT")
+    }
 
+    fun getGroupNotifications(): Array<Model.Notification>? {
+        val userService = ServiceGenerator.createService(UserApiService::class.java, this@MainActivity)
+        var notif: Array<Model.Notification>? = null
+        disposable = userService.getUserGroup(currentUser.group?._id)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> notif = result.notifications },
+                { error -> notif = null }
+            )
+        return notif
+    }
+
+    fun openFeedbackDialog(session: Model.Session) {
+        val feedbackDialog = Dialog(this)
+        feedbackDialog.setContentView(R.layout.feedback_popup)
+        feedbackDialog.window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        val sessionname = feedbackDialog.findViewById<TextView>(R.id.feedback_namesessie)
+        val description = feedbackDialog.findViewById<TextView>(R.id.feedback_description)
+        val sendBtn = feedbackDialog.findViewById<Button>(R.id.feedback_sendBtn)
+        val cancelBtn = feedbackDialog.findViewById<Button>(R.id.feedback_cancelBtn)
+        val noFeedbackbtn = feedbackDialog.findViewById<Button>(R.id.feedback_uitschrijvenBtn)
+
+        sessionname.text = session.title
+        sendBtn.setOnClickListener() {
+            val feedback = Model.Feedback(
+                Date(),
+                description.text.toString(),
+                session._id
+            )
+            val feedbackService = ServiceGenerator.createService(FeedbackApiService::class.java, currentUser.token)
+            disposable = feedbackService.addFeedback(feedback)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    { result ->
+                        feedbackDialog.hide()
+                        Toast.makeText(this, "Bedankt voor uw Feedback!", Toast.LENGTH_SHORT).show()
+                    },
+                    { error ->
+                        Log.d("error", error.message)
+                    }
+                )
+        }
+        cancelBtn.setOnClickListener() {
+            feedbackDialog.hide()
+        }
+        noFeedbackbtn.setOnClickListener() {
+            currentUser.feedbackSubscribed = false
+            val userService = ServiceGenerator.createService(UserApiService::class.java, currentUser.token)
+            disposable = userService.updateUserFeedback(currentUser)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    { result ->
+                        feedbackDialog.hide()
+                    },
+                    { error ->
+                        Log.d("error", error.message)
+                    }
+                )
+        }
+        feedbackDialog.show()
     }
 
     override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
@@ -128,6 +207,7 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         super.onRestoreInstanceState(savedInstanceState)
         Log.i("ACTIVITY", "RESTORE_INSTANCE_STATE")
     }
+
     private fun checkIfLoggedIn(): Boolean {
         val token = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
             .getString(getString(R.string.authTokenKey), null)
@@ -144,30 +224,39 @@ class MainActivity : AppCompatActivity(), SessionFragment.SessionAdapter.Session
         return mMindfullDB.getUser() != null
     }
 
+    fun updateUserGroup() {
+        val sharedPref =
+            getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+                .getString(getString(R.string.userIdKey), "")
+        val user_group = Model.user_group(intent.getStringExtra("code"))
+        val userService = ServiceGenerator.createService(UserApiService::class.java, this@MainActivity)
+        val group = Model.Group(intent.getStringExtra("code"), "", "", null, null)
+
+        mMindfullDB.addGroup(group)
+
+        disposable = userService.updateUserGroup(sharedPref, user_group)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> showResult(result) },
+                { error -> showError(error.message) }
+            )
+    }
+
     override fun onResume() {
         super.onResume()
-
-        if (intent.hasExtra("code")){
-            if (checkIfHasGroup()) {
+        if (intent.hasExtra("code")) {
+            if(intent.hasExtra("group")) {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.session_container, groupFragment)
+                    .commit()
+            }
+            else if (checkIfHasGroup()) {
+                updateUserGroup()
+            } else {
                 val sharedPref =
                     getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
                         .getString(getString(R.string.userIdKey), "")
-                val user_group = Model.user_group(intent.getStringExtra("code"))
-                val userService = ServiceGenerator.createService(UserApiService::class.java, this@MainActivity)
-                val group = Model.Group(intent.getStringExtra("code"), "", "", null)
-
-                mMindfullDB.addGroup(group)
-
-                disposable = userService.updateUserGroup(sharedPref, user_group)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        { result -> showResult(result) },
-                        { error -> showError(error.message) }
-                    )
-            } else {
-                val sharedPref = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-                    .getString(getString(R.string.userIdKey), "")
                 Log.d("user", sharedPref)
                 val unlock_session = Model.unlock_session(sharedPref, intent.getStringExtra("code"))
                 val userService = ServiceGenerator.createService(UserApiService::class.java, this@MainActivity)

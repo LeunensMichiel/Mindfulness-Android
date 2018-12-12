@@ -122,6 +122,7 @@ class MindfulnessDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
                 id,
                 name,
                 sessionmap_id,
+                null,
                 null
             )
         }

@@ -46,7 +46,6 @@ class TimePreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
         }
     }
 
-
     override fun onDialogClosed(positiveResult: Boolean) {
         if (positiveResult) {
 

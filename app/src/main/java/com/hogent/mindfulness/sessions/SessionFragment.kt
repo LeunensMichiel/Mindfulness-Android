@@ -397,7 +397,6 @@ class SessionFragment : Fragment() {
 
         inner class SessionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-
             // Initialize TextView title
             val title: TextView = view.tv_session_title
             val button: FloatingActionButton = view.fab

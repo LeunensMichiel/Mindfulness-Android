@@ -76,7 +76,15 @@ object Model {
         var _id: String,
         var name: String,
         var sessionmap_id: String,
-        var sessionmap: Sessionmap? = null
+        var sessionmap: Sessionmap? = null,
+        var notifications: Array<Notification>?
+    )
+
+    data class Notification(
+        var _id: String,
+        var notification_title: String,
+        var notification_beschrijving: String,
+        var notification_launchtijdstip: Date
     )
 
     data class Login(

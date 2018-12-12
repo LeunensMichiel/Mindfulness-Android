@@ -193,8 +193,6 @@ class LoginFragment : Fragment() {
 
     private fun successfulLogin(user: Model.User) {
         if (mMindfullDB.addUser(user)) toast("User added to local db") else toast("User not added to local db")
-        Log.i("DATABASE AFTER LOGIN", "${mMindfullDB.getUser()}")
-        Log.i("USERCHECK AFTER LOGIN", "$user")
         showProgress(false)
         activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
         .edit()
@@ -217,7 +215,6 @@ class LoginFragment : Fragment() {
         // TODO geef hier later een betere foutmelding op mss niet speciefiek op password
         login_password.error = getString(R.string.error_incorrect_password)
         login_password.requestFocus()
-        Log.d("logintje", error)
         showProgress(false)
     }
 

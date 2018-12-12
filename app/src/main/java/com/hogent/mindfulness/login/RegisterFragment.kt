@@ -15,11 +15,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
+import android.widget.Toast
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.data.UserApiService
 import com.hogent.mindfulness.domain.Model
+import com.hogent.mindfulness.scanner.ScannerActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -52,11 +54,43 @@ class RegisterFragment : Fragment() {
 
         btn_register.setOnClickListener { attemptLogin() }
 
+        scanCode.setOnClickListener { view ->
+            val intent = Intent(activity, ScannerActivity::class.java)
+            intent.putExtra("returnActivity", 1)
+            startActivity(intent)
+            activity!!.finish()
+        }
+
         btnBackToLogin.setOnClickListener {
             val loginCallback = activity as LoginFragmentCallBack
             loginCallback.onClickGoBackToLogin()
         }
+
+        if(activity!!.intent.hasExtra("code")) {
+            edit_group_code.setText(activity!!.intent.getStringExtra("code"))
+        }
     }
+
+//    override fun onSaveInstanceState(outState: Bundle) {
+//        super.onSaveInstanceState(outState)
+//
+//        outState.putString("email", email.text.toString())
+//        outState.putString("password", edit_register_password.text.toString())
+//        outState.putString("repPassword", edit_register_repeat_password.text.toString())
+//        outState.putString("groupCode", edit_group_code.text.toString())
+//        Toast.makeText(activity, "email: "+outState.getString("email"), Toast.LENGTH_SHORT)
+//    }
+
+//    override fun onActivityCreated(savedInstanceState: Bundle?) {
+//        super.onActivityCreated(savedInstanceState)
+//
+//        if(savedInstanceState != null) {
+//
+//            email.setText(savedInstanceState.getString("email"))
+//            edit_register_password.setText(savedInstanceState.getString("password"))
+//            edit_register_repeat_password.setText(savedInstanceState.getString("repPassword"))
+//        }
+//    }
 
     private fun attemptLogin() {
 //        if (mAuthTask != null) {
@@ -80,8 +114,6 @@ class RegisterFragment : Fragment() {
             edit_register_repeat_password.error = getString(R.string.error_field_required)
             focusView = edit_register_repeat_password
             cancel = true
-
-            Log.d("logintest", passwordStr)
         }
 
         // Check for a valid email address.
@@ -99,7 +131,6 @@ class RegisterFragment : Fragment() {
             edit_group_code.error = getString(R.string.error_field_required)
             focusView = edit_group_code
             cancel = true
-
         }
 
         if (cancel) {
