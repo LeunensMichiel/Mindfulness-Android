@@ -1,5 +1,6 @@
 package com.hogent.mindfulness.settings
 
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Bundle
 import android.preference.SwitchPreference
@@ -7,20 +8,26 @@ import android.support.v4.app.DialogFragment
 import com.hogent.mindfulness.R
 import android.support.v7.preference.Preference
 import android.support.v7.preference.PreferenceFragmentCompat
+import android.view.MenuItem
+import android.view.View
 import android.widget.ListView
 import com.hogent.mindfulness.BuildConfig
+import com.hogent.mindfulness.domain.Model
+import com.hogent.mindfulness.domain.ViewModels.UserViewModel
 
 
 // I used this article https://medium.com/@eydryan/scheduling-notifications-on-android-with-workmanager-6d84b7f64613
 // https://medium.com/mindorks/android-scheduling-background-services-a-developers-nightmare-c573807c2705
 class SettingsFragment : PreferenceFragmentCompat() {
+    private lateinit var userView: UserViewModel
+    private lateinit var dbUser: Model.User
+
 
     interface OnPreferenceClickforFragment {
         fun onPreferenceClick(fragmentType: FragmentType)
     }
 
     var clicker: OnPreferenceClickforFragment? = null
-
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
@@ -30,9 +37,21 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        val id = item?.itemId
+        when (id) {
+            R.id.home -> fragmentManager?.popBackStack()
+        }
+        return super.onOptionsItemSelected(item)
+    }
 
     override fun onCreatePreferences(bundle: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.pref_main)
+
+        userView = activity?.run {
+            ViewModelProviders.of(this).get(UserViewModel::class.java)
+        }?: throw Exception("Invalid activity.")
+        dbUser = userView.dbUser.value!!
 
         val sharedPref =
             context!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
@@ -43,13 +62,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
         //Voor de huidige switches enzo in te stellen op de huidige waaren en de changelisteners als er iets moet gebeuren on change van die items
         val wantsFeedbackPreference =
             findPreference(getString(R.string.pref_feedback)) as android.support.v14.preference.SwitchPreference
-        val feedback = sharedPref.getBoolean(getString(R.string.wantsFeedback), true)
-        wantsFeedbackPreference.isChecked = feedback
-
+        wantsFeedbackPreference.isChecked = dbUser.feedbackSubscribed
         wantsFeedbackPreference.setOnPreferenceChangeListener { preference, value ->
             wantsFeedbackPreference.isChecked = value as Boolean
-            sharedPref.edit().putBoolean(getString(R.string.wantsFeedback), value).apply()
-            //TODO - User moet hier veranderd worden
+            dbUser.feedbackSubscribed = value
+            userView.updateFeedback(value)
             true
         }
     }

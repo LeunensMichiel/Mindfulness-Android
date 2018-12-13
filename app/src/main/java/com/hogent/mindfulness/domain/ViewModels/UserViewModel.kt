@@ -59,8 +59,20 @@ class UserViewModel : InjectedViewModel() {
 
     }
 
+    fun updateUserGroep(group: String) {
+        val groupuser = Model.user_group(group)
+        subscription = userApi.updateUserGroup(userRepo.user.value!!._id!!, groupuser)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> Log.d("USERGROUP_RESULT", "$result") },
+                { error -> Log.d("USERGROUP_ERROR", "$error") }
+            )
+    }
+
     fun updateFeedback(feedback: Boolean){
         userRepo.user.value?.feedbackSubscribed = feedback
+        dbUser.value?.feedbackSubscribed = feedback
         subscription = userApi.updateUserFeedback(userRepo.user.value!!)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
