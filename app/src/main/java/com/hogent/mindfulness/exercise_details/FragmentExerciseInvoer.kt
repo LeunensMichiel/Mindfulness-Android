@@ -168,6 +168,7 @@ class FragmentExerciseInvoer : Fragment() {
             fos.write(bos.toByteArray())
             fos.flush()
             fos.close()
+            pageView.updatePostImage(file, position, page, text_edit.text.toString(), post)
         } else {
             Toast.makeText(activity, "Geen foto genomen", Toast.LENGTH_SHORT).show()
         }

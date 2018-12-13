@@ -243,7 +243,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
     //This function replqces the register fragment back with the login fragment
     fun toLogin(v: View) {
         supportFragmentManager.beginTransaction()
-            .replace(R.id.session_container, loginFragment)
+            .replace(R.id.session_container, LoginFragment())
             .commit()
     }
 

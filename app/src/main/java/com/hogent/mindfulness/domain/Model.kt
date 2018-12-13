@@ -145,7 +145,7 @@ object Model {
     )
 
     data class errorMessage(
-        var data:String = "none",
+        var data:String? = "none",
         var error:String = "none"
     )
 

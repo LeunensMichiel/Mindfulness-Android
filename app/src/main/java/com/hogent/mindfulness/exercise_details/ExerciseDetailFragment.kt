@@ -31,6 +31,7 @@ class ExerciseDetailFragment(): Fragment(){
     lateinit var exerciseId:String
     lateinit var manager: FragmentManager
     private lateinit var pageView:PageViewModel
+    private var pagesLock = false
 
     /**
      * we halen eerst de exercise op en dan inflaten we de layout
@@ -51,8 +52,10 @@ class ExerciseDetailFragment(): Fragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         pageView.pages.observe(this, Observer {
-            if (it != null)
-                initializePages(it)
+            if (it != null && !pagesLock) {
+                initializePages(it!!)
+                pagesLock = true
+            }
         })
     }
 

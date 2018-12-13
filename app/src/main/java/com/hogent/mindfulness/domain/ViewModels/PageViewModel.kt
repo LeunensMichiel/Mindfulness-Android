@@ -1,6 +1,7 @@
 package com.hogent.mindfulness.domain.ViewModels
 
 import android.arch.lifecycle.MutableLiveData
+import android.content.ContentResolver
 import android.graphics.BitmapFactory
 import android.media.MediaPlayer
 import android.util.Log
@@ -13,6 +14,9 @@ import com.hogent.mindfulness.domain.Model
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import java.io.File
 import java.io.FileInputStream
@@ -175,20 +179,28 @@ class PageViewModel:InjectedViewModel() {
     }
 
     fun updatePostImage(file:File, position: Int, page:Model.Page, description:String, newPost:Model.Post):Model.Post {
-        var currentPost = Model.Post()
+        val currentPost = Model.Post()
         currentPost.page_id = page._id
         currentPost.page_name = page.title
         currentPost.inhoud = description
         currentPost.user_id = userRepo.user.value?._id
         currentPost._id = newPost._id
+        currentPost._id = "none"
+        pageError.postValue(Model.errorMessage())
+        val reqFile = RequestBody.create(
+            MediaType.parse("image/png"),
+            file
+        )
+        Log.d("POST_IMAGE", "$reqFile")
+        val body = MultipartBody.Part.createFormData("file",file.name + ".png", reqFile)
         if (currentPost._id == "none" || currentPost._id == null){
             currentPost._id = null
-            subscription = postService.addPost(currentPost)
+            subscription = postService.addImagePost( currentPost,body)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                    { result ->  onPostSaveResult(position, result) },
-                    { error ->  pageError.value?.error = "Input niet opgeslagen." }
+                    { result ->  Log.d("POST_IMAGE", "$result") },
+                    { error ->  pageError.postValue(Model.errorMessage("" , "Input niet opgeslagen.")) }
                 )
         } else {
             subscription = postService.changePost(currentPost)

@@ -10,7 +10,7 @@ import com.hogent.mindfulness.data.LocalDatabase.converter.StringArrayListConver
 import com.hogent.mindfulness.data.LocalDatabase.dao.UserDao
 import com.hogent.mindfulness.domain.Model
 
-@Database(entities = [Model.User::class], version = 3)
+@Database(entities = [Model.User::class], version = 4)
 @TypeConverters(StringArrayListConverter::class, GroupConverter::class)
 abstract class MindfullDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
