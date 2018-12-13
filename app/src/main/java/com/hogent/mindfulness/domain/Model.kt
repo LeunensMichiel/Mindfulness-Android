@@ -6,11 +6,7 @@ import android.arch.persistence.room.PrimaryKey
 import android.graphics.Bitmap
 import android.media.MediaPlayer
 import com.google.gson.annotations.SerializedName
-import io.reactivex.annotations.NonNull
 import java.util.*
-import com.google.gson.annotations.Expose
-
-
 
 
 object Model {
@@ -86,7 +82,8 @@ object Model {
 //        @ColumnInfo(name = "token")
         var token: String?,
         var post_ids: ArrayList<String> = arrayListOf(),
-        var feedbackSubscribed: Boolean = false
+        var feedbackSubscribed: Boolean = false,
+        var image_file_name: String? = null
     ) {
         constructor():this(
             null,
@@ -99,7 +96,10 @@ object Model {
             null,
             arrayListOf(),
             null,
-            null, arrayListOf(), false)
+            null, arrayListOf(),
+            false,
+            null
+            )
         @PrimaryKey(autoGenerate = true)
         var db_id: Int = 0
     }

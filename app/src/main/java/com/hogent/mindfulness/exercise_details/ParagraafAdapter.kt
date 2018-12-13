@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.R.drawable.*
+import com.hogent.mindfulness.R.drawable.tweedetestfoto
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.exercise_details.ParagraafAdapter.ParagraafViewHolder
 import kotlinx.android.synthetic.main.paragraaf_list_item.view.*

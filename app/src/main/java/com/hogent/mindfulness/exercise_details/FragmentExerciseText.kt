@@ -13,7 +13,6 @@ import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.PageViewModel
 import kotlinx.android.synthetic.main.recyclerview_paragrafen.*
-import java.lang.Exception
 
 
 /**

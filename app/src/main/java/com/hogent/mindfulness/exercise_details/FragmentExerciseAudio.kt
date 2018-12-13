@@ -4,38 +4,28 @@ import android.annotation.SuppressLint
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
-import android.widget.Toast
-import kotlinx.android.synthetic.main.fragment_fragment_oefeningaudio.*
-import android.content.res.Configuration
-import android.util.Log
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.data.FIleApiService
 import com.hogent.mindfulness.data.ServiceGenerator
-import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.PageViewModel
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
-import okhttp3.ResponseBody
-import org.jetbrains.anko.support.v4.toast
+import kotlinx.android.synthetic.main.fragment_fragment_oefeningaudio.*
 import java.io.File
-import java.io.IOException
-import java.util.*
-import io.reactivex.Observable
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.lang.Exception
 
 /**
  * Deze klasse is een Fragment die verantwoordelijk is voor de audiopagina van de oefening

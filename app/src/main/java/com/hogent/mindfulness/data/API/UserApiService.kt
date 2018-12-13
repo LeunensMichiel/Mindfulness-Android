@@ -36,4 +36,7 @@ interface UserApiService {
     //Updates a USER so its feedback field is true or false
     @PUT("/API/users/user/feedback")
     fun updateUserFeedback(@Body wantsFeedback : Model.User) : Observable<Model.Result>
+
+    @PUT("/API/users/user{id}/image")
+    fun updateUserProfilePicture(@Path("id") id: String, @Body user: Model.User) : Observable<Model.User>
 }

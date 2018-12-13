@@ -19,7 +19,6 @@ import com.hogent.mindfulness.domain.ViewModels.PostViewModel
 import kotlinx.android.synthetic.main.fragment_post.*
 import kotlinx.android.synthetic.main.post_view.view.*
 import org.jetbrains.anko.imageBitmap
-import java.lang.Exception
 
 /**
  * A simple [Fragment] subclass.

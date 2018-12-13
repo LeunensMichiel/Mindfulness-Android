@@ -13,7 +13,6 @@ import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.PageViewModel
 import kotlinx.android.synthetic.main.oefening_details_fragment.*
-import java.lang.Exception
 
 /**
  * Dit is de fragment die verantwoordelijk is om de pages van de oefening te tonen

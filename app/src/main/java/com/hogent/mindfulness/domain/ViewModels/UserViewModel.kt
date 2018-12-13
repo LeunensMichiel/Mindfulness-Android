@@ -3,8 +3,8 @@ package com.hogent.mindfulness.domain.ViewModels
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.util.Log
-import com.hogent.mindfulness.data.LocalDatabase.repository.UserRepository
 import com.hogent.mindfulness.data.API.UserApiService
+import com.hogent.mindfulness.data.LocalDatabase.repository.UserRepository
 import com.hogent.mindfulness.domain.InjectedViewModel
 import com.hogent.mindfulness.domain.Model
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -102,14 +102,37 @@ class UserViewModel : InjectedViewModel() {
             )
     }
 
-    fun updateFeedback(){
-        userRepo.user.value?.feedbackSubscribed = false
+    fun updateUserGroep(group: String) {
+        val groupuser = Model.user_group(group)
+        subscription = userApi.updateUserGroup(userRepo.user.value!!._id!!, groupuser)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> Log.d("USERGROUP_RESULT", "$result") },
+                { error -> Log.d("USERGROUP_ERROR", "$error") }
+            )
+    }
+
+    fun updateFeedback(feedback: Boolean){
+        userRepo.user.value?.feedbackSubscribed = feedback
+        dbUser.value?.feedbackSubscribed = feedback
         subscription = userApi.updateUserFeedback(userRepo.user.value!!)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { result -> Log.d("FEEDBACK_RESULT", "$result") },
                 { error -> Log.d("FEEDBACK_ERROR", "$error") }
+            )
+    }
+
+    fun updateProfilePicture(imageFileName : String) {
+        userRepo.user.value?.image_file_name = imageFileName
+        subscription = userApi.updateUserProfilePicture(userRepo.user.value!!._id!!, userRepo.user.value!!)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> Log.d("PROFILE_PICTURE_RESULT", "$result") },
+                { error -> Log.d("PROFILE_PICTURE_ERROR", "$error") }
             )
     }
 

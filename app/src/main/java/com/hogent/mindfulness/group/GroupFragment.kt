@@ -1,12 +1,16 @@
 package com.hogent.mindfulness.group
 
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.UserViewModel
@@ -18,6 +22,11 @@ import java.lang.Exception
 class GroupFragment() : Fragment() {
 
     private lateinit var userViewModel: UserViewModel
+
+    /*private lateinit var userView: UserViewModel
+    private lateinit var dbUser: Model.User
+    private lateinit var txfield : EditText*/
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -33,7 +42,13 @@ class GroupFragment() : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        groepscodeScanner.setText("5bf730b27a76ee0b049432a6")
+        /*groepscodeScanner.setText("5bf730b27a76ee0b049432a6")
+        userView = activity?.run {
+            ViewModelProviders.of(this).get(UserViewModel::class.java)
+        }?: throw Exception("Invalid activity.")
+        dbUser = userView.dbUser.value!!
+
+        txfield = groepscodeScanner*/
 
         val photoBtn = fragment_GroupBtn
         photoBtn.setOnClickListener {
@@ -41,9 +56,22 @@ class GroupFragment() : Fragment() {
             startActivity(intent)
         }
 
-        groepscanners_BtnConfirm.onClick {
+        /*groepscanners_BtnConfirm.onClick {
             userViewModel.addGroup(Model.user_group(groepscodeScanner.text.toString()))
         }
+        val saveBtn = groepscanners_BtnConfirm
+        saveBtn.setOnClickListener {v ->
+            if (txfield.text.isNotEmpty()) {
+                userView.updateUserGroep(txfield.text.toString())
+            }
+        }*/
     }
+
+    /*override fun onResume() {
+        super.onResume()
+            val sharedPreferences = activity?.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+            val id = sharedPreferences?.getString(getString(R.string.userGroupId), "def")
+            txfield.setText(id)
+    }*/
 
 }

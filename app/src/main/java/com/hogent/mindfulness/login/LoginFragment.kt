@@ -17,12 +17,9 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.UserViewModel
-import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.fragment_login.*
-import java.lang.Exception
 
 class LoginFragment : Fragment() {
     private lateinit var userViewModel: UserViewModel

@@ -2,7 +2,6 @@ package com.hogent.mindfulness.domain.ViewModels
 
 import android.arch.lifecycle.MutableLiveData
 import android.graphics.BitmapFactory
-import android.util.Log
 import com.hogent.mindfulness.data.FIleApiService
 import com.hogent.mindfulness.data.LocalDatabase.repository.UserRepository
 import com.hogent.mindfulness.data.PostApiService

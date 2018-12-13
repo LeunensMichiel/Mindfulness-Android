@@ -1,6 +1,7 @@
 package com.hogent.mindfulness.scanner
 
 import android.Manifest.permission.CAMERA
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -15,6 +16,7 @@ import android.util.Log
 import android.widget.Toast
 import com.google.zxing.Result
 import com.hogent.mindfulness.MainActivity
+import com.hogent.mindfulness.R
 import me.dm7.barcodescanner.zxing.ZXingScannerView
 
 
@@ -141,9 +143,14 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler{
 //        val alert1 = builder.create()
 //        alert1.show()
         code = result.text
-        val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("code", code)
-        startActivity(intent)
+        //Om terug te keren naar settingsFragment
+
+//        val intent = Intent(this, MainActivity::class.java)
+//        intent.putExtra("code", code)
+//        startActivity(intent)
+        val sharedPref = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+        sharedPref.edit().putString(getString(R.string.userGroupId), code).apply()
+        finish()
     }
 
 }
