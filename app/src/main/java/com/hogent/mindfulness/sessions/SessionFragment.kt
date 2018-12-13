@@ -154,8 +154,7 @@ class SessionFragment : Fragment() {
         private var mSessionData: Array<Model.Session>
         private var user:Model.User
 
-        val lastUnlockedSession = context.getSharedPreferences(context.getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-            .getString(context.getString(R.string.lastUnlockedSession), null)
+        val sharedpref = context.getSharedPreferences(context.getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
 
         init {
             mSessionData = arrayOf()
@@ -193,8 +192,7 @@ class SessionFragment : Fragment() {
                 stateView.viewState?.value = "EXERCISE_VIEW"
             }
 
-            //De sessies die unlocked zijn
-            if (currentSession.unlocked) {
+            if (mSessionData[position].unlocked) { // De SESSIONS ZIJN UNLOCKED
                 holder.title.visibility = View.VISIBLE
                 holder.lock.visibility = View.INVISIBLE
                 holder.button.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#bedacd"))
@@ -205,11 +203,18 @@ class SessionFragment : Fragment() {
                     stateView.dialogState?.value = "FEEDBACK_DIALOG"
                     return@setOnLongClickListener true
                 }
-
-                //Controleren of het de laatste unclocked session is
-                if (user.unlocked_sessions.lastIndex  > user.unlocked_sessions.indexOf(lastUnlockedSession)) {
-                    // Als de animatie nog niet begonnen is
-                    if(holder.progressAnimation.progress == 0f){
+                if (mSessionData[position]._id == user.unlocked_sessions.last()) { // We gaan in de if clause als we het hebben over de laatste unlockte sessie
+                    if (sharedpref.getString(context.getString(R.string.lastUnlockedSession), null) == "unlocked" + position.toString()) { //We gaan nakijken of de animatie ooit al eens is afgespeeld door te kijken in de sharedpref
+                        //Instellen op reeds afgespeeld
+                        holder.progressAnimation.frame = 50
+                        holder.progressAnimation.addValueCallback(KeyPath("**"), LottieProperty.COLOR) {
+                            Color.parseColor("#f9a825")
+                        }
+                        holder.glowing_orbAnimation.addValueCallback(KeyPath("**"), LottieProperty.COLOR) {
+                            Color.parseColor("#f9a825")
+                        }
+                    } else {
+                        //Animatie spelen en dan in de sharedprefs zeggen dat hij al is afgespeeld
                         holder.progressAnimation.setMaxFrame(50)
                         holder.progressAnimation.playAnimation()
 
@@ -227,19 +232,11 @@ class SessionFragment : Fragment() {
                                     Color.parseColor("#f9a825")
                                 }
                                 sessionAdapterOnUnlockSession.showMonsterDialog()
-                                context.getSharedPreferences(context.getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-                                    .edit()
-                                    .putString(context.getString(R.string.lastUnlockedSession), user.current_session_id)
-                                    .apply()
                             }
                         })
-                    }else{
-                        // Als de animatie wel al begonnen was
-                        holder.progressAnimation.frame = 50
-                        holder.progressAnimation.cancelAnimation()
+                        sharedpref.edit().putString(context.getString(R.string.lastUnlockedSession), "unlocked" + position.toString()).apply()
                     }
-                //Het zijn de vorige Unlocked Sessions
-                } else {
+                } else { //De overige unlocked sessions
                     holder.progressAnimation.frame = 50
                     holder.progressAnimation.addValueCallback(KeyPath("**"), LottieProperty.COLOR) {
                         Color.parseColor("#f9a825")
@@ -248,9 +245,8 @@ class SessionFragment : Fragment() {
                         Color.parseColor("#f9a825")
                     }
                 }
-            }
-            else // de sessies die gelocked zijn
-            {
+
+            } else {       //DE SESSIONS ZIJN GELOCKED
                 holder.title.visibility = View.INVISIBLE
                 holder.lock.visibility = View.VISIBLE
                 holder.button.isClickable = false
@@ -271,7 +267,6 @@ class SessionFragment : Fragment() {
                 holder.glowing_orbAnimation.addValueCallback(KeyPath("**"), LottieProperty.COLOR) {
                    Color.parseColor("#BDBDBD")
                 }
-
             }
         }
 
