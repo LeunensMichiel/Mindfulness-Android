@@ -30,6 +30,9 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_fragment_oefeningaudio.*
 import kotlinx.android.synthetic.main.fragment_fragment_oefeninginvoer.*
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 import java.lang.Exception
 import kotlin.properties.Delegates
 
@@ -156,7 +159,15 @@ class FragmentExerciseInvoer : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
         if (RESULT_OK == resultCode) {
             var bitmap: Bitmap = data!!.extras.get("data") as Bitmap
+            var file = File(context?.cacheDir, "temp")
+            var bos = ByteArrayOutputStream()
             imageView.setImageBitmap(bitmap)
+            file.createNewFile()
+            bitmap.compress(Bitmap.CompressFormat.PNG, 0, bos)
+            var fos = FileOutputStream(file)
+            fos.write(bos.toByteArray())
+            fos.flush()
+            fos.close()
         } else {
             Toast.makeText(activity, "Geen foto genomen", Toast.LENGTH_SHORT).show()
         }

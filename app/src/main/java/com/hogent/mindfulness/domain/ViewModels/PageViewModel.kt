@@ -174,4 +174,32 @@ class PageViewModel:InjectedViewModel() {
         Log.d("PAGE_VIEW", "REPEAT_3")
         pageError.value?.error = "Input opgeslagen."
     }
+
+    fun updatePostImage(file:File, position: Int, page:Model.Page, description:String, newPost:Model.Post):Model.Post {
+        var currentPost = Model.Post()
+        currentPost.page_id = page._id
+        currentPost.page_name = page.title
+        currentPost.inhoud = description
+        currentPost.user_id = userRepo.user.value?._id
+        currentPost._id = newPost._id
+        if (currentPost._id == "none" || currentPost._id == null){
+            currentPost._id = null
+            subscription = postService.addPost(currentPost)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    { result ->  onPostSaveResult(position, result) },
+                    { error ->  pageError.value?.error = "Input niet opgeslagen." }
+                )
+        } else {
+            subscription = postService.changePost(currentPost)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    { result -> Log.i("oldPost", "$result") },
+                    { error -> pageError.value?.error = "Input niet opgeslagen." }
+                )
+        }
+        return currentPost
+    }
 }
