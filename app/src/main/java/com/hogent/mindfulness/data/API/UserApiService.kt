@@ -27,8 +27,8 @@ interface UserApiService {
     /**
      * registers a user in a group with a code (code == group_id)
      */
-    @PUT("/users/user{id}")
-    fun updateUserGroup(@Path("id") id: String, @Body usergroup: Model.user_group) : Observable<Model.Result>
+    @PUT("/API/users/user/{id}")
+    fun updateUserGroup(@Path("id") id: String, @Body usergroup: Model.user_group) : Observable<Model.Group>
 
     @GET("/API/users/group/{id}")
     fun getUserGroup(@Path("id") id:String?):Observable<Model.Group>
@@ -36,4 +36,7 @@ interface UserApiService {
     //Updates a USER so its feedback field is true or false
     @PUT("/API/users/user/feedback")
     fun updateUserFeedback(@Body wantsFeedback : Model.User) : Observable<Model.Result>
+
+    @PUT("/API/users/user{id}/image")
+    fun updateUserProfilePicture(@Path("id") id: String, @Body user: Model.User) : Observable<Model.User>
 }

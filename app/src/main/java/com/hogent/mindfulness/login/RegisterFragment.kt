@@ -3,6 +3,8 @@ package com.hogent.mindfulness.login
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.TargetApi
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -21,23 +23,47 @@ import com.hogent.mindfulness.R
 import com.hogent.mindfulness.data.API.UserApiService
 import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.domain.Model
+import com.hogent.mindfulness.domain.ViewModels.UserViewModel
 import com.hogent.mindfulness.scanner.ScannerActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_register.*
+import java.lang.Exception
 
 
 class RegisterFragment : Fragment() {
 
     private lateinit var disposable: Disposable
-
+    private lateinit var userView:UserViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
+        userView = activity?.run {
+            ViewModelProviders.of(this).get(UserViewModel::class.java)
+        }?: throw Exception("Invalid activity.")
+
+        userView.uiMessage.observe(this, android.arch.lifecycle.Observer {
+            when(it!!.data) {
+                "register_start_progress" -> showProgress(true)
+                "register_end_progress" -> showProgress(false)
+            }
+        })
+
+        userView.rawUser.observe(this, Observer {
+            if (it != null){
+                activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+                    .edit()
+                    .putString(getString(R.string.authTokenKey), it.token)
+                    .putString(getString(R.string.userIdKey), it._id)
+                    .putString(getString(R.string.lastUnlockedSession), it.current_session_id)
+                    .putBoolean(getString(R.string.wantsFeedback), it.feedbackSubscribed)
+                    .apply()
+            }
+        })
+
         return inflater.inflate(R.layout.fragment_register, container, false)
     }
 
@@ -46,7 +72,7 @@ class RegisterFragment : Fragment() {
 
         edit_register_repeat_password.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
             if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                attemptLogin()
+                attemptRegister()
                 return@OnEditorActionListener true
             }
             false
@@ -57,26 +83,10 @@ class RegisterFragment : Fragment() {
             startActivity(intent)
         }
 
-        btn_register.setOnClickListener { attemptLogin() }
-
-        scanCode.setOnClickListener { view ->
-            val intent = Intent(activity, ScannerActivity::class.java)
-            intent.putExtra("returnActivity", 1)
-            startActivity(intent)
-            activity!!.finish()
-        }
-
-        btnBackToLogin.setOnClickListener {
-            val loginCallback = activity as LoginFragmentCallBack
-            loginCallback.onClickGoBackToLogin()
-        }
-
-        if(activity!!.intent.hasExtra("code")) {
-            edit_group_code.setText(activity!!.intent.getStringExtra("code"))
-        }
+        btn_register.setOnClickListener { attemptRegister() }
     }
 
-//    override fun onSaveInstanceState(outState: Bundle) {
+    //    override fun onSaveInstanceState(outState: Bundle) {
 //        super.onSaveInstanceState(outState)
 //
 //        outState.putString("email", email.text.toString())
@@ -97,19 +107,18 @@ class RegisterFragment : Fragment() {
 //        }
 //    }
 
-    private fun attemptLogin() {
+    private fun attemptRegister() {
 //        if (mAuthTask != null) {
 //            return
 //        }
 
         // Reset errors.
-        email.error = null
+        register_email.error = null
         edit_register_repeat_password.error = null
         edit_group_code.error = null
         // Store values at the time of the login attempt.
-        val emailStr = email.text.toString()
+        val emailStr = register_email.text.toString()
         val passwordStr = edit_register_repeat_password.text.toString()
-        val groupcodeStr = edit_group_code.text.toString()
 
         var cancel = false
         var focusView: View? = null
@@ -123,18 +132,12 @@ class RegisterFragment : Fragment() {
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(emailStr)) {
-            email.error = getString(R.string.error_field_required)
-            focusView = email
+            register_email.error = getString(R.string.error_field_required)
+            focusView = register_email
             cancel = true
         } else if (!isEmailValid(emailStr)) {
-            email.error = getString(R.string.error_invalid_email)
-            focusView = email
-            cancel = true
-        }
-
-        if (TextUtils.isEmpty(groupcodeStr)) {
-            edit_group_code.error = getString(R.string.error_field_required)
-            focusView = edit_group_code
+            register_email.error = getString(R.string.error_invalid_email)
+            focusView = register_email
             cancel = true
         }
 
@@ -145,8 +148,8 @@ class RegisterFragment : Fragment() {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            val registerDetails = Model.Register(emailStr, passwordStr, groupcodeStr)
-            startRegistrationCall(registerDetails)
+            val registerDetails = Model.Register(emailStr, passwordStr)
+            userView.register(registerDetails)
         }
 
 
@@ -212,13 +215,13 @@ class RegisterFragment : Fragment() {
                     }
                 })
 
-            login_progress.visibility = if (show) View.VISIBLE else View.GONE
-            login_progress.animate()
+            register_progress.visibility = if (show) View.VISIBLE else View.GONE
+            register_progress.animate()
                 .setDuration(shortAnimTime)
                 .alpha((if (show) 1 else 0).toFloat())
                 .setListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationEnd(animation: Animator) {
-                        login_progress.visibility = if (show) View.VISIBLE else View.GONE
+                        register_progress.visibility = if (show) View.VISIBLE else View.GONE
                     }
                 })
         }

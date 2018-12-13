@@ -1,6 +1,7 @@
 package com.hogent.mindfulness.scanner
 
 import android.Manifest.permission.CAMERA
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -15,7 +16,7 @@ import android.util.Log
 import android.widget.Toast
 import com.google.zxing.Result
 import com.hogent.mindfulness.MainActivity
-import com.hogent.mindfulness.login.LoginActivity
+import com.hogent.mindfulness.R
 import me.dm7.barcodescanner.zxing.ZXingScannerView
 
 
@@ -124,32 +125,11 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler{
     }
 
     override fun handleResult(result: Result) {
-//        code = result.text
-//        Log.d("QRCodeScanner", result.text)
-//        Log.d("QRCodeScanner", result.barcodeFormat.toString())
-//
-//        val builder = AlertDialog.Builder(this)
-//        builder.setTitle("Scan Result")
-//        builder.setPositiveButton(
-//            "Unlock"
-//        ) { dialog, which ->
-//            val intent = Intent(this, MainActivity::class.java)
-//            intent.putExtra("code", code)
-//            startActivity(intent)}
-////        builder.setNeutralButton("Visit") { dialog, which ->
-////            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(myResult))
-////            startActivity(browserIntent)
-////        }
-//        builder.setMessage(result.text)
-//        val alert1 = builder.create()
-//        alert1.show()
         code = result.text
+        //Om terug te keren naar settingsFragment
         var intent = Intent(this, MainActivity::class.java)
-        /*
-            0: MainActivity
-            1: LoginActivity
-            2: MainActivity GroupFragment
-         */
+
+
         when(returnActivity) {
             1 -> {
                 intent = Intent(this, LoginActivity::class.java)
@@ -160,8 +140,10 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler{
             }
         }
 
-        intent.putExtra("code", code)
+//        intent.putExtra("code", code)
         startActivity(intent)
+        val sharedPref = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+        sharedPref.edit().putString(getString(R.string.userGroupId), code).apply()
         finish()
     }
 }

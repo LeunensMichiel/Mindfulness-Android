@@ -4,6 +4,7 @@ package com.hogent.mindfulness.exercise_details
 import android.app.Activity.RESULT_OK
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -16,14 +17,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import kotlinx.android.synthetic.main.fragment_fragment_oefeninginvoer.*
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.data.PostApiService
+import com.hogent.mindfulness.data.PostInformation
 import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.PageViewModel
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.fragment_fragment_oefeningaudio.*
 import kotlinx.android.synthetic.main.fragment_fragment_oefeninginvoer.*
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.lang.Exception
+import kotlin.properties.Delegates
 
 
 /**
@@ -148,7 +159,15 @@ class FragmentExerciseInvoer : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
         if (RESULT_OK == resultCode) {
             var bitmap: Bitmap = data!!.extras.get("data") as Bitmap
+            var file = File(context?.cacheDir, "temp")
+            var bos = ByteArrayOutputStream()
             imageView.setImageBitmap(bitmap)
+            file.createNewFile()
+            bitmap.compress(Bitmap.CompressFormat.PNG, 0, bos)
+            var fos = FileOutputStream(file)
+            fos.write(bos.toByteArray())
+            fos.flush()
+            fos.close()
         } else {
             Toast.makeText(activity, "Geen foto genomen", Toast.LENGTH_SHORT).show()
         }

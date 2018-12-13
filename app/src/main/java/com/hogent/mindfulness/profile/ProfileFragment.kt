@@ -6,7 +6,7 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
+import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
@@ -29,6 +29,7 @@ import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.android.synthetic.main.fragment_profile.*
 import kotlinx.android.synthetic.main.profile_info_item.view.*
+import org.jetbrains.anko.imageBitmap
 
 
 class ProfileFragment : Fragment() {
@@ -39,7 +40,7 @@ class ProfileFragment : Fragment() {
 
     private var icons: IntArray = intArrayOf()
     private var info: Array<String> = arrayOf()
-    lateinit var profilePicUri: Uri
+     var profilePicBitmap: Bitmap? = null
     //De circularimage, niet de effectieve profilepic URL
     lateinit var img: CircularImageView
 
@@ -134,12 +135,13 @@ class ProfileFragment : Fragment() {
             .start(context!!, this)
     }
 
+    //This changes the image visually, DONT REMOVE!! It is part of the API
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode === CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             val result = CropImage.getActivityResult(data)
             if (resultCode === RESULT_OK) {
-                this.profilePicUri = result.uri
-                img.setImageURI(profilePicUri)
+                this.profilePicBitmap = result.bitmap
+                img.imageBitmap = profilePicBitmap
 
             } else if (resultCode === CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 val error = result.error

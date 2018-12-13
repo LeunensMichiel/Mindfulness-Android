@@ -15,32 +15,23 @@ import com.hogent.mindfulness.group.GroupFragment
 
 class SettingsActivity : AppCompatActivity(), SettingsFragment.OnPreferenceClickforFragment {
 
+
     private lateinit var groupFragment: GroupFragment
     private lateinit var emailFragmentFragment: ChangeEmailSettingsFragment
     private lateinit var passwordFragment: ChangePasswordFragment
     private lateinit var EULAFragment: EULAFragment
-    private lateinit var user : Model.User
+    private lateinit var dbUser : Model.User
+    private lateinit var userView: UserViewModel
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.setContentView(R.layout.activity_settings)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        userView = ViewModelProviders.of(this).get(UserViewModel::class.java)
 
-        val model = ViewModelProviders.of(this).get(SettingsViewModel::class.java)
-        val userView = ViewModelProviders.of(this).get(UserViewModel::class.java)
-        user = userView.dbUser.value!!
-        model.loadUser(user)
-        model.user.observe(this, Observer {
-            it?.let {
-                // do some thing with the number
-                Toast.makeText(this, "haha", Toast.LENGTH_LONG)
-            }
-        })
-//
-//        model.user.value = mMindfullDB.getUser()
-//        model.user.value?.group = mMindfullDB.getGroup()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val preferenceFragment = SettingsFragment()
         supportFragmentManager.beginTransaction().add(R.id.pref_container, preferenceFragment).commit()

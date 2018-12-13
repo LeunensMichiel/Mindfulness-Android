@@ -10,6 +10,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.support.design.widget.BottomNavigationView
+import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -38,12 +39,14 @@ import com.hogent.mindfulness.services.PeriodicNotificationJob
 import com.hogent.mindfulness.sessions.FullscreenDialogWithAnimation
 import com.hogent.mindfulness.sessions.SessionFragment
 import com.hogent.mindfulness.sessions.SessionFragment.SessionAdapter.SessionAdapterOnUnlockSession
-import com.hogent.mindfulness.settings.SettingsActivity
+import com.hogent.mindfulness.settings.*
+import com.hogent.mindfulness.settings.SettingsFragment.OnPreferenceClickforFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.feedback_popup.*
+import kotlinx.android.synthetic.main.feedback_popup.view.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.toast
 import java.util.*
@@ -58,33 +61,32 @@ import java.util.*
 
 
 
-class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
-
+class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPreferenceClickforFragment {
     //initializing attributes
     private val mMindfullDB by lazy {
-        MindfulnessDBHelper(this@MainActivity )
-    }
-
-    private val postService by lazy {
-        ServiceGenerator.createService(PostApiService::class.java, this@MainActivity)
+        MindfulnessDBHelper(this@MainActivity)
     }
 
     private lateinit var disposable: Disposable
-    lateinit var loginFragment : LoginFragment
+    lateinit var loginFragment: LoginFragment
     private lateinit var sessionFragment: SessionFragment
     private lateinit var groupFragment: GroupFragment
     private lateinit var exerciseFragment: ExercisesListFragment
     private lateinit var postFragment: PostFragment
     private lateinit var profileFragment: ProfileFragment
     private lateinit var exerciseDetailFragment: ExerciseDetailFragment
-    private lateinit var feedbackDialog:Dialog
-    private lateinit var fullscreenMonsterDialog : FullscreenDialogWithAnimation
+    private lateinit var emailFragmentFragment: ChangeEmailSettingsFragment
+    private lateinit var passwordFragment: ChangePasswordFragment
+    private lateinit var EULAFragment: EULAFragment
+    private lateinit var feedbackDialog: Dialog
+    private lateinit var fullscreenMonsterDialog: FullscreenDialogWithAnimation
+    private var currentUser: Model.User? = null
     private lateinit var userView: UserViewModel
     private lateinit var sessionView: SessionViewModel
-    private lateinit var exView:ExerciseViewModel
-    private lateinit var pageView:PageViewModel
-    private lateinit var stateView:StateViewModel
-    private lateinit var postView:PostViewModel
+    private lateinit var exView: ExerciseViewModel
+    private lateinit var pageView: PageViewModel
+    private lateinit var stateView: StateViewModel
+    private lateinit var postView: PostViewModel
     private var currentPost = Model.Post()
     private var feedbackSessionID: String = ""
     /**
@@ -98,6 +100,8 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+
         navigation.visibility = View.GONE
         userView = ViewModelProviders.of(this).get(UserViewModel::class.java)
         sessionView = ViewModelProviders.of(this).get(SessionViewModel::class.java)
@@ -107,9 +111,9 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
         postView = ViewModelProviders.of(this).get(PostViewModel::class.java)
 
         stateView.viewState.observe(this, Observer {
-            when(it!!){
+            when (it!!) {
                 "EXERCISE_VIEW" -> {
-                    if (!::exerciseFragment.isInitialized){
+                    if (!::exerciseFragment.isInitialized) {
                         exerciseFragment = ExercisesListFragment()
                     }
                     exerciseFragment.session = sessionView.selectedSession.value!!
@@ -133,19 +137,24 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
         })
 
         stateView.dialogState.observe(this, Observer {
-            when(it!!) {
+            when (it!!) {
                 "FEEDBACK_DIALOG" -> {
-                    if (!::feedbackDialog.isInitialized){
+                    if (!::feedbackDialog.isInitialized) {
                         feedbackDialog = Dialog(this)
                         feedbackDialog.setContentView(R.layout.feedback_popup)
                         feedbackDialog.window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                         feedbackDialog.feedback_cancelBtn.onClick { feedbackDialog.hide() }
                         feedbackDialog.feedback_sendBtn.onClick {
-                            sessionView.saveFeedBack(Model.Feedback(Date(), feedbackDialog.feedback_description.text.toString()))
+                            sessionView.saveFeedBack(
+                                Model.Feedback(
+                                    Date(),
+                                    feedbackDialog.feedback_description.text.toString()
+                                )
+                            )
                             feedbackDialog.hide()
                         }
                         feedbackDialog.feedback_uitschrijvenBtn.onClick {
-                            userView.updateFeedback()
+                            userView.updateFeedback(false)
                             feedbackDialog.hide()
                         }
                     }
@@ -156,7 +165,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
         })
 
         userView.dbUser.observe(this, Observer<Model.User?> {
-            if (it == null){
+            if (it == null) {
                 navigation.visibility = View.GONE
                 loginFragment = LoginFragment()
                 supportFragmentManager.beginTransaction()
@@ -210,8 +219,8 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
         })
 
         sessionView.selectedSession.observe(this, Observer<Model.Session> {
-            if (it != null){
-                if (it.unlocked){
+            if (it != null) {
+                if (it.unlocked) {
                     exView.session_id = it._id
                     exView.retrieveExercises()
                     pageView.session_name = it.title
@@ -222,13 +231,13 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
         })
 
         sessionView.sessionToast.observe(this, Observer {
-            if (it != null){
+            if (it != null) {
                 toast(it).show()
             }
         })
 
         exView.selectedExercise.observe(this, Observer {
-            if (it != null){
+            if (it != null) {
                 pageView.exercise_id = it._id
                 stateView.viewState?.value = "PAGE_VIEW"
                 pageView.ex_name = it.title
@@ -236,13 +245,13 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
         })
 
         pageView.pageError.observe(this, Observer {
-            if (it != null && !it.equals(Model.errorMessage())){
+            if (it != null && !it.equals(Model.errorMessage())) {
                 toast(it.error).show()
             }
         })
 
         postView.error.observe(this, Observer {
-            if (it != null && !it.equals(Model.errorMessage())){
+            if (it != null && !it.equals(Model.errorMessage())) {
                 toast(it.error).show()
             }
         })
@@ -254,7 +263,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
     }
 
     //This function replqces the register fragment back with the login fragment
-    fun toLogin(v:View) {
+    fun toLogin(v: View) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.session_container, loginFragment)
             .commit()
@@ -263,7 +272,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
     /**
      * This function replaces the login fragment with the register fragment
      */
-    fun toRegister(v:View) {
+    fun toRegister(v: View) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.session_container, RegisterFragment())
             .commit()
@@ -293,64 +302,23 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
         return userView.dbUser.value!!.group != null
     }
 
-    fun updateUserGroup() {
-        val sharedPref =
-            getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-                .getString(getString(R.string.userIdKey), "")
-        val user_group = Model.user_group(intent.getStringExtra("code"))
-        val userService = ServiceGenerator.createService(UserApiService::class.java, this@MainActivity)
-        val group = Model.Group(intent.getStringExtra("code"), "", "", null, null)
-
-        mMindfullDB.addGroup(group)
-
-        disposable = userService.updateUserGroup(sharedPref, user_group)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { result -> showResult(result) },
-                { error -> showError(error.message) }
-            )
-    }
 
     override fun onResume() {
         super.onResume()
-
         if (intent.hasExtra("code")){
             if(intent.hasExtra("group")) {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.session_container, groupFragment)
                     .commit()
             }
-            else if (checkIfHasGroup()) {
-                updateUserGroup()
+            else if (userView.userRepo.user.value?.group == null) {
+                userView.addGroup(Model.user_group(intent.getStringExtra("code")))
             } else {
-                val sharedPref = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-                    .getString(getString(R.string.userIdKey), "")
-                Log.d("user", sharedPref)
-                val unlock_session = Model.unlock_session(sharedPref, intent.getStringExtra("code"))
-                val userService = ServiceGenerator.createService(UserApiService::class.java, this@MainActivity)
-
-                disposable = userService.updateUser(unlock_session)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        { result -> showResult(result) },
-                        { error -> showError(error.message) }
-                    )
+                userView.unlockSession(Model.unlock_session("none", intent.getStringExtra("code")))
             }
+
         }
-    }
 
-    private fun showResult(result: Model.Result) {
-        sessionFragment = SessionFragment()
-
-        supportFragmentManager.beginTransaction()
-            .add(R.id.session_container, sessionFragment)
-            .commit()
-    }
-
-    private fun showError(errMsg: String?) {
-        Toast.makeText(this, errMsg, Toast.LENGTH_SHORT).show()
     }
 
     override fun showMonsterDialog() {
@@ -408,9 +376,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // COMPLETED (9) Within onCreateOptionsMenu, use getMenuInflater().inflate to inflate the menu
         menuInflater.inflate(R.menu.logout_menu, menu)
-        // COMPLETED (10) Return true to display your menu
         return true
     }
 
@@ -419,8 +385,12 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
         val itemThatWasClickedId = item.getItemId()
         when (itemThatWasClickedId) {
             R.id.settings -> {
-                val intent = Intent(this, SettingsActivity::class.java)
-                startActivity(intent)
+                val preferenceFragment = SettingsFragment()
+                supportFragmentManager.beginTransaction()
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                    .replace(R.id.session_container, preferenceFragment)
+                    .addToBackStack("ROOT")
+                    .commit()
                 return true
             }
             R.id.logout -> {
@@ -439,5 +409,43 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    //Settings Management
+    override fun onPreferenceClick(fragmentType: FragmentType) {
+        when (fragmentType) {
+            FragmentType.GROUP -> {
+                groupFragment = GroupFragment()
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.session_container, groupFragment)
+                    .addToBackStack(null)
+                    .setTransition(R.anim.slide_up)
+                    .commit()
+            }
+            FragmentType.EMAIL -> {
+                emailFragmentFragment = ChangeEmailSettingsFragment()
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.session_container, emailFragmentFragment)
+                    .addToBackStack(null)
+                    .setTransition(R.anim.slide_up)
+                    .commit()
+            }
+            FragmentType.PASSWORD -> {
+                passwordFragment = ChangePasswordFragment()
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.session_container, passwordFragment)
+                    .addToBackStack(null)
+                    .setTransition(R.anim.slide_up)
+                    .commit()
+            }
+            FragmentType.EULA -> {
+                EULAFragment = EULAFragment()
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.session_container, EULAFragment)
+                    .addToBackStack(null)
+                    .setTransition(R.anim.slide_up)
+                    .commit()
+            }
+        }
     }
 }

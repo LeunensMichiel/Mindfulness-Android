@@ -82,7 +82,8 @@ object Model {
 //        @ColumnInfo(name = "token")
         var token: String?,
         var post_ids: ArrayList<String> = arrayListOf(),
-        var feedbackSubscribed: Boolean = false
+        var feedbackSubscribed: Boolean = false,
+        var image_file_name: String? = null
     ) {
         constructor() : this(
             null,
@@ -95,9 +96,10 @@ object Model {
             null,
             arrayListOf(),
             null,
-            null, arrayListOf(), false
-        )
-
+            null, arrayListOf(),
+            false,
+            null
+            )
         @PrimaryKey(autoGenerate = true)
         var db_id: Int = 0
     }
@@ -136,8 +138,7 @@ object Model {
 
     data class Register(
         val email: String,
-        val password: String,
-        val groups_code: String
+        val password: String
     )
 
     data class Result(
@@ -145,7 +146,7 @@ object Model {
     )
 
     data class unlock_session(
-        val id: String,
+        var id: String,
         val session_id: String
     )
 
