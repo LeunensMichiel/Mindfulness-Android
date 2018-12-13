@@ -81,8 +81,6 @@ class TimePreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
                 true
             )
         }
-
-
     }
 
     companion object {

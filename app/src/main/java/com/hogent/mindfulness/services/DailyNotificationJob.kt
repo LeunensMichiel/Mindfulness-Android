@@ -15,9 +15,6 @@ import kotlin.math.absoluteValue
 import kotlin.math.floor
 
 class DailyNotificationJob : DailyJob() {
-
-
-
     override fun onRunDailyJob(params: Params): DailyJobResult {
 
         val extras = params.extras
@@ -38,8 +35,6 @@ class DailyNotificationJob : DailyJob() {
     }
 
     companion object {
-        private val WAKE_LOCK_AWAIT_TIME_SECONDS = 60
-
         val TAG = "MyDailyJob"
 
         // time is (hours * 60) + minutes
@@ -55,12 +50,9 @@ class DailyNotificationJob : DailyJob() {
             val hour = calendar.get(Calendar.HOUR_OF_DAY)
             val minute = calendar.get(Calendar.MINUTE)
 
-            Log.i("hour", (time/60).toString())
-            Log.i("minute", (time%60).toString())
-
             val executionWindow = DailyExecutionWindow(hour, minute, (time/60).toLong(), (time%60).toLong(), duration)
 
-            JobRequest.Builder(PeriodicNotificationJob.TAG)
+            JobRequest.Builder(DailyNotificationJob.TAG)
                 .setExecutionWindow(executionWindow.startMs, executionWindow.endMs)
                 .setUpdateCurrent(updateCurrent)
                 .setExtras(extras)

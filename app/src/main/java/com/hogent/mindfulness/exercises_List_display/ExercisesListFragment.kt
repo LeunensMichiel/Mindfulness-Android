@@ -17,9 +17,13 @@ import android.widget.TextView
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.ExerciseViewModel
+import com.hogent.mindfulness.services.DailyNotificationJob
+import com.hogent.mindfulness.services.PeriodicNotificationJob
+import com.hogent.mindfulness.services.SingleJob
 import kotlinx.android.synthetic.main.exercise_list_item.view.*
 import kotlinx.android.synthetic.main.fragment_exercises_pane.*
 import org.jetbrains.anko.imageBitmap
+import java.util.concurrent.TimeUnit
 
 class ExercisesListFragment : Fragment() {
 
@@ -54,11 +58,17 @@ class ExercisesListFragment : Fragment() {
         val viewAdapter = ExerciseAdapter(this, exView, session)
         val viewManager = LinearLayoutManager(activity)
 
+
+
         rv_exercises.apply {
 
             layoutManager = viewManager
             adapter = viewAdapter
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
     }
 
     /***********************************************************************************************
@@ -87,6 +97,14 @@ class ExercisesListFragment : Fragment() {
             val layoutIdExListItem = R.layout.exercise_list_item
 
             val view = inflater.inflate(layoutIdExListItem, parent, false)
+
+            SingleJob.scheduleJob(
+                1,
+                "",
+                ",",
+                "mindfulness",
+                session._id
+            )
 
             return ExerciseViewHolder(view)
         }
@@ -118,5 +136,4 @@ class ExercisesListFragment : Fragment() {
             }
         }
     }
-
 }

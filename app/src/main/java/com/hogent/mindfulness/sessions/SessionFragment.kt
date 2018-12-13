@@ -50,9 +50,7 @@ class SessionFragment : Fragment() {
      * Here will the sessionData be stored
      * Disposable used for calling api calls
      */
-    private val mMindfullDB by lazy {
-        MindfulnessDBHelper(activity as MainActivity )
-    }
+
     private lateinit var sessions: Array<Model.Session>
     private lateinit var mAdapter: SessionAdapter
     private lateinit var sessionBools: BooleanArray

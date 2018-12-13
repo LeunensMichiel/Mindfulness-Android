@@ -9,14 +9,12 @@ import android.widget.Toast
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
 import com.hogent.mindfulness.domain.Model
+import com.hogent.mindfulness.domain.ViewModels.UserViewModel
 import com.hogent.mindfulness.group.GroupFragment
 
 
 class SettingsActivity : AppCompatActivity(), SettingsFragment.OnPreferenceClickforFragment {
 
-    private val mMindfullDB by lazy {
-        MindfulnessDBHelper(this@SettingsActivity)
-    }
     private lateinit var groupFragment: GroupFragment
     private lateinit var emailFragmentFragment: ChangeEmailSettingsFragment
     private lateinit var passwordFragment: ChangePasswordFragment
@@ -31,7 +29,8 @@ class SettingsActivity : AppCompatActivity(), SettingsFragment.OnPreferenceClick
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val model = ViewModelProviders.of(this).get(SettingsViewModel::class.java)
-        user = mMindfullDB.getUser()!!
+        val userView = ViewModelProviders.of(this).get(UserViewModel::class.java)
+        user = userView.dbUser.value!!
         model.loadUser(user)
         model.user.observe(this, Observer {
             it?.let {
@@ -39,9 +38,9 @@ class SettingsActivity : AppCompatActivity(), SettingsFragment.OnPreferenceClick
                 Toast.makeText(this, "haha", Toast.LENGTH_LONG)
             }
         })
-
-        model.user.value = mMindfullDB.getUser()
-        model.user.value?.group = mMindfullDB.getGroup()
+//
+//        model.user.value = mMindfullDB.getUser()
+//        model.user.value?.group = mMindfullDB.getGroup()
 
         val preferenceFragment = SettingsFragment()
         supportFragmentManager.beginTransaction().add(R.id.pref_container, preferenceFragment).commit()

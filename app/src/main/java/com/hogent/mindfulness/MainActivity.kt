@@ -7,8 +7,6 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.support.design.widget.BottomNavigationView
@@ -81,7 +79,6 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
     private lateinit var exerciseDetailFragment: ExerciseDetailFragment
     private lateinit var feedbackDialog:Dialog
     private lateinit var fullscreenMonsterDialog : FullscreenDialogWithAnimation
-    private var currentUser: Model.User? = null
     private lateinit var userView: UserViewModel
     private lateinit var sessionView: SessionViewModel
     private lateinit var exView:ExerciseViewModel
@@ -89,6 +86,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
     private lateinit var stateView:StateViewModel
     private lateinit var postView:PostViewModel
     private var currentPost = Model.Post()
+    private var feedbackSessionID: String = ""
     /**
      * Set view to MainActivity
      * Set ItemSelectedListener for the navigation
@@ -151,7 +149,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
                             feedbackDialog.hide()
                         }
                     }
-                    feedbackDialog.feedback_namesessie.text = sessionView.selectedSession?.value?.title
+                    feedbackDialog.feedback_namesessie.text = feedbackSessionID
                     feedbackDialog.show()
                 }
             }
@@ -184,13 +182,17 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
                     }
 
                     sessionFragment = SessionFragment()
-
                     postFragment = PostFragment()
                     profileFragment = ProfileFragment()
 
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.session_container, sessionFragment)
                         .commit()
+
+                    if(intent.hasExtra("sessionID")) {
+                        feedbackSessionID = intent.getStringExtra("sessionID")
+                        stateView.dialogState?.value = "FEEDBACK_DIALOG"
+                    }
                 } else  {
                     navigation.visibility = View.GONE
                     groupFragment = GroupFragment()
@@ -200,7 +202,6 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
                         .commit()
                 }
             }
-
         })
 
         userView.toastMessage.observe(this, Observer {
@@ -269,68 +270,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
     }
 
     fun getGroupNotifications(): Array<Model.Notification>? {
-        val userService = ServiceGenerator.createService(UserApiService::class.java, this@MainActivity)
-        var notif: Array<Model.Notification>? = null
-        disposable = userService.getUserGroup(currentUser.group?._id)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { result -> notif = result.notifications },
-                { error -> notif = null }
-            )
-        return notif
-    }
-
-    fun openFeedbackDialog(session: Model.Session) {
-        val feedbackDialog = Dialog(this)
-        feedbackDialog.setContentView(R.layout.feedback_popup)
-        feedbackDialog.window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        val sessionname = feedbackDialog.findViewById<TextView>(R.id.feedback_namesessie)
-        val description = feedbackDialog.findViewById<TextView>(R.id.feedback_description)
-        val sendBtn = feedbackDialog.findViewById<Button>(R.id.feedback_sendBtn)
-        val cancelBtn = feedbackDialog.findViewById<Button>(R.id.feedback_cancelBtn)
-        val noFeedbackbtn = feedbackDialog.findViewById<Button>(R.id.feedback_uitschrijvenBtn)
-
-        sessionname.text = session.title
-        sendBtn.setOnClickListener() {
-            val feedback = Model.Feedback(
-                Date(),
-                description.text.toString(),
-                session._id
-            )
-            val feedbackService = ServiceGenerator.createService(FeedbackApiService::class.java, currentUser.token)
-            disposable = feedbackService.addFeedback(feedback)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    { result ->
-                        feedbackDialog.hide()
-                        Toast.makeText(this, "Bedankt voor uw Feedback!", Toast.LENGTH_SHORT).show()
-                    },
-                    { error ->
-                        Log.d("error", error.message)
-                    }
-                )
-        }
-        cancelBtn.setOnClickListener() {
-            feedbackDialog.hide()
-        }
-        noFeedbackbtn.setOnClickListener() {
-            currentUser.feedbackSubscribed = false
-            val userService = ServiceGenerator.createService(UserApiService::class.java, currentUser.token)
-            disposable = userService.updateUserFeedback(currentUser)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    { result ->
-                        feedbackDialog.hide()
-                    },
-                    { error ->
-                        Log.d("error", error.message)
-                    }
-                )
-        }
-        feedbackDialog.show()
+        return userView.dbUser.value!!.group!!.notifications
     }
 
     override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
@@ -350,7 +290,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
     }
 
     private fun checkIfHasGroup(): Boolean {
-        return currentUser!!.group == null
+        return userView.dbUser.value!!.group != null
     }
 
     fun updateUserGroup() {
@@ -398,9 +338,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession {
                         { error -> showError(error.message) }
                     )
             }
-
         }
-
     }
 
     private fun showResult(result: Model.Result) {
