@@ -1,17 +1,20 @@
 package com.hogent.mindfulness.sessions
 
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.airbnb.lottie.LottieAnimationView
-import com.airbnb.lottie.TextDelegate
+import android.widget.ImageView
 import com.hogent.mindfulness.R
+import com.hogent.mindfulness.domain.ViewModels.UserViewModel
 import kotlinx.android.synthetic.main.full_screen_animation_dialog.view.*
 
 class FullscreenDialogWithAnimation : DialogFragment() {
-    lateinit var MONSTER : LottieAnimationView
+
+    lateinit var monsterimage : ImageView
+    private lateinit var userViewModel: UserViewModel
 
 
     companion object {
@@ -27,11 +30,15 @@ class FullscreenDialogWithAnimation : DialogFragment() {
         super.onCreateView(inflater, container, savedInstanceState)
         val view = inflater.inflate(R.layout.full_screen_animation_dialog, container, false)
 
+        userViewModel = activity?.run {
+            ViewModelProviders.of(this).get(UserViewModel::class.java)
+        } ?: throw Exception("Invalid Activity")
+
+        monsterimage = view.monster
+
         view.fullscreenDialogBtn.setOnClickListener() {
             dialog.dismiss()
         }
-
-        MONSTER = view.monster
 
         return view
     }
@@ -42,15 +49,12 @@ class FullscreenDialogWithAnimation : DialogFragment() {
         if (dialog != null) {
             dialog.window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         }
+        val monstercount = ("R.drawable.ic_monster" + ((userViewModel.dbUser.value!!.unlocked_sessions.size + 1) % 14)) + ".xml"
 
-        initAnimation()
-
+        initAnimation(monstercount.toInt())
     }
 
-    private fun initAnimation() {
-        val textDelegate = TextDelegate(MONSTER)
-        textDelegate.setText("Monster", "Monster")
-        MONSTER.setMaxFrame(90)
-        MONSTER.playAnimation()
+    private fun initAnimation(url: Int) {
+        monsterimage.setImageResource(url)
     }
 }
