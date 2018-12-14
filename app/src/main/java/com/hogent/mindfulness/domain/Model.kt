@@ -46,6 +46,7 @@ object Model {
         var audioFile:File? = null,
         var mediaPlayer: MediaPlayer? = null,
         var progress:Int? = 0,
+        var type_input:String? = null,
         var post:Post? = null
     )
 
@@ -145,7 +146,7 @@ object Model {
     )
 
     data class errorMessage(
-        var data:String = "none",
+        var data:String? = "none",
         var error:String = "none"
     )
 
