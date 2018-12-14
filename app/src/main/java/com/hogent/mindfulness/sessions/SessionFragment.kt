@@ -107,10 +107,7 @@ class SessionFragment : Fragment() {
                     monsterCount.text = "  x " + sessionView.sessionList.value?.filter {
                         it.unlocked
                     }?.size
-                    Log.d("SESSION_VIEW_HOLDER","SCROLL_START")
                     rv_sessions.scrollToPosition(it.indexOf(unlocked_session))
-                    Log.d("SESSION_VIEW_HOLDER","SCROLL_END")
-                    //rv_sessions.adapter?.notifyDataSetChanged()
                 } else {
                     Progress_subtext.text = ("Huidige sessie: Nog geen vrijgespeeld!").toUpperCase()
                     monsterCount.text = "  x 0"
@@ -248,7 +245,6 @@ class SessionFragment : Fragment() {
                                     Color.parseColor("#f9a825")
                                 }
                                 sessionAdapterOnUnlockSession.showMonsterDialog()
-
                             }
                         })
                         sharedpref.edit().putString(context.getString(R.string.lastUnlockedSession), "unlocked" + posie.toString()).apply()
@@ -266,6 +262,7 @@ class SessionFragment : Fragment() {
             } else {       //DE SESSIONS ZIJN GELOCKED
                 holder.title.visibility = View.INVISIBLE
                 holder.lock.visibility = View.VISIBLE
+                holder.button.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#a6bfb4"))
                 holder.button.isClickable = false
                 holder.button.setOnClickListener(null)
 

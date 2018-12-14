@@ -8,15 +8,18 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.FragmentTransaction
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.WindowManager
 import android.widget.Toast
 import com.evernote.android.job.JobManager
 import com.hogent.mindfulness.domain.Model
@@ -41,6 +44,7 @@ import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.toast
 import java.util.*
 import java.util.concurrent.TimeUnit
+
 
 class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPreferenceClickforFragment {
     //initializing attributes
@@ -142,11 +146,13 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         userView.dbUser.observe(this, Observer<Model.User?> {
             if (it == null) {
                 navigation.visibility = View.GONE
+                showAcionBar(false)
                 loginFragment = LoginFragment()
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.session_container, loginFragment)
                     .commit()
             } else {
+                showAcionBar(true)
                 if (it.group != null) {
                     sessionView.resetunlockedSession()
                     navigation.visibility = View.VISIBLE
@@ -407,7 +413,25 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         }
     }
 
-     fun setActionBarTitle(title : String) {
-        this.supportActionBar?.title = title
+     fun setActionBarTitle(title: String) {
+         this.supportActionBar?.title = title
+     }
+
+    fun showAcionBar(bool : Boolean) {
+        if (bool) {
+            this.supportActionBar?.show()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                window.statusBarColor = ContextCompat.getColor(this, R.color.colorPrimaryDark)
+
+            }
+        } else {
+            this.supportActionBar?.hide()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                window.statusBarColor = Color.parseColor("#A3A29F")
+
+            }
+        }
     }
 }
