@@ -25,7 +25,8 @@ object Model {
         @SerializedName("image_filename")
         val imageFilename: String,
         var bitmap: Bitmap? = null,
-        var unlocked:Boolean = false
+        var unlocked:Boolean = false,
+        var description: String
     )
 
 

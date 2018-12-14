@@ -37,9 +37,6 @@ class SessionViewModel:InjectedViewModel() {
     @Inject
     lateinit var userRepo: UserRepository
 
-    init {
-        Log.d("SESSION_VM", "WTF")
-    }
 
     fun retrieveSessions(){
         Log.d("SESSION_VM", "API")

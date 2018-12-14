@@ -6,15 +6,15 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent" android:id="@+id/btn_exercise"
             app:cardBackgroundColor="@color/colorPrimary" android:layout_marginBottom="0dp"
-            android:layout_marginTop="10dp" android:layout_marginLeft="10dp" android:layout_marginRight="10dp">
+            android:layout_marginTop="20dp">
         <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-            <ImageView android:layout_width="0dp" android:layout_height="125dp" android:id="@+id/exerciseImage"
+            <ImageView android:layout_width="0dp" android:layout_height="150dp" android:id="@+id/exerciseImage"
                        app:layout_constraintEnd_toEndOf="parent"
                        app:layout_constraintStart_toStartOf="parent"
                        app:layout_constraintTop_toTopOf="parent" android:scaleType="centerCrop"
-                       android:tint="#6F000000"
+                       android:tint="#4d000000"
             />
             <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                       android:id="@+id/exerciseName" android:text="Naam Oefening"

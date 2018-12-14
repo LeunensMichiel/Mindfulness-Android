@@ -51,11 +51,13 @@ class ExercisesListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        exerciseSessiontitle.text = session.title
+        sessionDescriptionExercise.text = session.description
+
         val viewAdapter = ExerciseAdapter(this, exView, session)
         val viewManager = LinearLayoutManager(activity)
 
         rv_exercises.apply {
-
             layoutManager = viewManager
             adapter = viewAdapter
         }
