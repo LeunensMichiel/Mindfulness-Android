@@ -55,6 +55,7 @@ class FragmentExerciseInvoer : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("INITILIAZE_PAGES_CREATE", "INPUT")
         pageView = activity?.run {
             ViewModelProviders.of(this).get(PageViewModel::class.java)
         }?: throw Exception("Invalid activity.")
@@ -99,12 +100,17 @@ class FragmentExerciseInvoer : Fragment() {
             inputlayout.hint = this.arguments!!.getString("opgave", "check")
         }
 
+        if (!::post.isInitialized)
+            pageView.checkInputPage(page._id, position)
     }
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
-        if (isVisibleToUser && pageView.pages.value!![position].post == null){
-            pageView.checkInputPage(page._id, position)
+        Log.d("INPUT", "WHY")
+        if (isAdded()) {
+            if (isVisibleToUser && pageView.pages.value!![position].post == null){
+                pageView.checkInputPage(page._id, position)
+            }
         }
     }
 

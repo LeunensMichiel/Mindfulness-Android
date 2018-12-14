@@ -33,6 +33,11 @@ class ExerciseDetailFragment(): Fragment(){
     private lateinit var pageView:PageViewModel
     private var pagesLock = false
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+    }
+
     /**
      * we halen eerst de exercise op en dan inflaten we de layout
      */
@@ -51,8 +56,12 @@ class ExerciseDetailFragment(): Fragment(){
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d("INITILIAZE_PAGES_DETAIL", "VIEW_CREATED")
         pageView.pages.observe(this, Observer {
             if (it != null && !pagesLock) {
+                it.forEach {
+                    Log.d("PAGE", "${it}")
+                }
                 initializePages(it!!)
                 pagesLock = true
             }
@@ -68,11 +77,15 @@ class ExerciseDetailFragment(): Fragment(){
      * op het einde zeggen we dat de adapter die we gemaakt hebben de adapter is van onze viewpager
      */
     private fun initializePages(pages: Array<Model.Page>) {
+        Log.d("INITILIAZE_PAGES_MAN", "${manager}")
         val adapter = OefeningViewPagerAdapter(manager)
+        val frags: MutableList<Fragment> = arrayListOf()
+        val titles: MutableList<String> = arrayListOf()
         pages.forEachIndexed { index, it ->
             when (it.type) {
                 "AUDIO" ->
                 {
+                    Log.i("INITILIAZE_PAGES", "AUDIO")
                     val fragment = FragmentExerciseAudio()
                     fragment.position = index
                     Log.i("FUCKINGAUDIO_" + index, it.audioFilename)
@@ -81,10 +94,12 @@ class ExerciseDetailFragment(): Fragment(){
                     arg.putString("audioFilename", it.audioFilename)
                     fragment.arguments = arg
                     adapter.addFragment(fragment, "Audio")
+//                    frags.add(fragment)
+//                    titles.add("Audio")
                 }
                 "TEXT" ->
                 {
-                    Log.i("PAGE", "TEXT")
+                    Log.i("INITILIAZE_PAGES", "TEXT")
                     val fragment = FragmentExerciseText()
                     val arg = Bundle()
                     arg.putString("description", it.description)
@@ -93,19 +108,26 @@ class ExerciseDetailFragment(): Fragment(){
 
                     fragment.arguments = arg
                     adapter.addFragment(fragment, "Beschrijving")
+//                    frags.add(fragment)
+//                    titles.add("Beschrijving")
                 }
                 "INPUT" ->
                 {
+                    Log.i("INITILIAZE_PAGES", "INPUT")
                     val fragment = FragmentExerciseInvoer()
+                    Log.d("INPUT_TYPE", it.type_input)
                     fragment.position = index
                     fragment.page = it
                     val arg = Bundle()
                     arg.putString("opgave", it.title)
                     fragment.arguments = arg
                     adapter.addFragment(fragment, "Invoer")
+//                    frags.add(fragment)
+//                    titles.add("Invoers")
                 }
             }
         }
+//        adapter.setFragments(frags, titles)
         viewPager.adapter = adapter
     }
 }

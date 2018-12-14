@@ -56,8 +56,8 @@ class PageViewModel:InjectedViewModel() {
                         pages.value = result
                         Log.d("PAGE_RESULT", "FUCK")
                     }
-                    ,
-                    { error -> Log.d("PAGE_ERR", "$error") }
+//                    ,
+//                    { error -> Log.d("PAGE_ERR", error.message) }
                 )
         }
     }
@@ -118,6 +118,7 @@ class PageViewModel:InjectedViewModel() {
     }
 
     private fun convertToBitmap(paragragphs: Array<Model.Paragraph>, result: ResponseBody, fileName: String, position: Int) {
+        Log.d("PAR_IMG", "CHECK")
         var imgFile = File.createTempFile(fileName, "png")
         imgFile.deleteOnExit()
         val fos = FileOutputStream(imgFile)
