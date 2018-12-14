@@ -1,7 +1,9 @@
 package com.hogent.mindfulness.domain.ViewModels
 
 import android.arch.lifecycle.MutableLiveData
+import android.graphics.BitmapFactory
 import android.util.Log
+import com.hogent.mindfulness.data.FIleApiService
 import com.hogent.mindfulness.data.FeedbackApiService
 import com.hogent.mindfulness.data.LocalDatabase.repository.UserRepository
 import com.hogent.mindfulness.data.SessionApiService
@@ -10,6 +12,9 @@ import com.hogent.mindfulness.domain.Model
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import okhttp3.ResponseBody
+import java.io.File
+import java.io.FileOutputStream
 import javax.inject.Inject
 
 class SessionViewModel:InjectedViewModel() {
@@ -25,6 +30,9 @@ class SessionViewModel:InjectedViewModel() {
 
     @Inject
     lateinit var feedbackService:FeedbackApiService
+
+    @Inject
+    lateinit var fileService: FIleApiService
 
     @Inject
     lateinit var userRepo: UserRepository
@@ -77,5 +85,26 @@ class SessionViewModel:InjectedViewModel() {
                     sessionToast?.value = "Er ging iets mis. Feedback is niet opgeslagen."
                 }
             )
+    }
+
+    fun loadImages() {
+        sessionList.value
+            ?.forEachIndexed {i, it ->
+                subscribe = fileService.getFile("session_image", it.imageFilename)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                        { result -> convertToBitmap(result, it.imageFilename, i) },
+                        { error -> Log.i("EXERCISE ERROR", "$error") }
+                    )
+            }
+    }
+
+    private fun convertToBitmap(result: ResponseBody, fileName: String, position: Int) {
+        var imgFile = File.createTempFile(fileName, "png")
+        imgFile.deleteOnExit()
+        val fos = FileOutputStream(imgFile)
+        fos.write(result.bytes())
+        sessionList.value!![position].bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
     }
 }
