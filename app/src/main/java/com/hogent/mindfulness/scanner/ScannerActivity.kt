@@ -141,7 +141,7 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler{
 
         intent.putExtra("code", code)
         startActivity(intent)
-        val sharedPref = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+//        val sharedPref = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
 //        sharedPref.edit().putString(getString(R.string.userGroupId), code).apply()
         finish()
     }
