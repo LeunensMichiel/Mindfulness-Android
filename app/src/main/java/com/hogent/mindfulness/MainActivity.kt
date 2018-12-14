@@ -6,8 +6,7 @@ import android.app.Dialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
+
 import android.content.Intent
 import android.os.Bundle
 import android.os.PersistableBundle
