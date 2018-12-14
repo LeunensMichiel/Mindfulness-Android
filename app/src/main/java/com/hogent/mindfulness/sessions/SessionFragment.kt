@@ -4,6 +4,7 @@ package com.hogent.mindfulness.sessions
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.arch.lifecycle.LifecycleOwner
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
@@ -14,6 +15,7 @@ import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.LinearSnapHelper
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
@@ -62,14 +64,8 @@ class SessionFragment : Fragment() {
     private lateinit var sessionService:SessionApiService
     private lateinit var fileService: FIleApiService
 
-    /**
-     * I used this resource: https://developer.android.com/guide/topics/ui/layout/recyclerview
-     */
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
         sessionView = activity?.run {
             ViewModelProviders.of(this).get(SessionViewModel::class.java)
@@ -80,24 +76,54 @@ class SessionFragment : Fragment() {
         } ?: throw Exception("Invalid activity")
 
         sessionView.retrieveSessions()
-        user = sessionView.userRepo.user.value!!
+
+    }
+
+    /**
+     * I used this resource: https://developer.android.com/guide/topics/ui/layout/recyclerview
+     */
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+
         return inflater.inflate(R.layout.session_fragment, container, false)
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        //beginRetrieveSessionmap(user.group!!.sessionmap_id!!)
-
+        sessionView.sessionList.observe(this, Observer {
+            if (it != null) {
+                var unlocked:Array<Model.Session> = arrayOf()
+                var unlocked_session:Model.Session? = null
+                if (sessionView.userRepo.user.value?.unlocked_sessions!!.isNotEmpty()) {
+                    unlocked = sessionView.sessionList.value!!
+                    unlocked_session = unlocked.filter {
+                        it._id == sessionView.userRepo.user.value?.unlocked_sessions?.last()
+                    }.last()
+                }
+                if (unlocked_session != null){
+                    Progress_subtext.text = ("Huidige sessie: " + unlocked_session.title).toUpperCase()
+                    monsterCount.text = "  x " + sessionView.sessionList.value?.filter {
+                        it.unlocked
+                    }?.size
+                    rv_sessions.scrollToPosition(it.indexOf(unlocked_session))
+                } else {
+                    Progress_subtext.text = ("Huidige sessie: Nog geen vrijgespeeld!").toUpperCase()
+                    monsterCount.text = "  x 0"
+                }
+            }
+        })
         mAdapter = SessionAdapter( this, sessionView, stateView, activity as SessionAdapter.SessionAdapterOnUnlockSession, (activity as MainActivity))
-
         val viewManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
-
+        val snappy = LinearSnapHelper()
         rv_sessions.apply {
             layoutManager = viewManager
             adapter = mAdapter
         }
+        snappy.attachToRecyclerView(rv_sessions)
     }
 
     /**
@@ -108,11 +134,14 @@ class SessionFragment : Fragment() {
      */
     override fun onStart() {
         super.onStart()
-
         fabCamera.setOnClickListener { view ->
             val intent = Intent(activity, ScannerActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
     }
 
     fun loadImages() {
@@ -135,6 +164,7 @@ class SessionFragment : Fragment() {
         fos.write(result.bytes())
         sessions[position].bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
     }
+
     /***********************************************************************************************
      * Adapter
      *
@@ -153,6 +183,7 @@ class SessionFragment : Fragment() {
         private var user:Model.User
 
         val sharedpref = context.getSharedPreferences(context.getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+
 
         init {
             mSessionData = arrayOf()
@@ -183,14 +214,17 @@ class SessionFragment : Fragment() {
         override fun onBindViewHolder(holder: SessionViewHolder, position: Int) {
 
             val currentSession = mSessionData[position]
-
             holder.title.text = (position + 1).toString()
             holder.button.setOnClickListener {
                 sessionView.selectedSession?.value = currentSession
                 stateView.viewState?.value = "EXERCISE_VIEW"
             }
 
-            if (mSessionData[position].unlocked) { // De SESSIONS ZIJN UNLOCKED
+            val posie = holder.adapterPosition
+//            sharedpref.edit().remove(context.getString(R.string.lastUnlockedSession)).apply()
+//            sessionView.resetunlockedSession()
+
+            if (mSessionData[posie].unlocked) { // De SESSIONS ZIJN UNLOCKED
                 holder.title.visibility = View.VISIBLE
                 holder.lock.visibility = View.INVISIBLE
                 holder.button.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#bedacd"))
@@ -201,8 +235,8 @@ class SessionFragment : Fragment() {
                     stateView.dialogState?.value = "FEEDBACK_DIALOG"
                     return@setOnLongClickListener true
                 }
-                if (mSessionData[position]._id == user.unlocked_sessions.last()) { // We gaan in de if clause als we het hebben over de laatste unlockte sessie
-                    if (sharedpref.getString(context.getString(R.string.lastUnlockedSession), null) == "unlocked" + position.toString()) { //We gaan nakijken of de animatie ooit al eens is afgespeeld door te kijken in de sharedpref
+                if (mSessionData[posie]._id == user.unlocked_sessions.last()) { // We gaan in de if clause als we het hebben over de laatste unlockte sessie
+                    if (sharedpref.getString(context.getString(R.string.lastUnlockedSession), null) == "unlocked" + posie.toString()) { //We gaan nakijken of de animatie ooit al eens is afgespeeld door te kijken in de sharedpref
                         //Instellen op reeds afgespeeld
                         holder.progressAnimation.frame = 50
                         holder.progressAnimation.addValueCallback(KeyPath("**"), LottieProperty.COLOR) {
@@ -215,24 +249,29 @@ class SessionFragment : Fragment() {
                         //Animatie spelen en dan in de sharedprefs zeggen dat hij al is afgespeeld
                         holder.progressAnimation.setMaxFrame(50)
                         holder.progressAnimation.playAnimation()
-
+                        Log.d("SESSION_ANIM", "1")
                         holder.progressAnimation.addAnimatorListener(object : AnimatorListenerAdapter() {
                             override fun onAnimationEnd(animation: Animator?) {
                                 holder.progressAnimation.addValueCallback(KeyPath("**"), LottieProperty.COLOR) {
                                     Color.parseColor("#f9a825")
+                                    Log.d("SESSION_ANIM", "4")
                                 }
                                 holder.glowing_orbAnimation.playAnimation()
                             }
                         })
+                        Log.d("SESSION_ANIM", "2")
                         holder.glowing_orbAnimation.addAnimatorListener(object : AnimatorListenerAdapter() {
                             override fun onAnimationEnd(animation: Animator?) {
                                 holder.glowing_orbAnimation.addValueCallback(KeyPath("**"), LottieProperty.COLOR) {
                                     Color.parseColor("#f9a825")
+                                    Log.d("SESSION_ANIM", "5")
                                 }
                                 sessionAdapterOnUnlockSession.showMonsterDialog()
+
                             }
                         })
-                        sharedpref.edit().putString(context.getString(R.string.lastUnlockedSession), "unlocked" + position.toString()).apply()
+                        Log.d("SESSION_ANIM", "3")
+                        sharedpref.edit().putString(context.getString(R.string.lastUnlockedSession), "unlocked" + posie.toString()).apply()
                     }
                 } else { //De overige unlocked sessions
                     holder.progressAnimation.frame = 50
