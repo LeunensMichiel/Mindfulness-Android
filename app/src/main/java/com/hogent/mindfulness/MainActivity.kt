@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        supportActionBar!!.elevation = 0F
 
         navigation.visibility = View.GONE
         userView = ViewModelProviders.of(this).get(UserViewModel::class.java)
@@ -405,5 +405,9 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                     .commit()
             }
         }
+    }
+
+     fun setActionBarTitle(title : String) {
+        this.supportActionBar?.title = title
     }
 }

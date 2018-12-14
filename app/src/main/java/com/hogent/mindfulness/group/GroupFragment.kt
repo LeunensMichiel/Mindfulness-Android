@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.UserViewModel
@@ -38,6 +39,7 @@ class GroupFragment() : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         groepscodeScanner.setText("5bf730b27a76ee0b049432a6")
+
         /*userView = activity?.run {
             ViewModelProviders.of(this).get(UserViewModel::class.java)
         }?: throw Exception("Invalid activity.")
@@ -62,11 +64,13 @@ class GroupFragment() : Fragment() {
         }*/
     }
 
-    /*override fun onResume() {
+    override fun onResume() {
         super.onResume()
-            val sharedPreferences = activity?.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-            val id = sharedPreferences?.getString(getString(R.string.userGroupId), "def")
-            txfield.setText(id)
-    }*/
+        (activity as MainActivity).setActionBarTitle("Uw groep kiezen")
+
+//            val sharedPreferences = activity?.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+//            val id = sharedPreferences?.getString(getString(R.string.userGroupId), "def")
+//            txfield.setText(id)
+    }
 
 }

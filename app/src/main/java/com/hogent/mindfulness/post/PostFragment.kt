@@ -40,6 +40,7 @@ class PostFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
+
         return inflater.inflate(R.layout.fragment_post, container, false)
     }
 
@@ -55,7 +56,14 @@ class PostFragment : Fragment() {
         }
         //postService = ServiceGenerator.createService(PostApiService::class.java, (activity as MainActivity))
     }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as MainActivity).setActionBarTitle("Uw persoonlijke tijdlijn")
+    }
 }
+
+
 
 class PostAdapter(private var viewModel: PostViewModel,
                   private val lifecycleOwner: LifecycleOwner)
