@@ -6,31 +6,24 @@ import android.app.Dialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.support.design.widget.BottomNavigationView
-import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import com.evernote.android.job.JobManager
-import com.hogent.mindfulness.data.API.UserApiService
 import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
-import com.hogent.mindfulness.data.PostApiService
-import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.*
 import com.hogent.mindfulness.exercise_details.ExerciseDetailFragment
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
 import com.hogent.mindfulness.group.GroupFragment
-import com.hogent.mindfulness.login.LoginActivity
 import com.hogent.mindfulness.login.LoginFragment
 import com.hogent.mindfulness.login.RegisterFragment
 import com.hogent.mindfulness.post.PostFragment
@@ -42,12 +35,9 @@ import com.hogent.mindfulness.sessions.SessionFragment
 import com.hogent.mindfulness.sessions.SessionFragment.SessionAdapter.SessionAdapterOnUnlockSession
 import com.hogent.mindfulness.settings.*
 import com.hogent.mindfulness.settings.SettingsFragment.OnPreferenceClickforFragment
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.feedback_popup.*
-import kotlinx.android.synthetic.main.feedback_popup.view.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.toast
 import java.util.*
@@ -159,6 +149,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                     .commit()
             } else {
                 if (it.group != null) {
+                    sessionView.resetunlockedSession()
                     navigation.visibility = View.VISIBLE
                     sessionFragment = SessionFragment()
 
@@ -289,7 +280,6 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         fullscreenMonsterDialog = FullscreenDialogWithAnimation()
 
         fullscreenMonsterDialog.show(supportFragmentManager.beginTransaction(), FullscreenDialogWithAnimation.TAG)
-
     }
 
     /**

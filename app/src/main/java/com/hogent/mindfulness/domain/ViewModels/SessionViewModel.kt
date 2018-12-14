@@ -34,6 +34,7 @@ class SessionViewModel:InjectedViewModel() {
     }
 
     fun retrieveSessions(){
+        Log.d("SESSION_VM", "API")
         subscribe = sessionService.getSessions(userRepo.user.value?.group?.sessionmap_id!!)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -43,10 +44,16 @@ class SessionViewModel:InjectedViewModel() {
             )
     }
 
+    fun resetunlockedSession() {
+        Log.d("SESSION_VM", "RESET")
+        if (sessionList.value != null)
+            sessionsResult(sessionList.value!!)
+    }
+
     private fun sessionsResult(sessions: Array<Model.Session>) {
         sessions.forEach {
             it.unlocked = (userRepo.user.value?.unlocked_sessions!!.contains(it._id))
-            Log.d("SESSION", "$it")
+            Log.d("SESSION_VM", "$it")
         }
         sessionList.postValue(sessions)
     }

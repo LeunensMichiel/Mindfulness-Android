@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
                                              xmlns:app="http://schemas.android.com/apk/res-auto"
-                                             xmlns:tools="http://schemas.android.com/tools"
                                              android:layout_width="match_parent"
                                              android:layout_height="match_parent"
                                              android:background="@color/colorPrimary">
@@ -15,20 +14,17 @@
               android:textAllCaps="true"/>
 
 
-    <com.airbnb.lottie.LottieAnimationView
+    <ImageView
             android:id="@+id/monster"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:adjustViewBounds="true"
             android:cropToPadding="true"
             android:scaleType="centerInside"
-            app:lottie_rawRes="@raw/badge"
-            app:lottie_scale="1"
-            app:lottie_autoPlay="false"
-            app:lottie_loop="false"
             app:layout_constraintTop_toBottomOf="@+id/TextViewPopupLottie" app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/fullscreenDialogBtn"/>
+            app:layout_constraintBottom_toTopOf="@+id/fullscreenDialogBtn" android:layout_marginTop="32dp"
+            android:layout_marginBottom="32dp"/>
     <Button
             android:text="Oke!"
             android:layout_width="wrap_content"
