@@ -131,7 +131,6 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler{
 
         when(returnActivity) {
             1 -> {
-                intent = Intent(this, LoginActivity::class.java)
                 intent.putExtra("register", 1)
             }
             2 -> {

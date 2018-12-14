@@ -54,7 +54,15 @@ class ExercisesListFragment : Fragment() {
             ViewModelProviders.of(this).get(UserViewModel::class.java)
         } ?: throw Exception("Invalid Activity")
 
-
+        SingleJob.scheduleJob(
+            1,
+            30,
+            "Mindfulness",
+            "Wat was je ervaring met " + session.title + "?",
+            "mindfulness",
+            session._id,
+            session._id
+        )
 
         exView.retrieveExercises()
         // Inflate the layout for this fragment
@@ -122,12 +130,15 @@ class ExercisesListFragment : Fragment() {
             val exerciseTitle = mExercisesData[position]
             holder.title.text = exerciseTitle.title
             holder.image.imageBitmap = session.bitmap
+
         }
 
         inner class ExerciseViewHolder(view: View, userView:UserViewModel) : RecyclerView.ViewHolder(view) {
             val title: TextView = view.exerciseName
             val card: CardView = view.btn_exercise
             val image: ImageView = view.exerciseImage
+
+
 
             val dbUser = userView.dbUser.value!!
 
@@ -138,19 +149,22 @@ class ExercisesListFragment : Fragment() {
                     val adapterPosition = adapterPosition
                     exView.selectedExercise?.value = mExercisesData[adapterPosition]
 
-                    if(adapterPosition + 1 == getItemCount() && dbUser.feedbackSubscribed) {
-                        SingleJob.scheduleJob(
-                            1,
-                            30,
-                            "Mindfulness",
-                            "Wat was je ervaring met "+session.title+"?",
-                            "mindfulness",
-                            session._id,
-                            session._id
-                        )
-                    }
                 }
             }
+
+//            fun feedback() {
+//                if(adapterPosition + 1 == getItemCount() && dbUser.feedbackSubscribed) {
+//                    SingleJob.scheduleJob(
+//                        1,
+//                        30,
+//                        "Mindfulness",
+//                        "Wat was je ervaring met "+session.title+"?",
+//                        "mindfulness",
+//                        session._id,
+//                        session._id
+//                    )
+//                }
+//            }
         }
     }
 }

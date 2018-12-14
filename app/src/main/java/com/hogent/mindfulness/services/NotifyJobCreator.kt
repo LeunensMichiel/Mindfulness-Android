@@ -9,6 +9,7 @@ class NotifyJobCreator: JobCreator {
         return when (tag) {
             PeriodicNotificationJob.TAG -> PeriodicNotificationJob()
             DailyNotificationJob.TAG -> DailyNotificationJob()
+            SingleJob.TAG -> SingleJob()
             else -> null
         }
     }

@@ -111,7 +111,7 @@ object Model {
         var name: String? = null,
         var sessionmap_id: String? = null,
         var sessionmap: Sessionmap? = null,
-        var notifications: Array<Notification>?
+        var notifications: Array<Notification>? = null
     ) {
         constructor() : this(
             null,

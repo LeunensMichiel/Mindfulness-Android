@@ -49,18 +49,21 @@ class DailyNotificationJob : DailyJob() {
                 putString("channelId", channelId)
             }
 
-            val calendar = Calendar.getInstance()
-            val hour = calendar.get(Calendar.HOUR_OF_DAY)
-            val minute = calendar.get(Calendar.MINUTE)
+//            val calendar = Calendar.getInstance()
+//            val hour = calendar.get(Calendar.HOUR_OF_DAY)
+//            val minute = calendar.get(Calendar.MINUTE)
+//
+//            val executionWindow = DailyExecutionWindow(hour, minute, (time/60).toLong(), (time%60).toLong(), duration)
 
-            val executionWindow = DailyExecutionWindow(hour, minute, (time/60).toLong(), (time%60).toLong(), duration)
+            var t = TimeUnit.HOURS.toMillis((time/60).toLong())+TimeUnit.MINUTES.toMillis((time%60).toLong())
+            DailyJob.schedule(JobRequest.Builder(DailyNotificationJob.TAG).setUpdateCurrent(updateCurrent).setExtras(extras), t, t+TimeUnit.HOURS.toMillis(1))
 
-            JobRequest.Builder(DailyNotificationJob.TAG)
-                .setExecutionWindow(executionWindow.startMs, executionWindow.endMs)
-                .setUpdateCurrent(updateCurrent)
-                .setExtras(extras)
-                .build()
-                .schedule()
+//            JobRequest.Builder(DailyNotificationJob.TAG)
+//                .setExecutionWindow(executionWindow.startMs, executionWindow.endMs)
+//                .setUpdateCurrent(updateCurrent)
+//                .setExtras(extras)
+//                .build()
+//                .schedule()
         }
     }
 }

@@ -58,14 +58,16 @@ class SingleJob : Job() {
             val executionWindow = DailyExecutionWindow(hour, minute, hour+(inMinutes/60).toLong(), minute+(inMinutes%60).toLong(), duration)
 
             JobRequest.Builder(SingleJob.TAG)
-                .setExecutionWindow(executionWindow.startMs, executionWindow.endMs)
+                .startNow()
                 .setUpdateCurrent(true)
                 .setExtras(extras)
                 .build()
                 .schedule()
         }
 
-        fun scheduleJob(atTime: Int, duration: Long, title: String, message: String, channelId: String) {
+        fun scheduleJob(atTime: Int, duration: Long, title: String, message: String, channelId: String, tag: String?) {
+            if(tag!=null)
+                TAG = tag
             val extras = PersistableBundleCompat()
             extras.apply {
                 putString("title", title)

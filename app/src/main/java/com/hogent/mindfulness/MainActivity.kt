@@ -53,7 +53,6 @@ import com.hogent.mindfulness.services.SingleJob
 import java.util.*
 
 
-
 class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPreferenceClickforFragment {
     //initializing attributes
     lateinit var loginFragment: LoginFragment
@@ -163,19 +162,18 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                 if (it.group != null) {
                     sessionView.resetunlockedSession()
                     navigation.visibility = View.VISIBLE
-                    if(userView.dbUser.value!!.group!!.notifications != null) {
+                    if (userView.dbUser.value!!.group!!.notifications != null) {
                         val notifs = userView.dbUser.value!!.group!!.notifications
                         notifs?.let {
                             for (i in it) {
-                                if (i.notification_launchtijdstip.date == Calendar.DATE) {
-                                    SingleJob.scheduleJob(
-                                        (i.notification_launchtijdstip.hours * 60) + i.notification_launchtijdstip.minutes,
-                                        TimeUnit.HOURS.toMillis(24),
-                                        i.notification_title,
-                                        i.notification_beschrijving,
-                                        "mindfulness"
-                                    )
-                                }
+                                SingleJob.scheduleJob(
+                                    (i.notification_launchtijdstip.hours * 60) + i.notification_launchtijdstip.minutes,
+                                    TimeUnit.HOURS.toMillis(24),
+                                    i.notification_title,
+                                    i.notification_beschrijving,
+                                    "mindfulness",
+                                    "notif${i._id}"
+                                )
                             }
                         }
                     }
@@ -187,7 +185,9 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                         .replace(R.id.session_container, sessionFragment)
                         .commit()
 
-                } else  {
+
+
+                } else {
                     navigation.visibility = View.GONE
                     groupFragment = GroupFragment()
 
@@ -250,16 +250,21 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
     override fun onNewIntent(newIntent: Intent) {
         this.intent = newIntent
         intent = newIntent
+
+        if(intent.hasExtra("sessionID")) {
+            feedbackSessionID = intent.getStringExtra("sessionID")
+            stateView.dialogState?.value = "FEEDBACK_DIALOG"
+        }
 //        Toast.makeText(this, intent.getStringExtra("sessionID"), Toast.LENGTH_SHORT)
 //        var inten = intent.getStringExtra("sessionID")
-        if(intent.extras != null) {
-            Log.i("intent", "niet null")
-            if(intent.extras.containsKey("sessionID"))
-                Log.i("heey", "heeey")
-        }
-
-        feedbackSessionID = "sessie"
-        stateView.dialogState?.value = "FEEDBACK_DIALOG"
+//        if (intent.extras != null) {
+//            Log.i("intent", "niet null")
+//            if (intent.extras.containsKey("sessionID"))
+//                Log.i("heey", "heeey")
+//        }
+//
+//        feedbackSessionID = "sessie"
+//        stateView.dialogState?.value = "FEEDBACK_DIALOG"
     }
 
     //This function replqces the register fragment back with the login fragment
@@ -305,13 +310,12 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
 
     override fun onResume() {
         super.onResume()
-        if (intent.hasExtra("code")){
-            if(intent.hasExtra("group")) {
+        if (intent.hasExtra("code")) {
+            if (intent.hasExtra("group")) {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.session_container, groupFragment)
                     .commit()
-            }
-            else if (userView.userRepo.user.value?.group == null) {
+            } else if (userView.userRepo.user.value?.group == null) {
                 userView.addGroup(Model.user_group(intent.getStringExtra("code")))
             } else {
                 userView.unlockSession(Model.unlock_session("none", intent.getStringExtra("code")))
