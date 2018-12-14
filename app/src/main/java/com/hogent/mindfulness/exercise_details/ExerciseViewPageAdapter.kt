@@ -29,6 +29,13 @@ class OefeningViewPagerAdapter(manager: FragmentManager) : FragmentPagerAdapter(
     fun addFragment(fragment: Fragment, title: String) {
         fragmentList.add(fragment)
         titles.add(title)
+        notifyDataSetChanged()
+    }
+
+    fun setFragments(frags: MutableList<Fragment>, titles: MutableList<String>){
+        fragmentList = frags
+        this.titles = titles
+        notifyDataSetChanged()
     }
 
     override fun getPageTitle(position: Int): CharSequence? = titles.get(position)

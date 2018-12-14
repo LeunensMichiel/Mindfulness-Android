@@ -28,5 +28,5 @@ interface PostApiService {
 
     @Multipart
     @POST("/API/post/post/image")
-    fun addImagePost(@Part("post") requestBody: RequestBody, @Part file:MultipartBody.Part)
+    fun addImagePost(@Part("post") post: Model.Post, @Part file:MultipartBody.Part):Observable<Model.Post>
 }

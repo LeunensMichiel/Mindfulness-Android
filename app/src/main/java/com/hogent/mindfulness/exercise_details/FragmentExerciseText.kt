@@ -6,6 +6,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +14,7 @@ import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.PageViewModel
 import kotlinx.android.synthetic.main.recyclerview_paragrafen.*
+import java.lang.Exception
 
 
 /**
@@ -23,11 +25,17 @@ class FragmentExerciseText : Fragment() {
     lateinit var paragraphs: Array<Model.Paragraph>
     private  lateinit var pageView:PageViewModel
 
+    init {
+        Log.d("INITILIAZE_PAGES", "TEXT_INIT")
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("INITILIAZE_PAGES", "TEXT")
         pageView = activity?.run {
             ViewModelProviders.of(this).get(PageViewModel::class.java)
         }?: throw Exception("Invalid activity.")
+        Log.d("INITILIAZE_PAGES_VM", "${pageView}")
     }
 
     /**
@@ -64,9 +72,11 @@ class FragmentExerciseText : Fragment() {
      */
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
-        if (isVisibleToUser) {
-            // Refresh your fragment here
-            fragmentManager!!.beginTransaction().detach(this).attach(this).commit()
+        if (isAdded()) {
+            if (isVisibleToUser) {
+                // Refresh your fragment here
+                fragmentManager!!.beginTransaction().detach(this).attach(this).commit()
+            }
         }
     }
 

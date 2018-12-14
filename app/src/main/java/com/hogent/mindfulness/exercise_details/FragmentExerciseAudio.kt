@@ -106,16 +106,18 @@ class FragmentExerciseAudio : Fragment(), MediaPlayer.OnPreparedListener {
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
-        if (isVisibleToUser && isResumed){
-            Log.i("MEDIA_PLAYER_" + position, "IS_VISIBLE_&_RESUMED")
-            onPrepared(mp)
-        } else if (!isVisibleToUser){
-            if (playButn != null)
-                playButn.setBackgroundResource(R.drawable.play)
-            Log.i("MEDIA_PLAYER_" + position, "IS_INVISIBLE")
-            if (mp != null){
-                if (mp?.isPlaying!!){
-                    mp?.pause()
+        if (isAdded()) {
+            if (isVisibleToUser && isResumed){
+                Log.i("MEDIA_PLAYER_" + position, "IS_VISIBLE_&_RESUMED")
+                onPrepared(mp)
+            } else if (!isVisibleToUser){
+                if (playButn != null)
+                    playButn.setBackgroundResource(R.drawable.play)
+                Log.i("MEDIA_PLAYER_" + position, "IS_INVISIBLE")
+                if (mp != null){
+                    if (mp?.isPlaying!!){
+                        mp?.pause()
+                    }
                 }
             }
         }

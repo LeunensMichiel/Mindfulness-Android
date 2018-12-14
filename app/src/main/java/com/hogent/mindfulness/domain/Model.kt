@@ -43,10 +43,11 @@ object Model {
         val description: String,
         val exercise_id: String,
         val paragraphs: Array<Paragraph>,
-        var audioFile: File? = null,
+        var audioFile:File? = null,
         var mediaPlayer: MediaPlayer? = null,
-        var progress: Int? = 0,
-        var post: Post? = null
+        var progress:Int? = 0,
+        var type_input:String? = null,
+        var post:Post? = null
     )
 
     data class Paragraph(
@@ -57,7 +58,7 @@ object Model {
         val imageFilename: String,
         val description: String,
         val position: Int,
-        val pathname: String,
+        val pathname:String,
         var bitmap: Bitmap? = null
     )
 
@@ -155,7 +156,7 @@ object Model {
     )
 
     data class errorMessage(
-        var data:String = "none",
+        var data:String? = "none",
         var error:String = "none"
     )
 
