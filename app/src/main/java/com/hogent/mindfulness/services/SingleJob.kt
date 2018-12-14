@@ -38,9 +38,11 @@ class SingleJob : Job() {
 
     companion object {
 
-        val TAG: String = "job_notif_sync"
+        var TAG: String = "single_job"
 
-        fun scheduleJob(inMinutes: Int, duration: Long, title: String, message: String, channelId: String, sessionID: String?) {
+        fun scheduleJob(inMinutes: Int, duration: Long, title: String, message: String, channelId: String, tag: String?, sessionID: String?) {
+            if(tag!=null)
+                TAG = tag
             val extras = PersistableBundleCompat()
             extras.apply {
                 putString("title", title)

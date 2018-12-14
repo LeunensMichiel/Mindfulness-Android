@@ -13,23 +13,26 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.absoluteValue
 import kotlin.math.floor
+import android.content.SharedPreferences
+
+
 
 class DailyNotificationJob : DailyJob() {
     override fun onRunDailyJob(params: Params): DailyJobResult {
+            val extras = params.extras
 
-        val extras = params.extras
+            val targetIntent = Intent(context, MainActivity::class.java)
 
-        val targetIntent = Intent(context, MainActivity::class.java)
+            val title = extras.getString("title", "Mindfulness")
+            val message = extras.getString("message", "")
+            val channelId = extras.getString("channelId", "mindfulness")
 
-        val title = extras.getString("title", "Mindfulness")
-        val message = extras.getString("message", "")
-        val channelId = extras.getString("channelId", "mindfulness")
+            val notification = Notifications.getNotification(title, message, channelId, context, true, targetIntent)
 
-        val notification = Notifications.getNotification(title, message, channelId, context, true, targetIntent)
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.notify(0, notification)
 
-        notificationManager.notify(0, notification)
 
         return DailyJobResult.SUCCESS
     }

@@ -41,7 +41,6 @@ class LoginFragment : Fragment() {
 
         userViewModel.rawUser.observe(this, Observer {
             if (it != null){
-                Log.d("RAW_USER_OBSERVER", "CHECK")
                 activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
                     .edit()
                     .putString(getString(R.string.authTokenKey), it.token)

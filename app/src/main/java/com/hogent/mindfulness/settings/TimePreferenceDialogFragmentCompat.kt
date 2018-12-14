@@ -1,5 +1,6 @@
 package com.hogent.mindfulness.settings
 
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Build
 import android.support.v7.preference.PreferenceDialogFragmentCompat
@@ -11,6 +12,8 @@ import android.util.Log
 import android.widget.TimePicker
 import android.widget.Toast
 import com.hogent.mindfulness.R
+import com.hogent.mindfulness.domain.Model
+import com.hogent.mindfulness.domain.ViewModels.UserViewModel
 import com.hogent.mindfulness.services.DailyNotificationJob
 import kotlinx.android.synthetic.main.pref_dialog_time.view.*
 import java.util.concurrent.TimeUnit
@@ -21,10 +24,16 @@ import java.util.concurrent.TimeUnit
 class TimePreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
 
     lateinit var mTimePicker: TimePicker
+    private lateinit var userView: UserViewModel
+    private lateinit var dbUser: Model.User
 
     override fun onBindDialogView(view: View) {
         super.onBindDialogView(view)
 
+        userView = activity?.run {
+            ViewModelProviders.of(this).get(UserViewModel::class.java)
+        }?: throw Exception("Invalid activity.")
+        dbUser = userView.dbUser.value!!
         mTimePicker = view.findViewById(R.id.edit) as TimePicker
 
         // Get the time from the related Preference
@@ -72,14 +81,17 @@ class TimePreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
                 }
             }
 
-            DailyNotificationJob.scheduleJob(
-                minutesAfterMidnight,
-                TimeUnit.MINUTES.toMillis(15),
-                "Mindfulness",
-                "clean ur teeth boi",
-                "mindfulness",
-                true
-            )
+            if(dbUser.unlocked_sessions.size > 0) {
+                DailyNotificationJob.scheduleJob(
+                    minutesAfterMidnight,
+                    TimeUnit.MINUTES.toMillis(15),
+                    "Mindfulness",
+                    "Denk aan "+dbUser.unlocked_sessions.get(dbUser.unlocked_sessions.size-1),
+                    "mindfulness",
+                    true
+                )
+            }
+
         }
     }
 

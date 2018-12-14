@@ -60,6 +60,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
         versionPreference.summary = BuildConfig.VERSION_NAME
 
         //Voor de huidige switches enzo in te stellen op de huidige waaren en de changelisteners als er iets moet gebeuren on change van die items
+        val wantsNotifications =
+                findPreference("switch_notifications") as android.support.v14.preference.SwitchPreference
         val wantsFeedbackPreference =
             findPreference(getString(R.string.pref_feedback)) as android.support.v14.preference.SwitchPreference
         wantsFeedbackPreference.isChecked = dbUser.feedbackSubscribed

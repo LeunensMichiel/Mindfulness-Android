@@ -194,10 +194,6 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                         .replace(R.id.session_container, sessionFragment)
                         .commit()
 
-                    if(intent.extras != null) {
-                        feedbackSessionID = intent.getStringExtra("sessionID")
-                        stateView.dialogState?.value = "FEEDBACK_DIALOG"
-                    }
                 } else  {
                     navigation.visibility = View.GONE
                     groupFragment = GroupFragment()
