@@ -223,8 +223,8 @@ class SessionFragment : Fragment() {
             }
 
             val posie = holder.adapterPosition
- //           sharedpref.edit().remove(context.getString(R.string.lastUnlockedSession)).apply()
-  //          sessionView.resetunlockedSession()
+//            sharedpref.edit().remove(context.getString(R.string.lastUnlockedSession)).apply()
+//            sessionView.resetunlockedSession()
 
             if (mSessionData[posie].unlocked) { // De SESSIONS ZIJN UNLOCKED
                 holder.title.visibility = View.VISIBLE
