@@ -57,6 +57,9 @@ class ExerciseDetailFragment(): Fragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d("INITILIAZE_PAGES_DETAIL", "VIEW_CREATED")
+        if (pageView.pages.value != null && pageView.pages.value!!.isNotEmpty()) {
+            initializePages(pageView.pages.value!!)
+        }
         pageView.pages.observe(this, Observer {
             if (it != null && !pagesLock) {
                 it.forEach {
@@ -113,21 +116,30 @@ class ExerciseDetailFragment(): Fragment(){
                 }
                 "INPUT" ->
                 {
-                    Log.i("INITILIAZE_PAGES", "INPUT")
-                    val fragment = FragmentExerciseInvoer()
+
                     Log.d("INPUT_TYPE", it.type_input)
-                    fragment.position = index
-                    fragment.page = it
-                    val arg = Bundle()
-                    arg.putString("opgave", it.title)
-                    fragment.arguments = arg
-                    adapter.addFragment(fragment, "Invoer")
-//                    frags.add(fragment)
-//                    titles.add("Invoers")
+                    when(it.type_input) {
+                        "TEXT" -> {
+                            val fragment = TextInputFragment()
+                            fragment.position = index
+                            fragment.page = it
+                            adapter.addFragment(fragment, "Invoer")
+                        }
+                        else -> {
+                            Log.i("INITILIAZE_PAGES", "INPUT")
+                            val fragment = FragmentExerciseInvoer()
+                            Log.d("INPUT_TYPE", it.type_input)
+                            fragment.position = index
+                            fragment.page = it
+                            val arg = Bundle()
+                            arg.putString("opgave", it.title)
+                            fragment.arguments = arg
+                            adapter.addFragment(fragment, "Invoer")
+                        }
+                    }
                 }
             }
         }
-//        adapter.setFragments(frags, titles)
         viewPager.adapter = adapter
     }
 }

@@ -56,8 +56,8 @@ class PageViewModel:InjectedViewModel() {
                         pages.value = result
                         Log.d("PAGE_RESULT", "FUCK")
                     }
-//                    ,
-//                    { error -> Log.d("PAGE_ERR", error.message) }
+                    ,
+                    { error -> Log.d("PAGE_ERR", error.message) }
                 )
         }
     }

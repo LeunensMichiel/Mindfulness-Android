@@ -25,7 +25,7 @@ import java.lang.Exception
 class TextInputFragment : Fragment() {
 
     private lateinit var pageView: PageViewModel
-    private lateinit var post: Model.Post
+    private var post: Model.Post? = null
     var position:Int = -1
     lateinit var page: Model.Page
 
@@ -55,12 +55,13 @@ class TextInputFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (this.arguments!!.containsKey("opgave")) {
-            fragment_textinput_textfield.hint = this.arguments!!.getString("opgave", "check")
+        fragment_textinput_titel.setText("Geschiedenis aan het nakijken...")
+
+        fragment_textinput_btn.onClick {
+            pageView.pageError.postValue(Model.errorMessage(null, "Input nog niet klaar."))
         }
 
-        if (!::post.isInitialized)
-            pageView.checkInputPage(page._id, position)
+        pageView.checkInputPage(page._id, position)
     }
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
@@ -74,13 +75,12 @@ class TextInputFragment : Fragment() {
     }
 
     fun setupTextInput(){
-        if (::post.isInitialized)
-            fragment_textinput_titel.setText(post.inhoud)
-        else
-            fragment_textinput_titel.setText(arguments!!.getString("opgave", "check"))
+        if (post != null)
+            fragment_textinput_textfield.hint = post?.inhoud
+        fragment_textinput_titel.setText(page.title)
 
         fragment_textinput_btn.onClick {
-            post = pageView.updatePost(position, page, fragment_textinput_textfield.text.toString(), post)
+            post = pageView.updatePost(position, page, fragment_textinput_textfield.text.toString(), post!!)
         }
     }
 
