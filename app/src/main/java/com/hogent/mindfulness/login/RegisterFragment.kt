@@ -78,8 +78,13 @@ class RegisterFragment : Fragment() {
             false
         })
 
+        if(activity!!.intent.hasExtra("register")) {
+            edit_group_code.setText(activity!!.intent.getStringExtra("code"))
+        }
+
         registerfragment_GroupBtn.setOnClickListener {
             val intent = Intent(activity, ScannerActivity::class.java)
+            intent.putExtra("returnActivity", 1)
             startActivity(intent)
         }
 

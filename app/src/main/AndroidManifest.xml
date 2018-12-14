@@ -29,6 +29,7 @@
                 android:configChanges="keyboard|orientation|locale|fontScale|screenLayout|screenSize|uiMode|navigation|touchscreen|keyboardHidden|layoutDirection|smallestScreenSize"
                 android:windowSoftInputMode="adjustPan|adjustResize"
                 android:theme="@style/AppTheme.Launcher"
+                android:launchMode="singleTop"
         >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

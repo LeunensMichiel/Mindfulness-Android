@@ -57,6 +57,7 @@ import android.graphics.drawable.ColorDrawable
 import android.widget.Button
 import android.widget.TextView
 import com.hogent.mindfulness.data.FeedbackApiService
+import com.hogent.mindfulness.services.SingleJob
 import java.util.*
 
 
@@ -174,22 +175,22 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
             } else {
                 if (it.group != null) {
                     navigation.visibility = View.VISIBLE
-                    val notifs = getGroupNotifications()
-                    if (notifs != null) {
-                        for (i in notifs) {
-                            if (i.notification_launchtijdstip.date == Calendar.DATE) {
-                                DailyNotificationJob.scheduleJob(
-                                    (i.notification_launchtijdstip.hours * 60) + i.notification_launchtijdstip.minutes,
-                                    TimeUnit.HOURS.toMillis(24),
-                                    i.notification_title,
-                                    i.notification_beschrijving,
-                                    "mindfulness",
-                                    true
-                                )
+                    if(userView.dbUser.value!!.group!!.notifications != null) {
+                        val notifs = userView.dbUser.value!!.group!!.notifications
+                        notifs?.let {
+                            for (i in it) {
+                                if (i.notification_launchtijdstip.date == Calendar.DATE) {
+                                    SingleJob.scheduleJob(
+                                        (i.notification_launchtijdstip.hours * 60) + i.notification_launchtijdstip.minutes,
+                                        TimeUnit.HOURS.toMillis(24),
+                                        i.notification_title,
+                                        i.notification_beschrijving,
+                                        "mindfulness"
+                                    )
+                                }
                             }
                         }
                     }
-
                     sessionFragment = SessionFragment()
                     postFragment = PostFragment()
                     profileFragment = ProfileFragment()
@@ -198,7 +199,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                         .replace(R.id.session_container, sessionFragment)
                         .commit()
 
-                    if(intent.hasExtra("sessionID")) {
+                    if(intent.extras != null) {
                         feedbackSessionID = intent.getStringExtra("sessionID")
                         stateView.dialogState?.value = "FEEDBACK_DIALOG"
                     }
@@ -262,6 +263,21 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
     }
 
+    override fun onNewIntent(newIntent: Intent) {
+        this.intent = newIntent
+        intent = newIntent
+//        Toast.makeText(this, intent.getStringExtra("sessionID"), Toast.LENGTH_SHORT)
+//        var inten = intent.getStringExtra("sessionID")
+        if(intent.extras != null) {
+            Log.i("intent", "niet null")
+            if(intent.extras.containsKey("sessionID"))
+                Log.i("heey", "heeey")
+        }
+
+        feedbackSessionID = "sessie"
+        stateView.dialogState?.value = "FEEDBACK_DIALOG"
+    }
+
     //This function replqces the register fragment back with the login fragment
     fun toLogin(v: View) {
         supportFragmentManager.beginTransaction()
@@ -323,9 +339,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
 
     override fun showMonsterDialog() {
         fullscreenMonsterDialog = FullscreenDialogWithAnimation()
-
         fullscreenMonsterDialog.show(supportFragmentManager.beginTransaction(), FullscreenDialogWithAnimation.TAG)
-
     }
 
     /**

@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment
 import android.support.v7.widget.CardView
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -98,13 +99,7 @@ class ExercisesListFragment : Fragment() {
 
             val view = inflater.inflate(layoutIdExListItem, parent, false)
 
-            SingleJob.scheduleJob(
-                1,
-                "",
-                ",",
-                "mindfulness",
-                session._id
-            )
+
 
             return ExerciseViewHolder(view)
         }
@@ -132,6 +127,16 @@ class ExercisesListFragment : Fragment() {
                     // Get the correct exercise out of the data array
                     val adapterPosition = adapterPosition
                     exView.selectedExercise?.value = mExercisesData[adapterPosition]
+                    if(adapterPosition + 1 == getItemCount()) {
+                        SingleJob.scheduleJob(
+                            4*60,
+                            30,
+                            "Mindfulness",
+                            "Wat was je ervaring met "+session.title+"?",
+                            "mindfulness",
+                            session._id
+                        )
+                    }
                 }
             }
         }

@@ -17,6 +17,7 @@ import android.widget.Toast
 import com.google.zxing.Result
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
+import com.hogent.mindfulness.login.LoginActivity
 import me.dm7.barcodescanner.zxing.ZXingScannerView
 
 
@@ -140,10 +141,10 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler{
             }
         }
 
-//        intent.putExtra("code", code)
+        intent.putExtra("code", code)
         startActivity(intent)
         val sharedPref = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-        sharedPref.edit().putString(getString(R.string.userGroupId), code).apply()
+//        sharedPref.edit().putString(getString(R.string.userGroupId), code).apply()
         finish()
     }
 }

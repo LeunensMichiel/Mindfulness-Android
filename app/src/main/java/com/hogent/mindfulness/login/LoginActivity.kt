@@ -32,7 +32,7 @@ class LoginActivity : AppCompatActivity(), LoginFragment.LoginFragmentCallBack, 
 //                .commit()
 //        }
 //        else {
-        if (intent.getIntExtra("register", 0) == 0)
+        if (!intent.hasExtra("register"))
             supportFragmentManager.beginTransaction()
                 .add(R.id.login_container, loginFragment)
                 .addToBackStack( "login" )
@@ -50,18 +50,6 @@ class LoginActivity : AppCompatActivity(), LoginFragment.LoginFragmentCallBack, 
             supportFragmentManager.beginTransaction()
                 .replace(R.id.login_container, loginFragment)
                 .commit()
-    }
-
-    private fun checkedIfLoggedIn(): Boolean {
-        val token = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-            .getString(getString(R.string.authTokenKey), null)
-        return token == null
-    }
-
-    private fun sendToMain() {
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
-        finish()
     }
 
     //This function replaces the register fragment back with the login fragment
