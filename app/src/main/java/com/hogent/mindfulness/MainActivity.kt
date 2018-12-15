@@ -12,12 +12,10 @@ import android.os.Build
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.FragmentTransaction
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -96,6 +94,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                     if (!::exerciseFragment.isInitialized) {
                         exerciseFragment = ExercisesListFragment()
                     }
+                    sessionView.loadImages()
                     exerciseFragment.session = sessionView.selectedSession.value!!
                     currentPost.session_name = sessionView.selectedSession.value!!.title
                     supportFragmentManager.beginTransaction()
@@ -173,14 +172,13 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                         }
                     }
                     sessionFragment = SessionFragment()
+
                     postFragment = PostFragment()
                     profileFragment = ProfileFragment()
 
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.session_container, sessionFragment)
                         .commit()
-
-
                 } else {
                     navigation.visibility = View.GONE
                     groupFragment = GroupFragment()
@@ -190,6 +188,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                         .commit()
                 }
             }
+
         })
 
         userView.toastMessage.observe(this, Observer {
@@ -308,7 +307,8 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
             } else {
                 if (userView.userRepo.user.value?.unlocked_sessions!!.contains(intent.getStringExtra("code"))) {
                     Toast.makeText(this, "Sessie reeds vrijgespeeld", Toast.LENGTH_SHORT).show()
-                } else {
+                }
+                else {
                     userView.unlockSession(Model.unlock_session("none", intent.getStringExtra("code")))
                 }
             }
