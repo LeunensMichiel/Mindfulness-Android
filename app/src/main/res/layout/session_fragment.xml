@@ -20,7 +20,7 @@
             android:text="UW VOORTGANG"
             android:textAllCaps="true"
             android:textAlignment="center"
-            android:textSize="24sp"/>
+            android:textSize="24sp" android:textStyle="bold"/>
 
     <TextView
             android:layout_width="0dp"
