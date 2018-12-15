@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.ExerciseViewModel
@@ -72,18 +73,22 @@ class ExercisesListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val viewAdapter = ExerciseAdapter(this, exView, userViewModel, session)
+        exerciseSessiontitle.text = session.title
+        sessionDescriptionExercise.text = session.description
+
+        val viewAdapter = ExerciseAdapter(this, exView, session)
         val viewManager = LinearLayoutManager(activity)
 
         rv_exercises.apply {
-
             layoutManager = viewManager
             adapter = viewAdapter
         }
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
+        (activity as MainActivity).setActionBarTitle(session.title)
+
     }
 
     /***********************************************************************************************
@@ -151,20 +156,7 @@ class ExercisesListFragment : Fragment() {
 
                 }
             }
-
-//            fun feedback() {
-//                if(adapterPosition + 1 == getItemCount() && dbUser.feedbackSubscribed) {
-//                    SingleJob.scheduleJob(
-//                        1,
-//                        30,
-//                        "Mindfulness",
-//                        "Wat was je ervaring met "+session.title+"?",
-//                        "mindfulness",
-//                        session._id,
-//                        session._id
-//                    )
-//                }
-//            }
         }
     }
+
 }

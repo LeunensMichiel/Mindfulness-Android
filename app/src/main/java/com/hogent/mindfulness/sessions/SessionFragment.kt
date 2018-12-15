@@ -9,7 +9,6 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
@@ -36,15 +35,10 @@ import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.SessionViewModel
 import com.hogent.mindfulness.domain.ViewModels.StateViewModel
 import com.hogent.mindfulness.scanner.ScannerActivity
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.session_fragment.*
 import kotlinx.android.synthetic.main.session_item_list.view.*
-import okhttp3.ResponseBody
 import org.jetbrains.anko.sdk27.coroutines.onClick
-import java.io.File
-import java.io.FileOutputStream
 
 
 class SessionFragment : Fragment() {
@@ -76,7 +70,6 @@ class SessionFragment : Fragment() {
         } ?: throw Exception("Invalid activity")
 
         sessionView.retrieveSessions()
-
     }
 
     /**
@@ -94,8 +87,11 @@ class SessionFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Progress_subtext.text = ("Huidige sessie: Nog geen vrijgespeeld!").toUpperCase()
+        monsterCount.text = "  x 0"
         sessionView.sessionList.observe(this, Observer {
             if (it != null) {
+                sessionView.loadImages()
                 var unlocked:Array<Model.Session> = arrayOf()
                 var unlocked_session:Model.Session? = null
                 if (sessionView.userRepo.user.value?.unlocked_sessions!!.isNotEmpty()) {
@@ -109,7 +105,10 @@ class SessionFragment : Fragment() {
                     monsterCount.text = "  x " + sessionView.sessionList.value?.filter {
                         it.unlocked
                     }?.size
+                    Log.d("SESSION_VIEW_HOLDER","SCROLL_START")
                     rv_sessions.scrollToPosition(it.indexOf(unlocked_session))
+                    Log.d("SESSION_VIEW_HOLDER","SCROLL_END")
+                    //rv_sessions.adapter?.notifyDataSetChanged()
                 } else {
                     Progress_subtext.text = ("Huidige sessie: Nog geen vrijgespeeld!").toUpperCase()
                     monsterCount.text = "  x 0"
@@ -142,27 +141,8 @@ class SessionFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-    }
+        (activity as MainActivity).setActionBarTitle("Mindfulness")
 
-    fun loadImages() {
-        sessions
-            .forEachIndexed {i, it ->
-                disposable = fileService.getFile("session_image", it.imageFilename)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        { result -> convertToBitmap(result, it.imageFilename, i) },
-                        { error -> Log.i("EXERCISE ERROR", "$error") }
-                    )
-            }
-    }
-
-    private fun convertToBitmap(result: ResponseBody, fileName: String, position: Int) {
-        var imgFile = File.createTempFile(fileName, "png")
-        imgFile.deleteOnExit()
-        val fos = FileOutputStream(imgFile)
-        fos.write(result.bytes())
-        sessions[position].bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
     }
 
     /***********************************************************************************************
@@ -189,8 +169,10 @@ class SessionFragment : Fragment() {
             mSessionData = arrayOf()
             user = sessionView.userRepo.user.value!!
             sessionView.sessionList.observe(lifecycleOwner, android.arch.lifecycle.Observer {
-                mSessionData = it!!
-                this.notifyDataSetChanged()
+                if (mSessionData.isEmpty()){
+                    mSessionData = it!!
+                    this.notifyDataSetChanged()
+                }
             })
         }
 
@@ -236,6 +218,7 @@ class SessionFragment : Fragment() {
                     return@setOnLongClickListener true
                 }
                 if (mSessionData[posie]._id == user.unlocked_sessions.last()) { // We gaan in de if clause als we het hebben over de laatste unlockte sessie
+                    Log.d("SESSION_VIEW_HOLDER","ANIM_START")
                     if (sharedpref.getString(context.getString(R.string.lastUnlockedSession), null) == "unlocked" + posie.toString()) { //We gaan nakijken of de animatie ooit al eens is afgespeeld door te kijken in de sharedpref
                         //Instellen op reeds afgespeeld
                         holder.progressAnimation.frame = 50
@@ -249,28 +232,23 @@ class SessionFragment : Fragment() {
                         //Animatie spelen en dan in de sharedprefs zeggen dat hij al is afgespeeld
                         holder.progressAnimation.setMaxFrame(50)
                         holder.progressAnimation.playAnimation()
-                        Log.d("SESSION_ANIM", "1")
                         holder.progressAnimation.addAnimatorListener(object : AnimatorListenerAdapter() {
                             override fun onAnimationEnd(animation: Animator?) {
                                 holder.progressAnimation.addValueCallback(KeyPath("**"), LottieProperty.COLOR) {
                                     Color.parseColor("#f9a825")
-                                    Log.d("SESSION_ANIM", "4")
                                 }
                                 holder.glowing_orbAnimation.playAnimation()
                             }
                         })
-                        Log.d("SESSION_ANIM", "2")
                         holder.glowing_orbAnimation.addAnimatorListener(object : AnimatorListenerAdapter() {
                             override fun onAnimationEnd(animation: Animator?) {
                                 holder.glowing_orbAnimation.addValueCallback(KeyPath("**"), LottieProperty.COLOR) {
                                     Color.parseColor("#f9a825")
-                                    Log.d("SESSION_ANIM", "5")
                                 }
                                 sessionAdapterOnUnlockSession.showMonsterDialog()
 
                             }
                         })
-                        Log.d("SESSION_ANIM", "3")
                         sharedpref.edit().putString(context.getString(R.string.lastUnlockedSession), "unlocked" + posie.toString()).apply()
                     }
                 } else { //De overige unlocked sessions

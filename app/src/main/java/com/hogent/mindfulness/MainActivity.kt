@@ -17,8 +17,8 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import com.evernote.android.job.JobManager
-import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.*
 import com.hogent.mindfulness.exercise_details.ExerciseDetailFragment
@@ -36,7 +36,6 @@ import com.hogent.mindfulness.sessions.SessionFragment
 import com.hogent.mindfulness.sessions.SessionFragment.SessionAdapter.SessionAdapterOnUnlockSession
 import com.hogent.mindfulness.settings.*
 import com.hogent.mindfulness.settings.SettingsFragment.OnPreferenceClickforFragment
-import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.feedback_popup.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
@@ -87,7 +86,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        supportActionBar!!.elevation = 0F
 
         navigation.visibility = View.GONE
         userView = ViewModelProviders.of(this).get(UserViewModel::class.java)
@@ -318,7 +317,12 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
             } else if (userView.userRepo.user.value?.group == null) {
                 userView.addGroup(Model.user_group(intent.getStringExtra("code")))
             } else {
-                userView.unlockSession(Model.unlock_session("none", intent.getStringExtra("code")))
+                if (userView.userRepo.user.value?.unlocked_sessions!!.contains(intent.getStringExtra("code"))) {
+                    Toast.makeText(this, "Sessie reeds vrijgespeeld", Toast.LENGTH_SHORT).show()
+                }
+                else {
+                    userView.unlockSession(Model.unlock_session("none", intent.getStringExtra("code")))
+                }
             }
 
         }
@@ -449,5 +453,9 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                     .commit()
             }
         }
+    }
+
+     fun setActionBarTitle(title : String) {
+        this.supportActionBar?.title = title
     }
 }

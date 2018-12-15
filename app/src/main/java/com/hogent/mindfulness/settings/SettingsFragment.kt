@@ -3,15 +3,13 @@ package com.hogent.mindfulness.settings
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Bundle
-import android.preference.SwitchPreference
 import android.support.v4.app.DialogFragment
-import com.hogent.mindfulness.R
 import android.support.v7.preference.Preference
 import android.support.v7.preference.PreferenceFragmentCompat
 import android.view.MenuItem
-import android.view.View
-import android.widget.ListView
 import com.hogent.mindfulness.BuildConfig
+import com.hogent.mindfulness.MainActivity
+import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.UserViewModel
 
@@ -114,6 +112,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
         } else {
             super.onDisplayPreferenceDialog(preference)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as MainActivity).setActionBarTitle("Instellingen")
+
     }
 }
 
