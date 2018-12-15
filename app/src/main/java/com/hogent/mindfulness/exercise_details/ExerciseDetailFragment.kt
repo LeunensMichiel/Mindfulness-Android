@@ -127,6 +127,18 @@ class ExerciseDetailFragment(): Fragment(){
                             fragment.page = it
                             adapter.addFragment(fragment, "Invoer")
                         }
+                        "IMAGE" -> {
+                            val fragment = ImageInputFragment()
+                            fragment.position = index
+                            fragment.page = it
+                            adapter.addFragment(fragment, "Invoer")
+                        }
+                        "MULTIPLE_CHOICE" -> {
+                            val fragment = MultipleChoiceFragment()
+                            fragment.position = index
+                            fragment.page = it
+                            adapter.addFragment(fragment, "Invoer")
+                        }
                         else -> {
                             Log.i("INITILIAZE_PAGES", "INPUT")
                             val fragment = FragmentExerciseInvoer()

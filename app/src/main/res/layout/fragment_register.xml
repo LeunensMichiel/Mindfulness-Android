@@ -138,36 +138,6 @@
                     android:textColor="@color/white"
                     android:textColorHint="#f5f5f5" android:layout_marginStart="32dp" android:layout_marginEnd="32dp"/>
 
-            <EditText
-                    android:id="@+id/edit_group_code"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/prompt_groupcode"
-                    android:imeActionLabel="@string/action_register_short"
-                    android:imeOptions="actionUnspecified"
-                    android:maxLines="1"
-                    android:singleLine="true" android:layout_marginTop="8dp"
-                    app:layout_constraintTop_toBottomOf="@+id/edit_register_repeat_password"
-                    app:layout_constraintStart_toStartOf="parent"
-                    android:padding="18dp"
-                    app:backgroundTint="@color/white"
-                    android:textColor="@color/white"
-                    android:textColorHint="#f5f5f5" android:layout_marginEnd="8dp"
-                    app:layout_constraintEnd_toStartOf="@+id/registerfragment_GroupBtn" android:inputType="number"
-                    android:layout_marginStart="32dp"/>
-
-            <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_camera_24dp"
-                    app:backgroundTint="#00000000"
-                    android:id="@+id/registerfragment_GroupBtn" android:layout_marginEnd="32dp"
-                    app:layout_constraintEnd_toEndOf="parent" android:layout_marginTop="8dp"
-                    app:layout_constraintTop_toBottomOf="@+id/edit_register_repeat_password"
-                    app:layout_constraintBottom_toBottomOf="@+id/edit_group_code"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-            />
-
             <Button
                     android:id="@+id/btn_register"
                     style="@style/Widget.AppCompat.Button.Colored"
@@ -178,7 +148,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     android:layout_marginEnd="32dp" android:padding="18dp" android:layout_marginTop="8dp"
-                    app:layout_constraintTop_toBottomOf="@+id/edit_group_code" android:layout_marginStart="32dp"
+                    app:layout_constraintTop_toBottomOf="@+id/edit_register_repeat_password" android:layout_marginStart="32dp"
                     android:layout_marginBottom="8dp" app:layout_constraintBottom_toTopOf="@+id/btnBackToLogin"
                     app:layout_constraintHorizontal_bias="0.0" app:layout_constraintVertical_bias="0.0"/>
             <Button
@@ -203,7 +173,8 @@
                     android:layout_marginStart="8dp" android:layout_marginBottom="16dp">
                 <ImageView
                         android:layout_width="match_parent"
-                        android:layout_height="20dp" android:src="@drawable/ic_pieterlogo"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_pieterlogo"
                         android:id="@+id/imageView2" android:contentDescription="TODO"/>
                 <TextView
                         android:text="Pieter-Jan De Schryver"

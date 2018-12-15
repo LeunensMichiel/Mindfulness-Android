@@ -1,6 +1,7 @@
 package com.hogent.mindfulness.scanner
 
 import android.Manifest.permission.CAMERA
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -14,6 +15,7 @@ import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import com.google.zxing.Result
 import com.hogent.mindfulness.MainActivity
+import com.hogent.mindfulness.login.LoginActivity
 import me.dm7.barcodescanner.zxing.ZXingScannerView
 
 
@@ -23,6 +25,7 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler{
     private var scannerView: ZXingScannerView? = null
     private val camId = CAMERA_FACING_BACK
     private lateinit var code:String
+    private var returnActivity: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,15 +35,11 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler{
         val currentApiVersion = Build.VERSION.SDK_INT
 
         if (currentApiVersion >= Build.VERSION_CODES.M) {
-//            if (checkPermission()) {
-//                Toast.makeText(applicationContext, "Permission already granted!", Toast.LENGTH_LONG).show()
-//            } else {
-//                requestPermission()
-//            }
             if(!checkPermission()){
                 requestPermission()
             }
         }
+        returnActivity = intent.getIntExtra("returnActivity", 0)
     }
 
     private fun checkPermission(): Boolean {
@@ -120,34 +119,17 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler{
     }
 
     override fun handleResult(result: Result) {
-//        code = result.text
-//        Log.d("QRCodeScanner", result.text)
-//        Log.d("QRCodeScanner", result.barcodeFormat.toString())
-//
-//        val builder = AlertDialog.Builder(this)
-//        builder.setTitle("Scan Result")
-//        builder.setPositiveButton(
-//            "Unlock"
-//        ) { dialog, which ->
-//            val intent = Intent(this, MainActivity::class.java)
-//            intent.putExtra("code", code)
-//            startActivity(intent)}
-////        builder.setNeutralButton("Visit") { dialog, which ->
-////            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(myResult))
-////            startActivity(browserIntent)
-////        }
-//        builder.setMessage(result.text)
-//        val alert1 = builder.create()
-//        alert1.show()
         code = result.text
         //Om terug te keren naar settingsFragment
+        var intent = Intent(this, MainActivity::class.java)
 
-        val intent = Intent(this, MainActivity::class.java)
+        when(returnActivity) {
+            2 -> {
+                intent.putExtra("group", "")
+            }
+        }
         intent.putExtra("code", code)
         startActivity(intent)
-//        val sharedPref = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-//        sharedPref.edit().putString(getString(R.string.userGroupId), code).apply()
-//        finish()
+        finish()
     }
-
 }

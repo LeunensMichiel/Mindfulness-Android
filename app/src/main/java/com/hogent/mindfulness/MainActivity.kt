@@ -9,7 +9,10 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
+
+import android.content.Intent
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.FragmentTransaction
 import android.support.v4.content.ContextCompat
@@ -31,7 +34,6 @@ import com.hogent.mindfulness.login.RegisterFragment
 import com.hogent.mindfulness.post.PostFragment
 import com.hogent.mindfulness.profile.ProfileFragment
 import com.hogent.mindfulness.services.NotifyJobCreator
-import com.hogent.mindfulness.services.PeriodicNotificationJob
 import com.hogent.mindfulness.sessions.FullscreenDialogWithAnimation
 import com.hogent.mindfulness.sessions.SessionFragment
 import com.hogent.mindfulness.sessions.SessionFragment.SessionAdapter.SessionAdapterOnUnlockSession
@@ -43,6 +45,7 @@ import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.toast
 import java.util.*
 import java.util.concurrent.TimeUnit
+import com.hogent.mindfulness.services.SingleJob
 
 
 class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPreferenceClickforFragment {
@@ -59,7 +62,6 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
     private lateinit var EULAFragment: EULAFragment
     private lateinit var feedbackDialog: Dialog
     private lateinit var fullscreenMonsterDialog: FullscreenDialogWithAnimation
-    private var currentUser: Model.User? = null
     private lateinit var userView: UserViewModel
     private lateinit var sessionView: SessionViewModel
     private lateinit var exView: ExerciseViewModel
@@ -156,20 +158,32 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                 if (it.group != null) {
                     sessionView.resetunlockedSession()
                     navigation.visibility = View.VISIBLE
+                    val notifs = userView.dbUser.value!!.group!!.notifications
+                    if (notifs != null) {
+                        notifs?.let {
+                            for (i in it) {
+                                SingleJob.scheduleJob(
+                                    (i.notification_launchtijdstip.hours * 60) + i.notification_launchtijdstip.minutes,
+                                    TimeUnit.HOURS.toMillis(24),
+                                    i.notification_title,
+                                    i.notification_beschrijving,
+                                    "mindfulness",
+                                    "notif${i._id}"
+                                )
+                            }
+                        }
+                    }
                     sessionFragment = SessionFragment()
 
                     postFragment = PostFragment()
                     profileFragment = ProfileFragment()
 
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.session_container, sessionFragment)
-                        .commit()
+                    toSessions()
                 } else {
                     navigation.visibility = View.GONE
-                    groupFragment = GroupFragment()
 
                     supportFragmentManager.beginTransaction()
-                        .replace(R.id.session_container, groupFragment)
+                        .replace(R.id.session_container, GroupFragment())
                         .commit()
                 }
             }
@@ -221,17 +235,27 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
 
         // Starts van notification service
         JobManager.create(this).addJobCreator(NotifyJobCreator())
-        PeriodicNotificationJob.scheduleJob(
-            TimeUnit.MINUTES.toMillis(15),
-            "Mindfulness",
-            "clean ur teeth boi",
-            "mindfulness"
-        )
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
     }
 
-    //This function replqces the register fragment back with the login fragment
+    override fun onNewIntent(newIntent: Intent) {
+        this.intent = newIntent
+
+        if (intent.hasExtra("sessionID")) {
+            sessionView.setSession(intent.getStringExtra("sessionID"))
+            stateView.dialogState?.value = "FEEDBACK_DIALOG"
+        }
+    }
+
+    //This function starts the session Fragment
+    fun toSessions() {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.session_container, SessionFragment())
+            .commit()
+    }
+
+    //This function replaces the register fragment back with the login fragment
     fun toLogin(v: View) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.session_container, LoginFragment())
@@ -253,27 +277,23 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
             .commit()
     }
 
-    private fun checkIfLoggedIn(): Boolean {
-        val token = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-            .getString(getString(R.string.authTokenKey), null)
-        return token == null
-    }
-
-    private fun checkIfHasGroup(): Boolean {
-        return currentUser!!.group == null
-    }
-
-
     override fun onResume() {
         super.onResume()
-        if (intent.hasExtra("code")){
-            if (userView.userRepo.user.value?.group == null) {
+        if (intent.hasExtra("code")) {
+            if (intent.hasExtra("group")) {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.session_container, GroupFragment())
+                    .commit()
+            } else if (intent.hasExtra("register")) {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.session_container, RegisterFragment())
+                    .commit()
+            } else if (userView.userRepo.user.value?.group == null) {
                 userView.addGroup(Model.user_group(intent.getStringExtra("code")))
             } else {
                 if (userView.userRepo.user.value?.unlocked_sessions!!.contains(intent.getStringExtra("code"))) {
                     Toast.makeText(this, "Sessie reeds vrijgespeeld", Toast.LENGTH_SHORT).show()
-                }
-                else {
+                } else {
                     userView.unlockSession(Model.unlock_session("none", intent.getStringExtra("code")))
                 }
             }
@@ -409,11 +429,11 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         }
     }
 
-     fun setActionBarTitle(title: String) {
-         this.supportActionBar?.title = title
-     }
+    fun setActionBarTitle(title: String) {
+        this.supportActionBar?.title = title
+    }
 
-    fun showAcionBar(bool : Boolean) {
+    fun showAcionBar(bool: Boolean) {
         if (bool) {
             this.supportActionBar?.show()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

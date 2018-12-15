@@ -6,12 +6,10 @@ import android.annotation.TargetApi
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.text.TextUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +18,6 @@ import android.widget.TextView
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.UserViewModel
-import com.hogent.mindfulness.scanner.ScannerActivity
 import kotlinx.android.synthetic.main.fragment_register.*
 
 
@@ -69,13 +66,29 @@ class RegisterFragment : Fragment() {
             false
         })
 
-        registerfragment_GroupBtn.setOnClickListener {
-            val intent = Intent(activity, ScannerActivity::class.java)
-            startActivity(intent)
-        }
-
         btn_register.setOnClickListener { attemptRegister() }
     }
+
+    //    override fun onSaveInstanceState(outState: Bundle) {
+//        super.onSaveInstanceState(outState)
+//
+//        outState.putString("email", email.text.toString())
+//        outState.putString("password", edit_register_password.text.toString())
+//        outState.putString("repPassword", edit_register_repeat_password.text.toString())
+//        outState.putString("groupCode", edit_group_code.text.toString())
+//        Toast.makeText(activity, "email: "+outState.getString("email"), Toast.LENGTH_SHORT)
+//    }
+
+//    override fun onActivityCreated(savedInstanceState: Bundle?) {
+//        super.onActivityCreated(savedInstanceState)
+//
+//        if(savedInstanceState != null) {
+//
+//            email.setText(savedInstanceState.getString("email"))
+//            edit_register_password.setText(savedInstanceState.getString("password"))
+//            edit_register_repeat_password.setText(savedInstanceState.getString("repPassword"))
+//        }
+//    }
 
     private fun attemptRegister() {
 //        if (mAuthTask != null) {
@@ -85,7 +98,6 @@ class RegisterFragment : Fragment() {
         // Reset errors.
         register_email.error = null
         edit_register_repeat_password.error = null
-        edit_group_code.error = null
         register_firstname.error = null
         register_lastname.error = null
         // Store values at the time of the login attempt.
@@ -100,8 +112,6 @@ class RegisterFragment : Fragment() {
             edit_register_repeat_password.error = getString(R.string.error_field_required)
             focusView = edit_register_repeat_password
             cancel = true
-
-            Log.d("logintest", passwordStr)
         }
 
         // Check for a valid email address.
@@ -134,11 +144,10 @@ class RegisterFragment : Fragment() {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            val registerDetails = Model.Register(emailStr, passwordStr, register_firstname.text.toString(), register_lastname.text.toString())
+            val registerDetails = Model.Register(emailStr, passwordStr, register_firstname.text.toString(),
+                register_lastname.text.toString())
             userView.register(registerDetails)
         }
-
-
     }
 
 //    private fun successfulRegistration(user: Model.User) {

@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment
 import android.support.v7.widget.CardView
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,9 +19,14 @@ import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.ExerciseViewModel
+import com.hogent.mindfulness.domain.ViewModels.UserViewModel
+import com.hogent.mindfulness.services.DailyNotificationJob
+import com.hogent.mindfulness.services.PeriodicNotificationJob
+import com.hogent.mindfulness.services.SingleJob
 import kotlinx.android.synthetic.main.exercise_list_item.view.*
 import kotlinx.android.synthetic.main.fragment_exercises_pane.*
 import org.jetbrains.anko.imageBitmap
+import java.util.concurrent.TimeUnit
 
 class ExercisesListFragment : Fragment() {
 
@@ -30,6 +36,7 @@ class ExercisesListFragment : Fragment() {
      */
     lateinit var session: Model.Session
     private lateinit var exView: ExerciseViewModel
+    private lateinit var userViewModel: UserViewModel
 
     /**
      * I used this resource: https://developer.android.com/guide/topics/ui/layout/recyclerview
@@ -44,6 +51,20 @@ class ExercisesListFragment : Fragment() {
             ViewModelProviders.of(this).get(ExerciseViewModel::class.java)
         }?: throw Exception("Invalid activity")
 
+        userViewModel = activity?.run {
+            ViewModelProviders.of(this).get(UserViewModel::class.java)
+        } ?: throw Exception("Invalid Activity")
+
+        SingleJob.scheduleJob(
+            1,
+            30,
+            "Mindfulness",
+            "Wat was je ervaring met " + session.title + "?",
+            "mindfulness",
+            session._id,
+            session._id
+        )
+
         exView.retrieveExercises()
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_exercises_pane, container, false)
@@ -55,7 +76,7 @@ class ExercisesListFragment : Fragment() {
         exerciseSessiontitle.text = session.title
         sessionDescriptionExercise.text = session.description
 
-        val viewAdapter = ExerciseAdapter(this, exView, session)
+        val viewAdapter = ExerciseAdapter(this, exView, userViewModel, session)
         val viewManager = LinearLayoutManager(activity)
 
         rv_exercises.apply {
@@ -77,10 +98,12 @@ class ExercisesListFragment : Fragment() {
     class ExerciseAdapter(
         private val lifecycleOwner: LifecycleOwner,
         private val exView:ExerciseViewModel,
+        private val userView:UserViewModel,
         val session: Model.Session
     ) : RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder>() {
 
         private var mExercisesData: Array<Model.Exercise> = arrayOf()
+
 
         init {
             exView.exercises.observe(lifecycleOwner, Observer {
@@ -97,7 +120,9 @@ class ExercisesListFragment : Fragment() {
 
             val view = inflater.inflate(layoutIdExListItem, parent, false)
 
-            return ExerciseViewHolder(view)
+
+
+            return ExerciseViewHolder(view, userView)
         }
 
         //  This function gives the size back of the data list
@@ -110,12 +135,17 @@ class ExercisesListFragment : Fragment() {
             val exerciseTitle = mExercisesData[position]
             holder.title.text = exerciseTitle.title
             holder.image.imageBitmap = session.bitmap
+
         }
 
-        inner class ExerciseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        inner class ExerciseViewHolder(view: View, userView:UserViewModel) : RecyclerView.ViewHolder(view) {
             val title: TextView = view.exerciseName
             val card: CardView = view.btn_exercise
             val image: ImageView = view.exerciseImage
+
+
+
+            val dbUser = userView.dbUser.value!!
 
             // Add clicklistener on the item from the recyclerview
             init {
@@ -123,6 +153,7 @@ class ExercisesListFragment : Fragment() {
                     // Get the correct exercise out of the data array
                     val adapterPosition = adapterPosition
                     exView.selectedExercise?.value = mExercisesData[adapterPosition]
+
                 }
             }
         }

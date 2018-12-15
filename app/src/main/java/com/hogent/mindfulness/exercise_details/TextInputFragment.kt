@@ -68,6 +68,7 @@ class TextInputFragment : Fragment() {
         super.setUserVisibleHint(isVisibleToUser)
         Log.d("INPUT", "WHY")
         if (isAdded()) {
+            Log.d("TEXT_INPUT_POST", "${pageView.pages.value!![position].post}")
             if (isVisibleToUser && pageView.pages.value!![position].post == null){
                 pageView.checkInputPage(page._id, position)
             }

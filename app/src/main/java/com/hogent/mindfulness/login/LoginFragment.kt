@@ -6,6 +6,7 @@ import android.annotation.TargetApi
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -16,10 +17,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
+import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
+import com.hogent.mindfulness.data.*
+import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.UserViewModel
 import kotlinx.android.synthetic.main.fragment_login.*
+import org.jetbrains.anko.support.v4.toast
 
 class LoginFragment : Fragment() {
     private lateinit var userViewModel: UserViewModel
@@ -36,7 +41,6 @@ class LoginFragment : Fragment() {
 
         userViewModel.rawUser.observe(this, Observer {
             if (it != null){
-                Log.d("RAW_USER_OBSERVER", "CHECK")
                 activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
                     .edit()
                     .putString(getString(R.string.authTokenKey), it.token)
@@ -167,7 +171,6 @@ class LoginFragment : Fragment() {
         // TODO geef hier later een betere foutmelding op mss niet speciefiek op password
         login_password.error = getString(R.string.error_incorrect_password)
         login_password.requestFocus()
-        Log.d("logintje", error)
         showProgress(false)
     }
 
@@ -188,7 +191,6 @@ class LoginFragment : Fragment() {
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private fun showProgress(show: Boolean) {
-        Log.d("SHOW_PROGRESS", "FUNCTION_CHECK")
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.

@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.support.v4.app.NotificationCompat
+import android.util.Log
 import com.hogent.mindfulness.R
 
 class Notifications {
@@ -16,6 +17,7 @@ class Notifications {
             message: String,
             channelId: String,
             context: Context,
+            vibrate: Boolean,
             targetIntent: Intent
         ): Notification {
 
@@ -25,9 +27,13 @@ class Notifications {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(title)
                 .setContentText(message)
+                .setVisibility(1)
                 .setAutoCancel(true)
-                .setPriority(NotificationCompat.FLAG_FOREGROUND_SERVICE)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setContentIntent(contentIntent)
+            if (vibrate) {
+                mBuilder.setVibrate(longArrayOf(1000, 1000, 1000, 1000, 1000))
+            }
 
             return mBuilder.build()
         }

@@ -53,7 +53,7 @@ class UserViewModel : InjectedViewModel() {
     }
     
     fun register(registerDetails: Model.Register){
-        uiMessage.postValue(Model.uiMessage("registere_start_progress"))
+        uiMessage.postValue(Model.uiMessage("registeren_start_progress"))
         subscription = userApi.register(registerDetails)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

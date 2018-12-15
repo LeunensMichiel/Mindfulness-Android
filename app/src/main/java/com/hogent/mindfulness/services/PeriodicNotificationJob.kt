@@ -1,8 +1,10 @@
 package com.hogent.mindfulness.services
 
+import android.app.Notification
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.support.v4.app.NotificationCompat
 import com.evernote.android.job.Job
 import com.evernote.android.job.JobRequest
 import com.hogent.mindfulness.MainActivity
@@ -14,7 +16,6 @@ class PeriodicNotificationJob : Job() {
     // https://medium.com/mindorks/android-scheduling-background-services-a-developers-nightmare-c573807c2705
 
     override fun onRunJob(params: Params): Result {
-
         val extras = params.extras
 
         val targetIntent = Intent(context, MainActivity::class.java)
@@ -23,18 +24,9 @@ class PeriodicNotificationJob : Job() {
         val message = extras.getString("message", "")
         val channelId = extras.getString("channelId", "mindfulness")
 
-        val notification = Notifications.getNotification(title, message, channelId, context, targetIntent)
+        val notification = Notifications.getNotification(title, message, channelId, context, false, targetIntent)
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            val channel = NotificationChannel(
-//                channelId,
-//                "Mindfulness notifications",
-//                NotificationManager.IMPORTANCE_DEFAULT
-//            )
-//            notificationManager.createNotificationChannel(channel)
-//        }
 
         notificationManager.notify(0, notification)
 
@@ -59,8 +51,6 @@ class PeriodicNotificationJob : Job() {
                 .setExtras(extras)
                 .build()
                 .schedule()
-
         }
     }
-
 }

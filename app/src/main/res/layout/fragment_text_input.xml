@@ -20,6 +20,7 @@
     <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:text="@string/input_loading_text"
             android:id="@+id/fragment_textinput_titel" app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="8dp"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
