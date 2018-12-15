@@ -80,9 +80,6 @@ class TimePreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
                     timePreference.mTime = minutesAfterMidnight
                 }
             }
-
-
-
             if(dbUser.unlocked_sessions.size > 0) {
                 DailyNotificationJob.scheduleJob(
                     minutesAfterMidnight,
@@ -93,7 +90,6 @@ class TimePreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
                     true
                 )
             }
-
         }
     }
 

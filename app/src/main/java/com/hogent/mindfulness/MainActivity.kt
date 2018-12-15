@@ -33,9 +33,7 @@ import com.hogent.mindfulness.login.LoginFragment
 import com.hogent.mindfulness.login.RegisterFragment
 import com.hogent.mindfulness.post.PostFragment
 import com.hogent.mindfulness.profile.ProfileFragment
-import com.hogent.mindfulness.services.DailyNotificationJob
 import com.hogent.mindfulness.services.NotifyJobCreator
-import com.hogent.mindfulness.services.PeriodicNotificationJob
 import com.hogent.mindfulness.sessions.FullscreenDialogWithAnimation
 import com.hogent.mindfulness.sessions.SessionFragment
 import com.hogent.mindfulness.sessions.SessionFragment.SessionAdapter.SessionAdapterOnUnlockSession
@@ -47,12 +45,7 @@ import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.toast
 import java.util.*
 import java.util.concurrent.TimeUnit
-import android.content.SharedPreferences
-import android.widget.Button
-import android.widget.TextView
-import com.hogent.mindfulness.data.FeedbackApiService
 import com.hogent.mindfulness.services.SingleJob
-import java.util.*
 
 
 class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPreferenceClickforFragment {
@@ -164,8 +157,8 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                 if (it.group != null) {
                     sessionView.resetunlockedSession()
                     navigation.visibility = View.VISIBLE
-                    if (userView.dbUser.value!!.group!!.notifications != null) {
-                        val notifs = userView.dbUser.value!!.group!!.notifications
+                    val notifs = userView.dbUser.value!!.group!!.notifications
+                    if (notifs != null) {
                         notifs?.let {
                             for (i in it) {
                                 SingleJob.scheduleJob(
@@ -186,7 +179,6 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.session_container, sessionFragment)
                         .commit()
-
 
 
                 } else {
@@ -253,7 +245,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         this.intent = newIntent
         intent = newIntent
 
-        if(intent.hasExtra("sessionID")) {
+        if (intent.hasExtra("sessionID")) {
             sessionView.selectedSession?.value = null
             stateView.dialogState?.value = "FEEDBACK_DIALOG"
         }
@@ -307,13 +299,16 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.session_container, groupFragment)
                     .commit()
+            } else if (intent.hasExtra("register")) {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.session_container, RegisterFragment())
+                    .commit()
             } else if (userView.userRepo.user.value?.group == null) {
                 userView.addGroup(Model.user_group(intent.getStringExtra("code")))
             } else {
                 if (userView.userRepo.user.value?.unlocked_sessions!!.contains(intent.getStringExtra("code"))) {
                     Toast.makeText(this, "Sessie reeds vrijgespeeld", Toast.LENGTH_SHORT).show()
-                }
-                else {
+                } else {
                     userView.unlockSession(Model.unlock_session("none", intent.getStringExtra("code")))
                 }
             }
@@ -449,11 +444,11 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         }
     }
 
-     fun setActionBarTitle(title: String) {
-         this.supportActionBar?.title = title
-     }
+    fun setActionBarTitle(title: String) {
+        this.supportActionBar?.title = title
+    }
 
-    fun showAcionBar(bool : Boolean) {
+    fun showAcionBar(bool: Boolean) {
         if (bool) {
             this.supportActionBar?.show()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
