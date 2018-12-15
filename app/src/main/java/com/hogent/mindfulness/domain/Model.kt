@@ -140,7 +140,9 @@ object Model {
 
     data class Register(
         val email: String,
-        val password: String
+        val password: String,
+        val firstname: String,
+        val lastname: String
     )
 
     data class Result(

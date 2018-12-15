@@ -29,7 +29,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_register.*
-import java.lang.Exception
 
 
 class RegisterFragment : Fragment() {
@@ -121,6 +120,8 @@ class RegisterFragment : Fragment() {
         register_email.error = null
         edit_register_repeat_password.error = null
         edit_group_code.error = null
+        register_firstname.error = null
+        register_lastname.error = null
         // Store values at the time of the login attempt.
         val emailStr = register_email.text.toString()
         val passwordStr = edit_register_repeat_password.text.toString()
@@ -146,6 +147,18 @@ class RegisterFragment : Fragment() {
             cancel = true
         }
 
+        if (TextUtils.isEmpty(register_firstname.text.toString())) {
+            register_firstname.error = getString(R.string.error_field_required)
+            focusView = register_firstname
+            cancel = true
+        }
+
+        if (TextUtils.isEmpty(register_lastname.text.toString())) {
+            register_lastname.error = getString(R.string.error_field_required)
+            focusView = register_lastname
+            cancel = true
+        }
+
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
@@ -153,7 +166,7 @@ class RegisterFragment : Fragment() {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            val registerDetails = Model.Register(emailStr, passwordStr)
+            val registerDetails = Model.Register(emailStr, passwordStr, register_firstname.text.toString(), register_lastname.text.toString())
             userView.register(registerDetails)
         }
 
@@ -187,8 +200,7 @@ class RegisterFragment : Fragment() {
     }
 
     private fun failedRegistration(error: String?) {
-        // TODO geef hier later een betere foutmelding op mss niet speciefiek op password
-        edit_register_password.error = getString(R.string.error_incorrect_password)
+        edit_register_password.error = getString(R.string.failed_registration)
         edit_register_password.requestFocus()
         showProgress(false)
     }
