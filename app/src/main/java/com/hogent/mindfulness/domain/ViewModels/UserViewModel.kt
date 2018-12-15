@@ -143,11 +143,11 @@ class UserViewModel : InjectedViewModel() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { result -> run {
-                    uiMessage.value?.data = "$result"
+                    uiMessage.value?.data = "emailsent"
                     Log.d("PROFILE_PICTURE_RESULT", "$result") }
                 },
                 { error -> run {
-                    uiMessage.value?.data = "$error"
+                    uiMessage.value?.data = "emailerror"
                     Log.d("SEND_EMAIL_ERROR", "$error") }
                 }
             )

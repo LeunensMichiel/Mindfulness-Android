@@ -1,6 +1,7 @@
 package com.hogent.mindfulness.login
 
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -37,6 +38,21 @@ class ForgotPasswordFragment : Fragment() {
 
         enableOtherFields(false)
 
+        userView.uiMessage.observe(this, Observer {
+            when (it!!.data) {
+                "emailsent" -> {
+                    forgotpassword_loading.visibility = View.GONE
+                    enableOtherFields(true)
+                    teforgotpassword_statustext.text = "Controleer uw emailadres voor een code"
+                }
+                "emailerror" -> {
+                    forgotpassword_loading.visibility = View.GONE
+                    enableOtherFields(false)
+                    teforgotpassword_statustext.text = "Er is een fout opgelopen"
+                }
+            }
+        })
+
         forgotpassword_emailBtn.setOnClickListener {
             attemptGettingCode()
         }
@@ -44,9 +60,8 @@ class ForgotPasswordFragment : Fragment() {
         forgotpassword_passBtn.setOnClickListener {
             attemptChangingPassword()
         }
-
-
     }
+
 
     private fun enableOtherFields(boolean: Boolean) {
         forgotpassword_password.isEnabled = boolean
@@ -61,7 +76,13 @@ class ForgotPasswordFragment : Fragment() {
     }
 
     private fun attemptChangingPassword() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        var cancel = false
+        var focusView: View? = null
+        forgotpassword_password.error = null
+        forgotpassword_passwordrepeat.error = null
+        forgotpassword_code.error = null
+
+
     }
 
     private fun attemptGettingCode() {
@@ -80,8 +101,6 @@ class ForgotPasswordFragment : Fragment() {
         }
 
         if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
             focusView?.requestFocus()
         } else {
             forgotpassword_loading.visibility = View.VISIBLE

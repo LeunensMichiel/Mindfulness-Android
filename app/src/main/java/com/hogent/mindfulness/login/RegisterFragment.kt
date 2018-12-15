@@ -17,22 +17,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
-import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.data.API.UserApiService
-import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.UserViewModel
 import com.hogent.mindfulness.scanner.ScannerActivity
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_register.*
 
 
 class RegisterFragment : Fragment() {
 
-    private lateinit var disposable: Disposable
     private lateinit var userView:UserViewModel
 
     override fun onCreateView(
@@ -148,37 +141,24 @@ class RegisterFragment : Fragment() {
 
     }
 
-    private fun startRegistrationCall(registerDetails: Model.Register) {
-        val loginService = ServiceGenerator.createService(UserApiService::class.java, (activity as LoginActivity))
-        showProgress(true)
-
-        disposable = loginService.register(registerDetails)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { user -> successfulRegistration(user) },
-                { error -> failedRegistration(error.message) }
-            )
-    }
-
-    private fun successfulRegistration(user: Model.User) {
-
-        showProgress(false)
-        activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-            .edit()
-            .putString(getString(R.string.authTokenKey), user.token)
-            .putString(getString(R.string.userIdKey), user._id)
-            .apply()
-
-        val intent = Intent(activity, MainActivity::class.java)
-        startActivity(intent)
-    }
-
-    private fun failedRegistration(error: String?) {
-        edit_register_password.error = getString(R.string.failed_registration)
-        edit_register_password.requestFocus()
-        showProgress(false)
-    }
+//    private fun successfulRegistration(user: Model.User) {
+//
+//        showProgress(false)
+//        activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+//            .edit()
+//            .putString(getString(R.string.authTokenKey), user.token)
+//            .putString(getString(R.string.userIdKey), user._id)
+//            .apply()
+//
+//        val intent = Intent(activity, MainActivity::class.java)
+//        startActivity(intent)
+//    }
+//
+//    private fun failedRegistration(error: String?) {
+//        edit_register_password.error = getString(R.string.failed_registration)
+//        edit_register_password.requestFocus()
+//        showProgress(false)
+//    }
 
     private fun isEmailValid(email: String): Boolean {
         //TODO: Replace this with your own logic
