@@ -93,6 +93,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                     if (!::exerciseFragment.isInitialized) {
                         exerciseFragment = ExercisesListFragment()
                     }
+                    sessionView.loadImages()
                     exerciseFragment.session = sessionView.selectedSession.value!!
                     currentPost.session_name = sessionView.selectedSession.value!!.title
                     supportFragmentManager.beginTransaction()

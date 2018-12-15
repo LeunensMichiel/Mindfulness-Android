@@ -28,14 +28,10 @@ import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.model.KeyPath
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.data.FIleApiService
-import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
-import com.hogent.mindfulness.data.SessionApiService
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.SessionViewModel
 import com.hogent.mindfulness.domain.ViewModels.StateViewModel
 import com.hogent.mindfulness.scanner.ScannerActivity
-import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.session_fragment.*
 import kotlinx.android.synthetic.main.session_item_list.view.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
@@ -46,19 +42,9 @@ class SessionFragment : Fragment() {
      * Here will the sessionData be stored
      * Disposable used for calling api calls
      */
-    private val mMindfullDB by lazy {
-        MindfulnessDBHelper(activity as MainActivity )
-    }
-    private lateinit var sessions: Array<Model.Session>
     private lateinit var mAdapter: SessionAdapter
-    private lateinit var sessionBools: BooleanArray
-    private lateinit var disposable: Disposable
-    private lateinit var user: Model.User
     private lateinit var sessionView: SessionViewModel
     private lateinit var stateView:StateViewModel
-    lateinit var unlockSession: String
-    private lateinit var sessionService:SessionApiService
-    private lateinit var fileService: FIleApiService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,7 +79,6 @@ class SessionFragment : Fragment() {
         monsterCount.text = "  x 0"
         sessionView.sessionList.observe(this, Observer {
             if (it != null) {
-                sessionView.loadImages()
                 var unlocked:Array<Model.Session> = arrayOf()
                 var unlocked_session:Model.Session? = null
                 if (sessionView.userRepo.user.value?.unlocked_sessions!!.isNotEmpty()) {
