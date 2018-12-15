@@ -76,7 +76,7 @@ class ExercisesListFragment : Fragment() {
         exerciseSessiontitle.text = session.title
         sessionDescriptionExercise.text = session.description
 
-        val viewAdapter = ExerciseAdapter(this, exView, session)
+        val viewAdapter = ExerciseAdapter(this, exView, userViewModel, session)
         val viewManager = LinearLayoutManager(activity)
 
         rv_exercises.apply {

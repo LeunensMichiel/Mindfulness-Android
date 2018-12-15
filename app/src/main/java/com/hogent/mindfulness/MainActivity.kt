@@ -66,7 +66,6 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
     private lateinit var EULAFragment: EULAFragment
     private lateinit var feedbackDialog: Dialog
     private lateinit var fullscreenMonsterDialog: FullscreenDialogWithAnimation
-    private var currentUser: Model.User? = null
     private lateinit var userView: UserViewModel
     private lateinit var sessionView: SessionViewModel
     private lateinit var exView: ExerciseViewModel
@@ -144,7 +143,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                             feedbackDialog.hide()
                         }
                     }
-                    feedbackDialog.feedback_namesessie.text = feedbackSessionID
+                    feedbackDialog.feedback_namesessie.text = sessionView.selectedSession?.value?.title
                     feedbackDialog.show()
                 }
             }
@@ -251,19 +250,9 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         intent = newIntent
 
         if(intent.hasExtra("sessionID")) {
-            feedbackSessionID = intent.getStringExtra("sessionID")
+            sessionView.selectedSession?.value = null
             stateView.dialogState?.value = "FEEDBACK_DIALOG"
         }
-//        Toast.makeText(this, intent.getStringExtra("sessionID"), Toast.LENGTH_SHORT)
-//        var inten = intent.getStringExtra("sessionID")
-//        if (intent.extras != null) {
-//            Log.i("intent", "niet null")
-//            if (intent.extras.containsKey("sessionID"))
-//                Log.i("heey", "heeey")
-//        }
-//
-//        feedbackSessionID = "sessie"
-//        stateView.dialogState?.value = "FEEDBACK_DIALOG"
     }
 
     //This function replqces the register fragment back with the login fragment
@@ -324,9 +313,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                     userView.unlockSession(Model.unlock_session("none", intent.getStringExtra("code")))
                 }
             }
-
         }
-
     }
 
     override fun showMonsterDialog() {

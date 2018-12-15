@@ -58,7 +58,7 @@ class SingleJob : Job() {
             val executionWindow = DailyExecutionWindow(hour, minute, hour+(inMinutes/60).toLong(), minute+(inMinutes%60).toLong(), duration)
 
             JobRequest.Builder(SingleJob.TAG)
-                .startNow()
+                .setExact(inMinutes.toLong())
                 .setUpdateCurrent(true)
                 .setExtras(extras)
                 .build()

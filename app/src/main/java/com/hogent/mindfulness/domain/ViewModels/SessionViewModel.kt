@@ -39,7 +39,6 @@ class SessionViewModel:InjectedViewModel() {
 
 
     fun retrieveSessions(){
-        Log.d("SESSION_VM", "API")
         subscribe = sessionService.getSessions(userRepo.user.value?.group?.sessionmap_id!!)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
