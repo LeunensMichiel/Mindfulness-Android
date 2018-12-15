@@ -77,16 +77,6 @@ class RegisterFragment : Fragment() {
             false
         })
 
-        if(activity!!.intent.hasExtra("register")) {
-            edit_group_code.setText(activity!!.intent.getStringExtra("code"))
-        }
-
-        registerfragment_GroupBtn.setOnClickListener {
-            val intent = Intent(activity, ScannerActivity::class.java)
-            intent.putExtra("returnActivity", 1)
-            startActivity(intent)
-        }
-
         btn_register.setOnClickListener { attemptRegister() }
     }
 
@@ -119,7 +109,6 @@ class RegisterFragment : Fragment() {
         // Reset errors.
         register_email.error = null
         edit_register_repeat_password.error = null
-        edit_group_code.error = null
         register_firstname.error = null
         register_lastname.error = null
         // Store values at the time of the login attempt.

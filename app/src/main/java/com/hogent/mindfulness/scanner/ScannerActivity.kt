@@ -124,14 +124,10 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler{
         var intent = Intent(this, MainActivity::class.java)
 
         when(returnActivity) {
-            1 -> {
-                intent.putExtra("register", "")
-            }
             2 -> {
                 intent.putExtra("group", "")
             }
         }
-
         intent.putExtra("code", code)
         startActivity(intent)
         finish()
