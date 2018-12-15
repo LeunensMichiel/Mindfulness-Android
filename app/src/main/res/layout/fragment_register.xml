@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:gravity="center_horizontal"
               android:orientation="vertical"
               android:background="@color/colorPrimary">
+
+    <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" android:src="@drawable/clouds_fog_forest"
+            android:id="@+id/imageView3" android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            android:tint="#43000000"
+    />
 
     <ProgressBar
             android:id="@+id/register_progress"
@@ -14,24 +22,13 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:layout_marginBottom="8dp"
-            android:visibility="gone"/>
+            android:visibility="visible" android:layout_centerHorizontal="true"/>
     <ScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true">
 
         <android.support.constraint.ConstraintLayout
                 android:id="@+id/register_form"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-
-            <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="0dp" android:src="@drawable/clouds_fog_forest"
-                    android:id="@+id/imageView3"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" android:scaleType="centerCrop"
-                    android:adjustViewBounds="true"
-                    android:tint="#43000000"
-            />
 
             <ImageView android:layout_width="100dp"
                        android:layout_height="100dp"
@@ -206,7 +203,7 @@
                     android:layout_marginStart="8dp" android:layout_marginBottom="16dp">
                 <ImageView
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" android:src="@drawable/ic_pieterlogo"
+                        android:layout_height="20dp" android:src="@drawable/ic_pieterlogo"
                         android:id="@+id/imageView2" android:contentDescription="TODO"/>
                 <TextView
                         android:text="Pieter-Jan De Schryver"
@@ -218,4 +215,4 @@
         </android.support.constraint.ConstraintLayout>
     </ScrollView>
 
-</LinearLayout>
+</RelativeLayout>

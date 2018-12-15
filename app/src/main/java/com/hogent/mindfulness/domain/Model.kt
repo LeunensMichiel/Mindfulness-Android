@@ -135,6 +135,10 @@ object Model {
         val lastname: String
     )
 
+    data class ForgotPassword(
+        val email: String
+    )
+
     data class Result(
         val result: String
     )

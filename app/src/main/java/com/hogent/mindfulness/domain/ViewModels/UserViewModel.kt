@@ -136,6 +136,23 @@ class UserViewModel : InjectedViewModel() {
             )
     }
 
+    fun sendPasswordEmail(email : String) {
+        val emailUser = Model.ForgotPassword(email)
+        subscription = userApi.sendPasswordEmail(emailUser)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> run {
+                    uiMessage.value?.data = "$result"
+                    Log.d("PROFILE_PICTURE_RESULT", "$result") }
+                },
+                { error -> run {
+                    uiMessage.value?.data = "$error"
+                    Log.d("SEND_EMAIL_ERROR", "$error") }
+                }
+            )
+    }
+
     private fun onRetrieveUserSucces(user: Model.User?) {
         rawUser.value = user
         userRepo.insert(user!!)
