@@ -142,14 +142,20 @@ class PageViewModel:InjectedViewModel() {
     }
 
 
-    fun updatePost(position: Int, page:Model.Page, description:String, newPost:Model.Post):Model.Post {
+    fun updatePost(position: Int, page:Model.Page, description:String, newPost:Model.Post, mulChoiceList: Array<Model.MultipleChoiceItem> = arrayOf()):Model.Post {
         Log.d("POSTUPDATE", "CHECK")
         var currentPost = Model.Post()
         currentPost.page_id = page._id
         currentPost.page_name = page.title
-        currentPost.inhoud = description
         currentPost.user_id = userRepo.user.value?._id
         currentPost._id = newPost._id
+
+        if (mulChoiceList.isNotEmpty()){
+            currentPost.multiple_choice_items = mulChoiceList
+        } else {
+            currentPost.inhoud = description
+        }
+
         if (currentPost._id == "none" || currentPost._id == null){
             currentPost._id = null
             subscription = postService.addPost(currentPost)
@@ -179,14 +185,12 @@ class PageViewModel:InjectedViewModel() {
         pageError.value?.error = "Input opgeslagen."
     }
 
-    fun updatePostImage(file:File, position: Int, page:Model.Page, description:String, newPost:Model.Post):Model.Post {
+    fun updatePostImage(file:File, position: Int, page:Model.Page,  newPost:Model.Post):Model.Post {
         val currentPost = Model.Post()
         currentPost.page_id = page._id
         currentPost.page_name = page.title
-        currentPost.inhoud = description
         currentPost.user_id = userRepo.user.value?._id
         currentPost._id = newPost._id
-        currentPost._id = "none"
         pageError.postValue(Model.errorMessage())
         val reqFile = RequestBody.create(
             MediaType.parse("image/png"),
@@ -204,14 +208,36 @@ class PageViewModel:InjectedViewModel() {
                     { error ->  pageError.postValue(Model.errorMessage("" , "Input niet opgeslagen.")) }
                 )
         } else {
-            subscription = postService.changePost(currentPost)
+            Log.d("POST_IMAGE_BODY", "$body")
+            Log.d("POST_IMAGE_ID", currentPost._id!!)
+            subscription = postService.changeImagePost(currentPost._id!!, body)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                    { result -> Log.i("oldPost", "$result") },
-                    { error -> pageError.value?.error = "Input niet opgeslagen." }
+                    { result -> Log.i("POST_RESULT", "$result") },
+                    { error -> Log.d("POST_ERROR_IMAGE", "${error.printStackTrace()}") }
                 )
         }
         return currentPost
+    }
+
+    fun retrievePostImg(post:Model.Post, position: Int){
+        subscription = fileService.getFile("post_image", post.image_file_name!!)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> convertPostBitmap( result, post.image_file_name!!, position) },
+                { error -> Log.i("EXERCISE ERROR", "$error") }
+            )
+    }
+
+    fun convertPostBitmap(result:ResponseBody, fileName: String, position: Int ){
+        var imgFile = File.createTempFile(fileName, "png")
+        imgFile.deleteOnExit()
+        val fos = FileOutputStream(imgFile)
+        fos.write(result.bytes())
+        pages.value!![position].post?.bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
+        pages.postValue(pages.value)
+        Log.d("POST_IMAGE", "CREATION_CHECK")
     }
 }

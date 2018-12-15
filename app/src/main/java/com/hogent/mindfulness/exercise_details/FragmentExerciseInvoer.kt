@@ -43,13 +43,9 @@ import kotlin.properties.Delegates
  */
 class FragmentExerciseInvoer : Fragment() {
 
-    private var postId: String? = null
-    private lateinit var disposable: Disposable
     private lateinit var post: Model.Post
     private lateinit var pageView:PageViewModel
     var position:Int = -1
-
-    private lateinit var postService: PostApiService
 
     lateinit var page: Model.Page
 
@@ -78,7 +74,6 @@ class FragmentExerciseInvoer : Fragment() {
     ): View? {
         //beginRetrievePost()
         // Inflate the layout for this fragment
-        postService = ServiceGenerator.createService(PostApiService::class.java, (activity as MainActivity))
         return inflater.inflate(R.layout.fragment_fragment_oefeninginvoer, container, false)
     }
 
@@ -174,7 +169,7 @@ class FragmentExerciseInvoer : Fragment() {
             fos.write(bos.toByteArray())
             fos.flush()
             fos.close()
-            pageView.updatePostImage(file, position, page, text_edit.text.toString(), post)
+            pageView.updatePostImage(file, position, page, post)
         } else {
             Toast.makeText(activity, "Geen foto genomen", Toast.LENGTH_SHORT).show()
         }

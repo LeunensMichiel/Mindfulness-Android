@@ -101,5 +101,6 @@
     <string name="pref_privacy">pref_privacy</string>
     <string name="empty_email_err">Email niet ingevuld.</string>
     <string name="empty_passw_err">Wachtwoord niet ingevuld.</string>
+    <string name="input_loading_text">Geschiedenis word opgehaald...</string>
 
 </resources>
