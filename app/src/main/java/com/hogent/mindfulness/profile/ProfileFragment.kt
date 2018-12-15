@@ -168,6 +168,12 @@ class ProfileFragment : Fragment() {
             }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as MainActivity).setActionBarTitle("Uw profiel")
+
+    }
 }
 
 class ProfileAdapter(

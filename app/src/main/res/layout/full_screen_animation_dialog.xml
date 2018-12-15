@@ -14,6 +14,20 @@
               android:textAllCaps="true"/>
 
 
+    <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/confetti"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:adjustViewBounds="true"
+            android:cropToPadding="true"
+            android:scaleType="centerInside"
+            app:layout_constraintTop_toBottomOf="@+id/TextViewPopupLottie" app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/fullscreenDialogBtn" android:layout_marginTop="32dp"
+            android:layout_marginBottom="32dp"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="false"
+            app:lottie_rawRes="@raw/confetti"/>
     <ImageView
             android:id="@+id/monster"
             android:layout_width="0dp"

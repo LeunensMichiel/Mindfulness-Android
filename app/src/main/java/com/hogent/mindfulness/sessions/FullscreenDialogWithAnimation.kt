@@ -49,12 +49,14 @@ class FullscreenDialogWithAnimation : DialogFragment() {
         if (dialog != null) {
             dialog.window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         }
-        val monstercount = ("R.drawable.ic_monster" + ((userViewModel.dbUser.value!!.unlocked_sessions.size + 1) % 14)) + ".xml"
-
-        initAnimation(monstercount.toInt())
+        val drawables = intArrayOf(R.drawable.ic_monster1, R.drawable.ic_monster2, R.drawable.ic_monster3, R.drawable.ic_monster4, R.drawable.ic_monster5,
+            R.drawable.ic_monster6, R.drawable.ic_monster7, R.drawable.ic_monster8, R.drawable.ic_monster9, R.drawable.ic_monster10, R.drawable.ic_monster11,
+            R.drawable.ic_monster12, R.drawable.ic_monster13, R.drawable.ic_monster14)
+        initAnimation(drawables[userViewModel.dbUser.value!!.unlocked_sessions.size - 1])
     }
 
     private fun initAnimation(url: Int) {
         monsterimage.setImageResource(url)
+
     }
 }

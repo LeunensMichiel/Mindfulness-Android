@@ -8,17 +8,18 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.FragmentTransaction
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.WindowManager
+import android.widget.Toast
 import com.evernote.android.job.JobManager
-import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.*
 import com.hogent.mindfulness.exercise_details.ExerciseDetailFragment
@@ -35,13 +36,13 @@ import com.hogent.mindfulness.sessions.SessionFragment
 import com.hogent.mindfulness.sessions.SessionFragment.SessionAdapter.SessionAdapterOnUnlockSession
 import com.hogent.mindfulness.settings.*
 import com.hogent.mindfulness.settings.SettingsFragment.OnPreferenceClickforFragment
-import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.feedback_popup.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.toast
 import java.util.*
 import java.util.concurrent.TimeUnit
+
 
 class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPreferenceClickforFragment {
     //initializing attributes
@@ -76,7 +77,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        supportActionBar!!.elevation = 0F
 
         navigation.visibility = View.GONE
         userView = ViewModelProviders.of(this).get(UserViewModel::class.java)
@@ -92,6 +93,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                     if (!::exerciseFragment.isInitialized) {
                         exerciseFragment = ExercisesListFragment()
                     }
+                    sessionView.loadImages()
                     exerciseFragment.session = sessionView.selectedSession.value!!
                     currentPost.session_name = sessionView.selectedSession.value!!.title
                     supportFragmentManager.beginTransaction()
@@ -143,11 +145,13 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         userView.dbUser.observe(this, Observer<Model.User?> {
             if (it == null) {
                 navigation.visibility = View.GONE
+                showAcionBar(false)
                 loginFragment = LoginFragment()
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.session_container, loginFragment)
                     .commit()
             } else {
+                showAcionBar(true)
                 if (it.group != null) {
                     sessionView.resetunlockedSession()
                     navigation.visibility = View.VISIBLE
@@ -242,16 +246,6 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
             .commit()
     }
 
-    override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
-        super.onSaveInstanceState(outState, outPersistentState)
-        Log.i("ACTIVITY", "SAVE_INSTANCE_STATE")
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
-        super.onRestoreInstanceState(savedInstanceState)
-        Log.i("ACTIVITY", "RESTORE_INSTANCE_STATE")
-    }
-
     private fun checkIfLoggedIn(): Boolean {
         val token = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
             .getString(getString(R.string.authTokenKey), null)
@@ -269,7 +263,12 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
             if (userView.userRepo.user.value?.group == null) {
                 userView.addGroup(Model.user_group(intent.getStringExtra("code")))
             } else {
-                userView.unlockSession(Model.unlock_session("none", intent.getStringExtra("code")))
+                if (userView.userRepo.user.value?.unlocked_sessions!!.contains(intent.getStringExtra("code"))) {
+                    Toast.makeText(this, "Sessie reeds vrijgespeeld", Toast.LENGTH_SHORT).show()
+                }
+                else {
+                    userView.unlockSession(Model.unlock_session("none", intent.getStringExtra("code")))
+                }
             }
 
         }
@@ -399,6 +398,28 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                     .addToBackStack(null)
                     .setTransition(R.anim.slide_up)
                     .commit()
+            }
+        }
+    }
+
+     fun setActionBarTitle(title: String) {
+         this.supportActionBar?.title = title
+     }
+
+    fun showAcionBar(bool : Boolean) {
+        if (bool) {
+            this.supportActionBar?.show()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                window.statusBarColor = ContextCompat.getColor(this, R.color.colorPrimaryDark)
+
+            }
+        } else {
+            this.supportActionBar?.hide()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                window.statusBarColor = Color.parseColor("#A3A29F")
+
             }
         }
     }

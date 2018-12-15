@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.PageViewModel
@@ -33,8 +34,9 @@ class ExerciseDetailFragment(): Fragment(){
     private lateinit var pageView:PageViewModel
     private var pagesLock = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onResume() {
+        super.onResume()
+        (activity as MainActivity).setActionBarTitle(pageView.ex_name)
 
     }
 

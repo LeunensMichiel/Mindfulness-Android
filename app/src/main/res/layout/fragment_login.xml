@@ -13,6 +13,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
+            android:layout_marginTop="16dp"
             android:visibility="gone"/>
     <ScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true">
         <android.support.constraint.ConstraintLayout
@@ -135,10 +136,10 @@
                     android:layout_marginStart="8dp" android:layout_marginBottom="16dp">
                 <ImageView
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" app:srcCompat="@drawable/ic_pieterlogo"
+                        android:layout_height="wrap_content" android:src="@drawable/ic_pieterlogo"
                         android:id="@+id/imageView2" android:contentDescription="TODO"/>
                 <TextView
-                        android:text="Een app door Pieter-Jan De Schryver"
+                        android:text="Pieter-Jan De Schryver"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" android:id="@+id/textView4" android:textAlignment="center"
                         android:textColor="@color/white"/>

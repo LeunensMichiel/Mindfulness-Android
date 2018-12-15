@@ -25,7 +25,8 @@ object Model {
         @SerializedName("image_filename")
         val imageFilename: String,
         var bitmap: Bitmap? = null,
-        var unlocked:Boolean = false
+        var unlocked:Boolean = false,
+        var description: String
     )
 
 
@@ -136,7 +137,9 @@ object Model {
 
     data class Register(
         val email: String,
-        val password: String
+        val password: String,
+        val firstname: String,
+        val lastname: String
     )
 
     data class Result(
