@@ -12,4 +12,6 @@ interface SessionApiService {
     @GET("/API/session/sessions/{id}")
     fun getSessions(@Path("id") id: String): Observable<Array<Model.Session>>
 
+    @GET("API/session/session/{sesId}")
+    fun getSessionById(@Path("sesId") id: String): Observable<Model.Session>
 }

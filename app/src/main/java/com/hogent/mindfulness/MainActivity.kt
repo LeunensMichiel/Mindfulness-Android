@@ -12,6 +12,7 @@ import android.os.Build
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.FragmentTransaction
 import android.support.v4.content.ContextCompat
@@ -176,15 +177,12 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                     postFragment = PostFragment()
                     profileFragment = ProfileFragment()
 
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.session_container, sessionFragment)
-                        .commit()
+                    toSessions()
                 } else {
                     navigation.visibility = View.GONE
-                    groupFragment = GroupFragment()
 
                     supportFragmentManager.beginTransaction()
-                        .replace(R.id.session_container, groupFragment)
+                        .replace(R.id.session_container, GroupFragment())
                         .commit()
                 }
             }
@@ -242,15 +240,21 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
 
     override fun onNewIntent(newIntent: Intent) {
         this.intent = newIntent
-        intent = newIntent
 
         if (intent.hasExtra("sessionID")) {
-            sessionView.selectedSession?.value = null
+            sessionView.setSession(intent.getStringExtra("sessionID"))
             stateView.dialogState?.value = "FEEDBACK_DIALOG"
         }
     }
 
-    //This function replqces the register fragment back with the login fragment
+    //This function starts the session Fragment
+    fun toSessions() {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.session_container, sessionFragment)
+            .commit()
+    }
+
+    //This function replaces the register fragment back with the login fragment
     fun toLogin(v: View) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.session_container, LoginFragment())
@@ -266,37 +270,12 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
             .commit()
     }
 
-    fun getGroupNotifications(): Array<Model.Notification>? {
-        return userView.dbUser.value!!.group!!.notifications
-    }
-
-    override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
-        super.onSaveInstanceState(outState, outPersistentState)
-        Log.i("ACTIVITY", "SAVE_INSTANCE_STATE")
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
-        super.onRestoreInstanceState(savedInstanceState)
-        Log.i("ACTIVITY", "RESTORE_INSTANCE_STATE")
-    }
-
-    private fun checkIfLoggedIn(): Boolean {
-        val token = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-            .getString(getString(R.string.authTokenKey), null)
-        return token == null
-    }
-
-    private fun checkIfHasGroup(): Boolean {
-        return userView.dbUser.value!!.group != null
-    }
-
-
     override fun onResume() {
         super.onResume()
         if (intent.hasExtra("code")) {
             if (intent.hasExtra("group")) {
                 supportFragmentManager.beginTransaction()
-                    .replace(R.id.session_container, groupFragment)
+                    .replace(R.id.session_container, GroupFragment())
                     .commit()
             } else if (intent.hasExtra("register")) {
                 supportFragmentManager.beginTransaction()
@@ -307,8 +286,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
             } else {
                 if (userView.userRepo.user.value?.unlocked_sessions!!.contains(intent.getStringExtra("code"))) {
                     Toast.makeText(this, "Sessie reeds vrijgespeeld", Toast.LENGTH_SHORT).show()
-                }
-                else {
+                } else {
                     userView.unlockSession(Model.unlock_session("none", intent.getStringExtra("code")))
                 }
             }

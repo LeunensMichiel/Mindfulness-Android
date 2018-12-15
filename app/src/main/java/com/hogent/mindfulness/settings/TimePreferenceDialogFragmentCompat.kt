@@ -80,14 +80,17 @@ class TimePreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
                     timePreference.mTime = minutesAfterMidnight
                 }
             }
-            if(dbUser.unlocked_sessions.size > 0) {
+
+            val sharedPref =
+                context!!.getSharedPreferences("com.hogent.mindfulness_preferences", Context.MODE_PRIVATE)
+            if(dbUser.unlocked_sessions.size > 0 ) {
                 DailyNotificationJob.scheduleJob(
                     minutesAfterMidnight,
-                    TimeUnit.MINUTES.toMillis(15),
                     "Mindfulness",
                     "Denk aan "+dbUser.unlocked_sessions.get(dbUser.unlocked_sessions.size-1),
                     "mindfulness",
-                    true
+                    true,
+                    sharedPref.getBoolean("key_vibrate", false)
                 )
             }
         }

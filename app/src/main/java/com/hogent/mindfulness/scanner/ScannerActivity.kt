@@ -35,11 +35,6 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler{
         val currentApiVersion = Build.VERSION.SDK_INT
 
         if (currentApiVersion >= Build.VERSION_CODES.M) {
-//            if (checkPermission()) {
-//                Toast.makeText(applicationContext, "Permission already granted!", Toast.LENGTH_LONG).show()
-//            } else {
-//                requestPermission()
-//            }
             if(!checkPermission()){
                 requestPermission()
             }
@@ -128,20 +123,17 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler{
         //Om terug te keren naar settingsFragment
         var intent = Intent(this, MainActivity::class.java)
 
-
         when(returnActivity) {
             1 -> {
-                intent.putExtra("register", 1)
+                intent.putExtra("register", "")
             }
             2 -> {
-                intent.putExtra("group", 1)
+                intent.putExtra("group", "")
             }
         }
 
         intent.putExtra("code", code)
         startActivity(intent)
-//        val sharedPref = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-//        sharedPref.edit().putString(getString(R.string.userGroupId), code).apply()
         finish()
     }
 }

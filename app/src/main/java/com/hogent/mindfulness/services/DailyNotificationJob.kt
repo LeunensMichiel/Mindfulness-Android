@@ -26,8 +26,9 @@ class DailyNotificationJob : DailyJob() {
             val title = extras.getString("title", "Mindfulness")
             val message = extras.getString("message", "")
             val channelId = extras.getString("channelId", "mindfulness")
+            val vibrate = extras.getBoolean("vibrate", false)
 
-            val notification = Notifications.getNotification(title, message, channelId, context, true, targetIntent)
+            val notification = Notifications.getNotification(title, message, channelId, context, vibrate, targetIntent)
 
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -41,12 +42,13 @@ class DailyNotificationJob : DailyJob() {
         val TAG = "MyDailyJob"
 
         // time is (hours * 60) + minutes
-        fun scheduleJob(time: Int, duration: Long, title: String, message: String, channelId: String, updateCurrent: Boolean) {
+        fun scheduleJob(time: Int, title: String, message: String, channelId: String, updateCurrent: Boolean, vibrate: Boolean) {
             val extras = PersistableBundleCompat()
             extras.apply {
                 putString("title", title)
                 putString("message", message)
                 putString("channelId", channelId)
+                putBoolean("vibrate", vibrate)
             }
 
 //            val calendar = Calendar.getInstance()

@@ -17,7 +17,7 @@ import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
 
-class SessionViewModel:InjectedViewModel() {
+class SessionViewModel : InjectedViewModel() {
 
     var sessionList = MutableLiveData<Array<Model.Session>>()
     var selectedSession = MutableLiveData<Model.Session>()
@@ -29,7 +29,7 @@ class SessionViewModel:InjectedViewModel() {
     lateinit var sessionService: SessionApiService
 
     @Inject
-    lateinit var feedbackService:FeedbackApiService
+    lateinit var feedbackService: FeedbackApiService
 
     @Inject
     lateinit var fileService: FIleApiService
@@ -38,7 +38,7 @@ class SessionViewModel:InjectedViewModel() {
     lateinit var userRepo: UserRepository
 
 
-    fun retrieveSessions(){
+    fun retrieveSessions() {
         subscribe = sessionService.getSessions(userRepo.user.value?.group?.sessionmap_id!!)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -48,8 +48,17 @@ class SessionViewModel:InjectedViewModel() {
             )
     }
 
+    fun setSession(id: String) {
+        subscribe = sessionService.getSessionById(id)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> selectedSession?.value = result },
+                { error -> sessionError(error) }
+            )
+    }
+
     fun resetunlockedSession() {
-        Log.d("SESSION_VM", "RESET")
         if (sessionList.value != null)
             sessionsResult(sessionList.value!!)
     }
@@ -57,7 +66,6 @@ class SessionViewModel:InjectedViewModel() {
     private fun sessionsResult(sessions: Array<Model.Session>) {
         sessions.forEach {
             it.unlocked = (userRepo.user.value?.unlocked_sessions!!.contains(it._id))
-            Log.d("SESSION_VM", "$it")
         }
         sessionList.postValue(sessions)
     }
@@ -66,7 +74,7 @@ class SessionViewModel:InjectedViewModel() {
         Log.d("SESSION_ERR", "$error")
     }
 
-    fun saveFeedBack(feedback: Model.Feedback){
+    fun saveFeedBack(feedback: Model.Feedback) {
         feedback.session = selectedSession.value!!._id
         subscribe = feedbackService.addFeedback(feedback)
             .subscribeOn(Schedulers.io())
@@ -85,7 +93,7 @@ class SessionViewModel:InjectedViewModel() {
 
     fun loadImages() {
         sessionList.value
-            ?.forEachIndexed {i, it ->
+            ?.forEachIndexed { i, it ->
                 subscribe = fileService.getFile("session_image", it.imageFilename)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())

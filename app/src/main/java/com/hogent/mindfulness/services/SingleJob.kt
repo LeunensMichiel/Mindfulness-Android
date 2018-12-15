@@ -24,8 +24,7 @@ class SingleJob : Job() {
         val targetIntent = Intent(context, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         targetIntent.putExtra("sessionID", sessionID)
-//        targetIntent.setAction(Intent.ACTION_MAIN)
-//        targetIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+
 
         val notification = Notifications.getNotification(title, message, channelId, context, false, targetIntent)
 
@@ -58,7 +57,7 @@ class SingleJob : Job() {
             val executionWindow = DailyExecutionWindow(hour, minute, hour+(inMinutes/60).toLong(), minute+(inMinutes%60).toLong(), duration)
 
             JobRequest.Builder(SingleJob.TAG)
-                .setExact(inMinutes.toLong())
+                .setExecutionWindow(executionWindow.startMs, executionWindow.endMs)
                 .setUpdateCurrent(true)
                 .setExtras(extras)
                 .build()

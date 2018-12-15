@@ -66,36 +66,41 @@ class SettingsFragment : PreferenceFragmentCompat() {
         wantsNotifications.setOnPreferenceChangeListener { preference, value ->
             wantsNotifications.isChecked = value as Boolean
             sharedPref.edit().putBoolean("switch_notifications", value)
-            if(value) {
-                if(dbUser.unlocked_sessions.size > 0) {
+            if (value) {
+                if (dbUser.unlocked_sessions.size > 0) {
                     DailyNotificationJob.scheduleJob(
-                        sharedPref.getInt("pref_time", 12*60),
-                        TimeUnit.MINUTES.toMillis(15),
+                        sharedPref.getInt("pref_time", 12 * 60),
                         "Mindfulness",
-                        "Denk aan "+dbUser.unlocked_sessions.get(dbUser.unlocked_sessions.size-1),
+                        "Denk aan " + dbUser.unlocked_sessions.get(dbUser.unlocked_sessions.size - 1),
                         "mindfulness",
-                        true
+                        true,
+                        sharedPref.getBoolean("key_vibrate", false)
                     )
                 }
-            }
-            else {
+            } else {
                 JobManager.instance().cancelAllForTag("MyDailyJob")
             }
             true
         }
-//        val wantsVibrate =
-//            findPreference("key_vibrate") as android.support.v14.preference.SwitchPreference
-//        wantsVibrate.isChecked = sharedPref.getBoolean("key_vibrate", true)
-//        wantsVibrate.setOnPreferenceChangeListener { preference, value ->
-//            wantsVibrate.isChecked = value as Boolean
-//            sharedPref.edit().putBoolean("key_vibrate", value)
-//            if(value) {
-//            }
-//            else {
-//
-//            }
-//            true
-//        }
+        val wantsVibrate =
+            findPreference("key_vibrate") as android.support.v14.preference.SwitchPreference
+        wantsVibrate.isChecked = sharedPref.getBoolean("key_vibrate", true)
+        wantsVibrate.setOnPreferenceChangeListener { preference, value ->
+            wantsVibrate.isChecked = value as Boolean
+            sharedPref.edit().putBoolean("key_vibrate", value)
+            if (dbUser.unlocked_sessions.size > 0) {
+                DailyNotificationJob.scheduleJob(
+                    sharedPref.getInt("pref_time", 12 * 60),
+                    "Mindfulness",
+                    "Denk aan " + dbUser.unlocked_sessions.get(dbUser.unlocked_sessions.size - 1),
+                    "mindfulness",
+                    true,
+                    value
+                )
+            }
+
+            true
+        }
         val wantsFeedbackPreference =
             findPreference(getString(R.string.pref_feedback)) as android.support.v14.preference.SwitchPreference
         wantsFeedbackPreference.isChecked = dbUser.feedbackSubscribed

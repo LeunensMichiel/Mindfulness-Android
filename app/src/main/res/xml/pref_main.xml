@@ -18,12 +18,12 @@
                 android:summary="@string/timePreference_summary"
                 style="@style/AppPreference.DialogPreference"/>
 
-        <!--<SwitchPreference-->
-                <!--android:defaultValue="true"-->
-                <!--android:key="@string/key_vibrate"-->
-                <!--android:summary="@string/summary_vibrate"-->
-                <!--android:title="@string/title_vibrate"-->
-                <!--android:dependency="@string/switch_notifications"/>-->
+        <SwitchPreference
+                android:defaultValue="true"
+                android:key="@string/key_vibrate"
+                android:summary="@string/summary_vibrate"
+                android:title="@string/title_vibrate"
+                android:dependency="@string/switch_notifications"/>
     </PreferenceCategory>
 
     <PreferenceCategory
