@@ -250,7 +250,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
     //This function starts the session Fragment
     fun toSessions() {
         supportFragmentManager.beginTransaction()
-            .replace(R.id.session_container, sessionFragment)
+            .replace(R.id.session_container, SessionFragment())
             .commit()
     }
 

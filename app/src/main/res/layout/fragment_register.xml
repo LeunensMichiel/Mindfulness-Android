@@ -156,7 +156,7 @@
                     app:backgroundTint="@color/white"
                     android:textColor="@color/white"
                     android:textColorHint="#f5f5f5" android:layout_marginEnd="8dp"
-                    app:layout_constraintEnd_toStartOf="@+id/registerfragment_GroupBtn" android:inputType="number"
+                    app:layout_constraintEnd_toStartOf="@+id/registerfragment_GroupBtn" android:inputType="text"
                     android:layout_marginStart="32dp"/>
 
             <ImageButton

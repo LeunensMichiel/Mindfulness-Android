@@ -166,11 +166,10 @@ class RegisterFragment : Fragment() {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            val registerDetails = Model.Register(emailStr, passwordStr, register_firstname.text.toString(), register_lastname.text.toString())
+            val registerDetails = Model.Register(emailStr, passwordStr, register_firstname.text.toString(),
+                register_lastname.text.toString())
             userView.register(registerDetails)
         }
-
-
     }
 
     private fun startRegistrationCall(registerDetails: Model.Register) {
