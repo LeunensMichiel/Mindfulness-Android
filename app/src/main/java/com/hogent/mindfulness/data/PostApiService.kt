@@ -29,4 +29,8 @@ interface PostApiService {
     @Multipart
     @POST("/API/post/post/image")
     fun addImagePost(@Part("post") post: Model.Post, @Part file:MultipartBody.Part):Observable<Model.Post>
+
+    @Multipart
+    @PUT("/API/post/post/image/{post_image_id}")
+    fun changeImagePost(@Path("post_image_id") id: String, @Part file:MultipartBody.Part):Observable<Model.toastMessage>
 }

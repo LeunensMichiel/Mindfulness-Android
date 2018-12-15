@@ -48,7 +48,14 @@ object Model {
         var mediaPlayer: MediaPlayer? = null,
         var progress:Int? = 0,
         var type_input:String? = null,
-        var post:Post? = null
+        var post:Post? = null,
+        var multiple_choice_items:Array<MultipleChoiceItem> = arrayOf()
+    )
+
+    data class MultipleChoiceItem(
+        var message:String? =  null,
+        var position: Int = -1,
+        var checked:Boolean = false
     )
 
     data class Paragraph(
@@ -189,7 +196,8 @@ object Model {
         var page_name:String? = null,
         @Transient
         var bitmap: Bitmap? = null,
-        var image_file_name: String? = null
+        var image_file_name: String? = null,
+        var multiple_choice_items:Array<MultipleChoiceItem> = arrayOf()
     )
 
     data class Point(
