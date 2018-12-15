@@ -1,7 +1,6 @@
 package com.hogent.mindfulness.scanner
 
 import android.Manifest.permission.CAMERA
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -15,7 +14,6 @@ import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import com.google.zxing.Result
 import com.hogent.mindfulness.MainActivity
-import com.hogent.mindfulness.login.LoginActivity
 import me.dm7.barcodescanner.zxing.ZXingScannerView
 
 

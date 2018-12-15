@@ -3,20 +3,15 @@ package com.hogent.mindfulness.settings
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Build
+import android.os.Bundle
 import android.support.v7.preference.PreferenceDialogFragmentCompat
 import android.text.format.DateFormat
 import android.view.View
-import kotlinx.android.synthetic.main.pref_dialog_time.*
-import android.os.Bundle
-import android.util.Log
 import android.widget.TimePicker
-import android.widget.Toast
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.UserViewModel
 import com.hogent.mindfulness.services.DailyNotificationJob
-import kotlinx.android.synthetic.main.pref_dialog_time.view.*
-import java.util.concurrent.TimeUnit
 
 
 // https://medium.com/@JakobUlbrich/building-a-settings-screen-for-android-part-3-ae9793fd31ec

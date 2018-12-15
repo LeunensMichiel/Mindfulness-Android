@@ -2,17 +2,16 @@ package com.hogent.mindfulness
 
 // Notificaties
 // Settings
+
 import android.app.Dialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
-
-import android.content.Intent
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.FragmentTransaction
 import android.support.v4.content.ContextCompat
@@ -34,6 +33,7 @@ import com.hogent.mindfulness.login.RegisterFragment
 import com.hogent.mindfulness.post.PostFragment
 import com.hogent.mindfulness.profile.ProfileFragment
 import com.hogent.mindfulness.services.NotifyJobCreator
+import com.hogent.mindfulness.services.SingleJob
 import com.hogent.mindfulness.sessions.FullscreenDialogWithAnimation
 import com.hogent.mindfulness.sessions.SessionFragment
 import com.hogent.mindfulness.sessions.SessionFragment.SessionAdapter.SessionAdapterOnUnlockSession
@@ -45,7 +45,6 @@ import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.toast
 import java.util.*
 import java.util.concurrent.TimeUnit
-import com.hogent.mindfulness.services.SingleJob
 
 
 class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPreferenceClickforFragment {

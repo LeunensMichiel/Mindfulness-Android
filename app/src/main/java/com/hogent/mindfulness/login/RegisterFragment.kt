@@ -137,6 +137,12 @@ class RegisterFragment : Fragment() {
             cancel = true
         }
 
+        if (edit_register_password.text.toString() != edit_register_repeat_password.text.toString()) {
+            edit_register_repeat_password.error = getString(R.string.not_same_password)
+            focusView = edit_register_repeat_password
+            cancel = true
+        }
+
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.

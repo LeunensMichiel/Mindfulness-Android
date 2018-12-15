@@ -1,8 +1,6 @@
 package com.hogent.mindfulness.services
 
 import java.util.concurrent.TimeUnit
-import javax.xml.datatype.DatatypeConstants.MINUTES
-import javax.xml.datatype.DatatypeConstants.HOURS
 
 /**
  * Holds the start end time in ms for a job.

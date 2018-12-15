@@ -3,18 +3,12 @@ package com.hogent.mindfulness.services
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import com.evernote.android.job.DailyJob
 import com.evernote.android.job.JobRequest
 import com.evernote.android.job.util.support.PersistableBundleCompat
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.settings.Notifications
-import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.math.absoluteValue
-import kotlin.math.floor
-import android.content.SharedPreferences
-
 
 
 class DailyNotificationJob : DailyJob() {

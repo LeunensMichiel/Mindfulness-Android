@@ -3,8 +3,6 @@ package com.hogent.mindfulness.services
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.util.Log
-import java.time.LocalDateTime
 import com.evernote.android.job.Job
 import com.evernote.android.job.JobRequest
 import com.evernote.android.job.util.support.PersistableBundleCompat

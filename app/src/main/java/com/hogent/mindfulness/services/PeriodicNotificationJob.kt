@@ -1,14 +1,12 @@
 package com.hogent.mindfulness.services
 
-import android.app.Notification
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.support.v4.app.NotificationCompat
 import com.evernote.android.job.Job
 import com.evernote.android.job.JobRequest
-import com.hogent.mindfulness.MainActivity
 import com.evernote.android.job.util.support.PersistableBundleCompat
+import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.settings.Notifications
 
 

@@ -14,7 +14,6 @@ import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.UserViewModel
 import com.hogent.mindfulness.services.DailyNotificationJob
-import java.util.concurrent.TimeUnit
 
 
 // I used this article https://medium.com/@eydryan/scheduling-notifications-on-android-with-workmanager-6d84b7f64613

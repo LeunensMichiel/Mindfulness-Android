@@ -9,6 +9,8 @@ import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.ViewModels.UserViewModel
 import kotlinx.android.synthetic.main.fragment_forgotpassword.*
@@ -48,7 +50,20 @@ class ForgotPasswordFragment : Fragment() {
                 "emailerror" -> {
                     forgotpassword_loading.visibility = View.GONE
                     enableOtherFields(false)
-                    teforgotpassword_statustext.text = "Er is een fout opgelopen"
+                    teforgotpassword_statustext.text = getString(R.string.fout_opgetreden)
+                    forgotpassword_email.requestFocus()
+                }
+                "passwordchanged" -> {
+                    forgotpassword_loading.visibility = View.GONE
+                    teforgotpassword_statustext.text = ""
+                    teforgotpassword_statustext.visibility = View.INVISIBLE
+                    (activity as MainActivity).toLogin(btnBackToLogin)
+                    Toast.makeText(activity as MainActivity, "Wachtwoord geüpdated!", Toast.LENGTH_SHORT).show()
+                }
+                "passwordchangederror" -> {
+                    forgotpassword_loading.visibility = View.GONE
+                    teforgotpassword_statustext.text = getString(R.string.fout_opgetreden)
+                    forgotpassword_password.requestFocus()
                 }
             }
         })
@@ -82,6 +97,39 @@ class ForgotPasswordFragment : Fragment() {
         forgotpassword_passwordrepeat.error = null
         forgotpassword_code.error = null
 
+        if (TextUtils.isEmpty(forgotpassword_password.text.toString())) {
+            forgotpassword_password.error = getString(R.string.error_field_required)
+            focusView = forgotpassword_password
+            cancel = true
+        }
+
+        if (TextUtils.isEmpty(forgotpassword_passwordrepeat.text.toString())) {
+            forgotpassword_passwordrepeat.error = getString(R.string.error_field_required)
+            focusView = forgotpassword_passwordrepeat
+            cancel = true
+        }
+        if (TextUtils.isEmpty(forgotpassword_code.text.toString())) {
+            forgotpassword_code.error = getString(R.string.error_field_required)
+            focusView = forgotpassword_code
+            cancel = true
+        }
+
+        if (forgotpassword_password.text.toString() != forgotpassword_passwordrepeat.text.toString()) {
+            forgotpassword_passwordrepeat.error = getString(R.string.not_same_password)
+            forgotpassword_passwordrepeat.text.clear()
+            forgotpassword_password.text.clear()
+            focusView = forgotpassword_password
+            cancel = true
+        }
+
+
+        if (cancel) {
+            focusView?.requestFocus()
+        } else {
+            forgotpassword_loading.visibility = View.VISIBLE
+            teforgotpassword_statustext.text = "Wachtwoord wordt veranderd..."
+            userView.changePasswordWithoutAuth(forgotpassword_passwordrepeat.text.toString(), forgotpassword_email.text.toString(), forgotpassword_code.text.toString())
+        }
 
     }
 
@@ -104,7 +152,8 @@ class ForgotPasswordFragment : Fragment() {
             focusView?.requestFocus()
         } else {
             forgotpassword_loading.visibility = View.VISIBLE
-            teforgotpassword_statustext.text = "Er wordt een code naar het opgegeven emailadres verstuurt"
+            teforgotpassword_statustext.text = "Er wordt een code naar het opgegeven emailadres verstuurd..."
+            teforgotpassword_statustext.visibility = View.VISIBLE
             userView.sendPasswordEmail(forgotpassword_email.text.toString())
         }
     }

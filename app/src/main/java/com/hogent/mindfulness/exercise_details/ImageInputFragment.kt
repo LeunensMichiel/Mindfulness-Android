@@ -18,13 +18,11 @@ import android.widget.Toast
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.PageViewModel
-import kotlinx.android.synthetic.main.fragment_fragment_oefeninginvoer.*
 import kotlinx.android.synthetic.main.fragment_image_input.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.lang.Exception
 
 /**
  * A simple [Fragment] subclass.

@@ -10,15 +10,11 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.PageViewModel
-import kotlinx.android.synthetic.main.fragment_image_input.*
 import kotlinx.android.synthetic.main.fragment_multiple_choice.*
-import kotlinx.android.synthetic.main.fragment_text_input.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
-import java.lang.Exception
 
 /**
  * A simple [Fragment] subclass.

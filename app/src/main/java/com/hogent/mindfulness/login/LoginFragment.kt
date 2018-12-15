@@ -6,25 +6,19 @@ import android.annotation.TargetApi
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.text.TextUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
-import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.data.*
-import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.UserViewModel
 import kotlinx.android.synthetic.main.fragment_login.*
-import org.jetbrains.anko.support.v4.toast
 
 class LoginFragment : Fragment() {
     private lateinit var userViewModel: UserViewModel

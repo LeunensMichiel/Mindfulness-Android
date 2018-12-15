@@ -9,7 +9,6 @@ import android.support.v4.app.Fragment
 import android.support.v7.widget.CardView
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,13 +19,10 @@ import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.ExerciseViewModel
 import com.hogent.mindfulness.domain.ViewModels.UserViewModel
-import com.hogent.mindfulness.services.DailyNotificationJob
-import com.hogent.mindfulness.services.PeriodicNotificationJob
 import com.hogent.mindfulness.services.SingleJob
 import kotlinx.android.synthetic.main.exercise_list_item.view.*
 import kotlinx.android.synthetic.main.fragment_exercises_pane.*
 import org.jetbrains.anko.imageBitmap
-import java.util.concurrent.TimeUnit
 
 class ExercisesListFragment : Fragment() {
 

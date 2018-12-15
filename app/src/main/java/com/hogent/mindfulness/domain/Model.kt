@@ -156,6 +156,12 @@ object Model {
         val email: String
     )
 
+    data class ForgotPasswordWithCode(
+        val email: String,
+        val validation_code: String,
+        val new_password: String
+    )
+
     data class Result(
         val result: String
     )

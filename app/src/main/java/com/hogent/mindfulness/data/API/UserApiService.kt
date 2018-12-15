@@ -42,4 +42,7 @@ interface UserApiService {
 
     @POST("/API/users/forgot_password")
     fun sendPasswordEmail(@Body email: Model.ForgotPassword) : Observable<Model.ForgotPassword>
+
+    @POST("/API/users/change_password")
+    fun changePasswordWithoutAuth(@Body changeInfo : Model.ForgotPasswordWithCode) : Observable<Model.Result>
 }

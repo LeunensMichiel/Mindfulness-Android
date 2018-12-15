@@ -144,13 +144,30 @@ class UserViewModel : InjectedViewModel() {
             .subscribe(
                 { result -> run {
                     uiMessage.value?.data = "emailsent"
-                    Log.d("PROFILE_PICTURE_RESULT", "$result") }
+                    Log.d("EMAIL_SENT_RESULT", "$result") }
                 },
                 { error -> run {
                     uiMessage.value?.data = "emailerror"
-                    Log.d("SEND_EMAIL_ERROR", "$error") }
+                    Log.d("EMAIL_SENT_ERROR", "$error") }
                 }
             )
+    }
+
+    fun changePasswordWithoutAuth(password: String, email: String, code: String) {
+        val changePasswordWithCode = Model.ForgotPasswordWithCode(email, code, password)
+        subscription = userApi.changePasswordWithoutAuth(changePasswordWithCode)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+            { result -> run {
+                uiMessage.value?.data = "passwordchanged"
+                Log.d("PASSWORD_CHANGED_RESULT", "$result") }
+            },
+            { error -> run {
+                uiMessage.value?.data = "passwordchangederror"
+                Log.d("PASSWORD_CHANGED_ERROR", "$error") }
+            }
+        )
     }
 
     private fun onRetrieveUserSucces(user: Model.User?) {
