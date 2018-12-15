@@ -57,5 +57,6 @@ class FullscreenDialogWithAnimation : DialogFragment() {
 
     private fun initAnimation(url: Int) {
         monsterimage.setImageResource(url)
+
     }
 }

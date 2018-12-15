@@ -10,12 +10,10 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.FragmentTransaction
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -245,16 +243,6 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         supportFragmentManager.beginTransaction()
             .replace(R.id.session_container, RegisterFragment())
             .commit()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
-        super.onSaveInstanceState(outState, outPersistentState)
-        Log.i("ACTIVITY", "SAVE_INSTANCE_STATE")
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
-        super.onRestoreInstanceState(savedInstanceState)
-        Log.i("ACTIVITY", "RESTORE_INSTANCE_STATE")
     }
 
     private fun checkIfLoggedIn(): Boolean {
