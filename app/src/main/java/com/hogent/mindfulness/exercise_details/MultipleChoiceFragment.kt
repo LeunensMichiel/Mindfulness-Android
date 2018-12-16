@@ -24,7 +24,7 @@ import java.lang.Exception
  * A simple [Fragment] subclass.
  *
  */
-class MultipleChoiceFragment : Fragment() {
+class MultipleChoiceFragment : PagerFragment() {
 
     private lateinit var post: Model.Post
     private lateinit var pageView: PageViewModel
@@ -37,12 +37,6 @@ class MultipleChoiceFragment : Fragment() {
             ViewModelProviders.of(this).get(PageViewModel::class.java)
         } ?: throw Exception("Invalid activity.")
 
-        pageView.pages.observe(this, Observer {
-            if (it!![position].post != null) {
-                post = it!![position].post!!
-                initialiseMulChoiceList(it!![position])
-            }
-        })
     }
 
     override fun onCreateView(
@@ -55,12 +49,13 @@ class MultipleChoiceFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("MULTIPLE_CHOICE_FRAG","${pageView.pages.value!![position].multiple_choice_items}")
-        if (pageView.pages.value!![position].multiple_choice_items.isNotEmpty()){
-            pageView.pages.value!![position].multiple_choice_items.forEach {
-                Log.d("MULTIPLE_CHOICE_FRAG","$it")
+
+        pageView.pages.observe(this, Observer {
+            if (it!![position].post != null) {
+                post = it!![position].post!!
+                initialiseMulChoiceList(it!![position])
             }
-        }
+        })
 
         fragment_mulchoice_btn.onClick {
             pageView.pageError.postValue(Model.errorMessage(null, "Input nog niet klaar."))

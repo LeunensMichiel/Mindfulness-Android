@@ -30,7 +30,7 @@ import java.lang.Exception
  * A simple [Fragment] subclass.
  *
  */
-class ImageInputFragment : Fragment() {
+class ImageInputFragment : PagerFragment() {
 
     private lateinit var post: Model.Post
     private lateinit var pageView: PageViewModel
@@ -42,19 +42,6 @@ class ImageInputFragment : Fragment() {
         pageView = activity?.run {
             ViewModelProviders.of(this).get(PageViewModel::class.java)
         } ?: throw Exception("Invalid activity.")
-
-        pageView.pages.observe(this, Observer {
-            Log.d("PAGE_VIEW", "FUCK_OFF")
-            if (it!![position].post != null) {
-                if (it[position].post?.bitmap == null) {
-                    post = pageView.pages.value!![position].post!!
-                    showResult()
-                } else {
-                    fragment_image_input_image.setImageBitmap(it[position].post?.bitmap)
-                    Log.d("POST_IMAGE", "OBSERVER_CHECK")
-                }
-            }
-        })
     }
 
     override fun onCreateView(
@@ -67,6 +54,21 @@ class ImageInputFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        pageView.pages.observe(this, Observer {
+            Log.d("CHECKY_BOY", "FUCK_OFF")
+            if (it!![position].post != null) {
+                if (it[position].post?.bitmap == null) {
+                    post = pageView.pages.value!![position].post!!
+                    Log.d("CHECKY_BOY", "SHOW_RESULT_CALL")
+                    showResult()
+                } else {
+                    fragment_image_input_image.setImageBitmap(it[position].post?.bitmap)
+                    Log.d("POST_IMAGE", "OBSERVER_CHECK")
+                }
+            }
+        })
+
         fragment_image_input_txf.setText("Geschiedenis aan het ophalen...")
         Log.d("IMAGE_INPUT_LIST", "ON_VIEW_CREATED")
 
@@ -75,16 +77,18 @@ class ImageInputFragment : Fragment() {
                 pageView.pageError.postValue(Model.errorMessage(null, "Input nog niet klaar."))
             }
 
+            Log.d("CHECKY_BOY", "GET_THEM_BACK")
             pageView.checkInputPage(page._id, position)
         } else {
             fragment_image_input_txf.setText(pageView.pages.value!![position].title)
+            fragment_image_input_image.setImageBitmap(pageView.pages.value!![position].post?.bitmap)
         }
     }
 
 
     fun showResult() {
         val pm = context!!.getPackageManager()
-        Log.i("POST_CHECK", "${page.post}")
+        Log.d("CHECKY_BOY", "${page.post}")
         if (pageView.pages.value!![position].post?.bitmap == null) {
             pageView.retrievePostImg(page.post!!, position)
         }

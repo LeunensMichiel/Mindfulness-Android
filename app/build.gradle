@@ -32,6 +32,7 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support:support-v4:28.0.0'
     implementation 'com.android.support:preference-v7:28.0.0'
@@ -111,6 +112,6 @@ dependencies {
     testImplementation "android.arch.persistence.room:testing:$room_version"
 
     //Voor APK te maken
-    implementation 'com.android.support:multidex:1.0.3'
+    //implementation 'com.android.support:multidex:1.0.3'
 
 }

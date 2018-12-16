@@ -102,28 +102,37 @@ class PageViewModel:InjectedViewModel() {
         }
     }
 
-    fun retrieveTextPageImg(paragragphs: Array<Model.Paragraph>){
+    fun retrieveTextPageImg(paragragphs: Array<Model.Paragraph>, pagePosition: Int){
+        Log.d("TEXT_VIEW", "IMG_RETRIEVE_FUNCTION")
         paragragphs
             .filter { it.type == "IMAGE" }
             .forEach {
-                Log.i("IMAGE_FILE_PATH", it.imageFilename)
+                Log.i("TEXT_VIEW", it.imageFilename)
                 subscription = fileService.getFile("paragraphs_image", it.imageFilename)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
-                        { result -> convertToBitmap(paragragphs, result, it.imageFilename, it.position) },
+                        { result ->
+                            Log.d("TEXT_VIEW_CHANGE_BOY_2", "RESULT_CHECK")
+                            convertToBitmap(paragragphs, result, it.imageFilename, it.position, pagePosition)
+                        },
                         { error -> Log.i("EXERCISE ERROR", "$error") }
                     )
             }
     }
 
-    private fun convertToBitmap(paragragphs: Array<Model.Paragraph>, result: ResponseBody, fileName: String, position: Int) {
-        Log.d("PAR_IMG", "CHECK")
+    private fun convertToBitmap(paragragphs: Array<Model.Paragraph>, result: ResponseBody, fileName: String, position: Int, pagePosition: Int) {
         var imgFile = File.createTempFile(fileName, "png")
         imgFile.deleteOnExit()
         val fos = FileOutputStream(imgFile)
         fos.write(result.bytes())
-        paragragphs[position].bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
+        Log.d("TEXT_VIEW_CHANGE_BOY_3", "1")
+        //paragragphs[position].bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
+        pages.value!![pagePosition].paragraphs[position].bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
+        Log.d("TEXT_VIEW_CHANGE_BOY_3", "2")
+        Log.d("TEXT_VIEW_CHANGE_BOY_3", "${pages.value!![position].paragraphs[position].bitmap}")
+        Log.d("TEXT_VIEW_CHANGE_BOY_3", "3")
+        pages.postValue(pages.value)
     }
 
     fun checkInputPage(id: String, position: Int){
@@ -135,7 +144,7 @@ class PageViewModel:InjectedViewModel() {
                 { result ->
                     pages.value!![position].post = result
                     pages.value = pages.value
-                    Log.d("PAGE_VIEW", "REPEAT_2")
+                    Log.d("CHECKY_BOY", "RESULT_CREATED")
                 },
                 { error -> Log.i("fuck", "fuck") }
             )

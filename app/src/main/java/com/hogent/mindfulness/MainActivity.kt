@@ -11,7 +11,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
-import android.support.v4.app.FragmentTransaction
+import android.support.v4.app.*
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
@@ -42,6 +42,7 @@ import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.toast
 import java.util.*
 import java.util.concurrent.TimeUnit
+import android.support.v4.app.FragmentManager
 
 
 class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPreferenceClickforFragment {
@@ -102,10 +103,8 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                         .commit()
                 }
                 "PAGE_VIEW" -> {
-                    if (!::exerciseDetailFragment.isInitialized) {
-                        exerciseDetailFragment = ExerciseDetailFragment()
-                        exerciseDetailFragment.manager = supportFragmentManager
-                    }
+                    exerciseDetailFragment = ExerciseDetailFragment()
+                    exerciseDetailFragment.manager = supportFragmentManager
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.session_container, exerciseDetailFragment)
                         .addToBackStack("tag")

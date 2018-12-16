@@ -60,7 +60,7 @@ class UserViewModel : InjectedViewModel() {
             .subscribe(
                 { user ->
                     rawUser.value = user
-                    userRepo.insert(user!!)
+                     userRepo.insert(user!!)
                     uiMessage.postValue(Model.uiMessage("registere_end_progress"))
                 },
                 { error ->

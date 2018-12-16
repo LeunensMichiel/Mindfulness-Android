@@ -102,6 +102,6 @@ class SessionViewModel:InjectedViewModel() {
         imgFile.deleteOnExit()
         val fos = FileOutputStream(imgFile)
         fos.write(result.bytes())
-        sessionList.value!![position].bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
+//        sessionList.value!![position].bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
     }
 }

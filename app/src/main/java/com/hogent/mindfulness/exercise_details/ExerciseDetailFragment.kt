@@ -27,7 +27,7 @@ import kotlinx.android.synthetic.main.oefening_details_fragment.*
  * Deze klasse heeft als taak de fragments specifiek voor de oefening die hij meegekregen heeft van de MainActivity te tonen in de juiste
  * volgorde en met de juiste data
  */
-class ExerciseDetailFragment(): Fragment(){
+class ExerciseDetailFragment: Fragment(){
 
     lateinit var exerciseId:String
     lateinit var manager: FragmentManager
@@ -38,6 +38,11 @@ class ExerciseDetailFragment(): Fragment(){
         super.onResume()
         (activity as MainActivity).setActionBarTitle(pageView.ex_name)
 
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        pagesLock = false
     }
 
     /**
@@ -63,9 +68,10 @@ class ExerciseDetailFragment(): Fragment(){
             initializePages(pageView.pages.value!!)
         }
         pageView.pages.observe(this, Observer {
+            Log.d("PAGE_INIT_OBSERVER", "CHECK")
             if (it != null && !pagesLock) {
                 it.forEach {
-                    Log.d("PAGE", "${it}")
+                    Log.d("PAGE_INIT", "${it}")
                 }
                 initializePages(it!!)
                 pagesLock = true
@@ -84,8 +90,7 @@ class ExerciseDetailFragment(): Fragment(){
     private fun initializePages(pages: Array<Model.Page>) {
         Log.d("INITILIAZE_PAGES_MAN", "${manager}")
         val adapter = OefeningViewPagerAdapter(manager)
-        val frags: MutableList<Fragment> = arrayListOf()
-        val titles: MutableList<String> = arrayListOf()
+        adapter.notifyDataSetChanged()
         pages.forEachIndexed { index, it ->
             when (it.type) {
                 "AUDIO" ->
@@ -108,7 +113,7 @@ class ExerciseDetailFragment(): Fragment(){
                     val fragment = FragmentExerciseText()
                     val arg = Bundle()
                     arg.putString("description", it.description)
-
+                    fragment.position = index
                     fragment.paragraphs = it.paragraphs
 
                     fragment.arguments = arg
@@ -139,21 +144,11 @@ class ExerciseDetailFragment(): Fragment(){
                             fragment.page = it
                             adapter.addFragment(fragment, "Invoer")
                         }
-                        else -> {
-                            Log.i("INITILIAZE_PAGES", "INPUT")
-                            val fragment = FragmentExerciseInvoer()
-                            Log.d("INPUT_TYPE", it.type_input)
-                            fragment.position = index
-                            fragment.page = it
-                            val arg = Bundle()
-                            arg.putString("opgave", it.title)
-                            fragment.arguments = arg
-                            adapter.addFragment(fragment, "Invoer")
-                        }
                     }
                 }
             }
         }
-        viewPager.adapter = adapter
+        viewPager.offscreenPageLimit = 1
+        viewPager.setAdapter(adapter);
     }
 }

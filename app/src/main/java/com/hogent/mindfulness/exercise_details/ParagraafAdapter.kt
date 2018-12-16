@@ -2,6 +2,7 @@ package com.hogent.mindfulness.exercise_details
 
 import android.annotation.SuppressLint
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,7 +20,13 @@ import org.jetbrains.anko.imageResource
  * de variabele mParagrafen heeft de data voor de recyclerviewadapter
  * tutorial voor RecyclerView: https://www.youtube.com/watch?v=Vyqz_-sJGFk
  */
-class ParagraafAdapter(private val mParagrafen: Array<Model.Paragraph>): RecyclerView.Adapter<ParagraafViewHolder>(){
+class ParagraafAdapter(private var mParagrafen: Array<Model.Paragraph>): RecyclerView.Adapter<ParagraafViewHolder>(){
+
+    fun setDataSet(pars: Array<Model.Paragraph>) {
+        Log.d("TEXT_VIEW_CHANGE","DATASET_SET")
+        mParagrafen = pars
+        notifyDataSetChanged()
+    }
 
     /**
      * deze functie laadt de item view in

@@ -3,6 +3,8 @@ package com.hogent.mindfulness.exercise_details
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
+import android.support.v4.app.FragmentStatePagerAdapter
+import android.support.v4.view.PagerAdapter
 
 /**
  * We gebruiken een ViewPager om door de verschillende fragments van de oefening te swipen
@@ -14,11 +16,16 @@ import android.support.v4.app.FragmentPagerAdapter
  * de addFragment-methode zal dienen om het meegegeven fragment in de ViewPager te steken
  * de getPageTitle-methode zal dienen om de titel van de page tonen van de fragment
  */
-class OefeningViewPagerAdapter(manager: FragmentManager) : FragmentPagerAdapter(manager) {
-    private var fragmentList: MutableList<Fragment> = ArrayList()
+class OefeningViewPagerAdapter(manager: FragmentManager) : FragmentStatePagerAdapter(manager) {
+    private var fragmentList: MutableList<PagerFragment> = ArrayList()
     private var titles: MutableList<String> = ArrayList()
 
+    override fun getItemPosition(`object`: Any): Int {
+        return PagerAdapter.POSITION_NONE
+    }
+
     override fun getItem(position: Int): Fragment {
+//        fragmentList[position].initializePage()
         return fragmentList[position]
     }
 
@@ -26,15 +33,9 @@ class OefeningViewPagerAdapter(manager: FragmentManager) : FragmentPagerAdapter(
         return fragmentList.size
     }
 
-    fun addFragment(fragment: Fragment, title: String) {
+    fun addFragment(fragment: PagerFragment, title: String) {
         fragmentList.add(fragment)
         titles.add(title)
-        notifyDataSetChanged()
-    }
-
-    fun setFragments(frags: MutableList<Fragment>, titles: MutableList<String>){
-        fragmentList = frags
-        this.titles = titles
         notifyDataSetChanged()
     }
 

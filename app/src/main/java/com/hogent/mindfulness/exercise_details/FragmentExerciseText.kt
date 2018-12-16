@@ -1,6 +1,7 @@
 package com.hogent.mindfulness.exercise_details
 
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.os.Bundle
@@ -20,22 +21,19 @@ import java.lang.Exception
 /**
  * Deze klasse is een Fragment die verantwoordelijk is voor een tekstpagina van een oefening
  */
-class FragmentExerciseText : Fragment() {
+class FragmentExerciseText : PagerFragment() {
 
     lateinit var paragraphs: Array<Model.Paragraph>
     private  lateinit var pageView:PageViewModel
-
-    init {
-        Log.d("INITILIAZE_PAGES", "TEXT_INIT")
-    }
+    var position: Int = -1
+    private lateinit var parAdapter: ParagraafAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("INITILIAZE_PAGES", "TEXT")
         pageView = activity?.run {
             ViewModelProviders.of(this).get(PageViewModel::class.java)
         }?: throw Exception("Invalid activity.")
-        Log.d("INITILIAZE_PAGES_VM", "${pageView}")
+
     }
 
     /**
@@ -55,29 +53,20 @@ class FragmentExerciseText : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        pageView.retrieveTextPageImg(paragraphs)
-        val viewAdapter = ParagraafAdapter(paragraphs)
+        Log.d("TEXT_VIEW", "IMG_RETRIEVE_CALL")
+        pageView.pages.observe(this, Observer {
+            Log.d("TEXT_VIEW_CHANGE_BOY_1","${it!![position].paragraphs[0]}")
+            parAdapter.setDataSet(it[position].paragraphs)
+        })
+        pageView.retrieveTextPageImg(pageView.pages.value!![position].paragraphs, position)
+        parAdapter = ParagraafAdapter(pageView.pages.value!![position].paragraphs)
         val viewManager = LinearLayoutManager(activity)
 
         rv_paragrafen.apply {
             layoutManager = viewManager
-            adapter = viewAdapter
+            adapter = parAdapter
         }
 
-    }
-
-    /**
-     * Fragment herladen als de fragment zichtbaar is voor de user
-     * zonder deze functie is de data leeg als je deze fragment verlaat en terugkeert
-     */
-    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
-        super.setUserVisibleHint(isVisibleToUser)
-        if (isAdded()) {
-            if (isVisibleToUser) {
-                // Refresh your fragment here
-                fragmentManager!!.beginTransaction().detach(this).attach(this).commit()
-            }
-        }
     }
 
     /**

@@ -22,7 +22,7 @@ import java.lang.Exception
  * A simple [Fragment] subclass.
  *
  */
-class TextInputFragment : Fragment() {
+class TextInputFragment : PagerFragment() {
 
     private lateinit var pageView: PageViewModel
     private var post: Model.Post? = null
@@ -35,13 +35,6 @@ class TextInputFragment : Fragment() {
             ViewModelProviders.of(this).get(PageViewModel::class.java)
         }?: throw Exception("Invlaid activity.")
 
-        pageView.pages.observe(this, Observer {
-            Log.d("PAGE_VIEW", "FUCK_OFF")
-            if(pageView.pages.value!![position].post != null){
-                post = pageView.pages.value!![position].post!!
-                setupTextInput()
-            }
-        })
     }
 
     override fun onCreateView(
@@ -54,6 +47,14 @@ class TextInputFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        pageView.pages.observe(this, Observer {
+            Log.d("PAGE_VIEW", "FUCK_OFF")
+            if(pageView.pages.value!![position].post != null){
+                post = pageView.pages.value!![position].post!!
+                setupTextInput()
+            }
+        })
 
         fragment_textinput_titel.setText("Geschiedenis aan het nakijken...")
 

@@ -41,7 +41,7 @@ import kotlin.properties.Delegates
  * Deze klasse is een Fragment die verantwoordelijk is voor de invoerpagina van de oefening
  * De layout die hiermee gelinkt is is fragment_fragment_oefeninginvoer
  */
-class FragmentExerciseInvoer : Fragment() {
+class FragmentExerciseInvoer : PagerFragment() {
 
     private lateinit var post: Model.Post
     private lateinit var pageView:PageViewModel
@@ -55,14 +55,6 @@ class FragmentExerciseInvoer : Fragment() {
         pageView = activity?.run {
             ViewModelProviders.of(this).get(PageViewModel::class.java)
         }?: throw Exception("Invalid activity.")
-
-        pageView.pages.observe(this, Observer {
-            Log.d("PAGE_VIEW", "FUCK_OFF")
-            if(pageView.pages.value!![position].post != null){
-                post = pageView.pages.value!![position].post!!
-                showResult()
-            }
-        })
     }
 
     /**
@@ -90,6 +82,15 @@ class FragmentExerciseInvoer : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
+        pageView.pages.observe(this, Observer {
+            Log.d("PAGE_VIEW", "FUCK_OFF")
+            if(pageView.pages.value!![position].post != null){
+                post = pageView.pages.value!![position].post!!
+                showResult()
+            }
+        })
 
         if (this.arguments!!.containsKey("opgave")) {
             inputlayout.hint = this.arguments!!.getString("opgave", "check")
