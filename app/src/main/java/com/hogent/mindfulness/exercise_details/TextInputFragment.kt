@@ -14,7 +14,6 @@ import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.PageViewModel
-import kotlinx.android.synthetic.main.fragment_change_password.*
 import kotlinx.android.synthetic.main.fragment_text_input.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 
@@ -91,7 +90,7 @@ class TextInputFragment : PagerFragment() {
 
     fun setupTextInput() {
         if (post != null)
-            fragment_textinput_textfield.hint = post?.inhoud
+            fragment_textinput_textfield.hint = page.description
         fragment_textinput_titel.setText(page.title)
         fragment_text_input_desc.text = page.description
 
