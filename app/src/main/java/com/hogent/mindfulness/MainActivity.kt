@@ -180,8 +180,9 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                 } else {
                     navigation.visibility = View.GONE
 
+                    groupFragment = GroupFragment()
                     supportFragmentManager.beginTransaction()
-                        .replace(R.id.session_container, GroupFragment())
+                        .replace(R.id.session_container, groupFragment)
                         .commit()
                     showAcionBar(true)
 

@@ -82,10 +82,12 @@ class UserViewModel : InjectedViewModel() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { result ->
+                    Log.d("group", "$result")
                     userRepo.user.value?.group = result
                     userRepo.updateUser(userRepo.user.value!!)
                 },
                 { error ->
+                    Log.e("group", "$error")
                     toastMessage.postValue("Code niet herkend.")
                 }
             )
