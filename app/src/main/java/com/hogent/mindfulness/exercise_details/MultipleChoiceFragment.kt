@@ -10,10 +10,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.PageViewModel
 import kotlinx.android.synthetic.main.fragment_multiple_choice.*
+import kotlinx.android.synthetic.main.fragment_text_input.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 
 /**
@@ -53,6 +56,21 @@ class MultipleChoiceFragment : PagerFragment() {
             }
         })
 
+        pageView.uiMessage.observe(this, Observer {
+            when (it!!.data) {
+                "textinputsucces" -> {
+                    progressBar_multipleChoice.visibility = View.INVISIBLE
+                    fragment_mulchoice_btn.isEnabled = false
+                    it.data = "succes"
+                }
+                "textinputerror" -> {
+                    progressBar_multipleChoice.visibility = View.INVISIBLE
+                    fragment_mulchoice_btn.isEnabled = true
+                    Toast.makeText(activity as MainActivity, "Er is iets misgelopen", Toast.LENGTH_SHORT).show()
+                }
+            }
+        })
+
         fragment_mulchoice_btn.onClick {
             pageView.pageError.postValue(Model.errorMessage(null, "Input nog niet klaar."))
         }
@@ -85,8 +103,10 @@ class MultipleChoiceFragment : PagerFragment() {
             }
 
             fragment_mulchoice_input_txf.setText(page.title)
+            fragment_text_multiplechoice_desc.text = page.description
 
             fragment_mulchoice_btn.onClick {
+                progressBar_multipleChoice.visibility = View.VISIBLE
                 post = pageView.updatePost(position, page, fragment_mulchoice_input_txf.text.toString(), post, (rv_mulchoice.adapter as MultipleChoiceItemAdapter).getMulChoiceItems())
             }
         }

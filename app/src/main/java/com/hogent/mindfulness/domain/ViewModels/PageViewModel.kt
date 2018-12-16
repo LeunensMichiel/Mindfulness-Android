@@ -23,30 +23,31 @@ import java.io.FileOutputStream
 import java.io.IOException
 import javax.inject.Inject
 
-class PageViewModel:InjectedViewModel() {
+class PageViewModel : InjectedViewModel() {
 
     var pages = MutableLiveData<Array<Model.Page>>()
     var pageError = MutableLiveData<Model.errorMessage>()
+    var uiMessage = MutableLiveData<Model.uiMessage>()
 
-    lateinit var exercise_id:String
+    lateinit var exercise_id: String
     private lateinit var subscription: Disposable
-    lateinit var ex_name:String
-    lateinit var session_name:String
+    lateinit var ex_name: String
+    lateinit var session_name: String
 
     @Inject
     lateinit var userRepo: UserRepository
 
     @Inject
-    lateinit var pageService:PageApiService
+    lateinit var pageService: PageApiService
 
     @Inject
-    lateinit var postService:PostApiService
+    lateinit var postService: PostApiService
 
     @Inject
     lateinit var fileService: FIleApiService
 
-    fun retrievePages(){
-        if (::exercise_id.isInitialized){
+    fun retrievePages() {
+        if (::exercise_id.isInitialized) {
             subscription = pageService.getPages(exercise_id)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -61,19 +62,19 @@ class PageViewModel:InjectedViewModel() {
         }
     }
 
-    fun retrieveAudio(position: Int){
+    fun retrieveAudio(position: Int) {
         pageError.value = Model.errorMessage()
         subscription = fileService.getFile("page_audio", pages.value!![position].audioFilename)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { result -> convertByteArrayToAudio(result, position) },
-                { error -> pageError.value?.error = "Audio niet opgeladen."}
+                { error -> pageError.value?.error = "Audio niet opgeladen." }
             )
     }
 
     private fun convertByteArrayToAudio(result: ResponseBody, position: Int) {
-        var audioFile:File
+        var audioFile: File
         var fos: FileOutputStream
         var fis: FileInputStream
         try {
@@ -101,7 +102,7 @@ class PageViewModel:InjectedViewModel() {
         }
     }
 
-    fun retrieveTextPageImg(paragragphs: Array<Model.Paragraph>, pagePosition: Int){
+    fun retrieveTextPageImg(paragragphs: Array<Model.Paragraph>, pagePosition: Int) {
         Log.d("TEXT_VIEW", "IMG_RETRIEVE_FUNCTION")
         paragragphs
             .filter { it.type == "IMAGE" }
@@ -120,7 +121,13 @@ class PageViewModel:InjectedViewModel() {
             }
     }
 
-    private fun convertToBitmap(paragragphs: Array<Model.Paragraph>, result: ResponseBody, fileName: String, position: Int, pagePosition: Int) {
+    private fun convertToBitmap(
+        paragragphs: Array<Model.Paragraph>,
+        result: ResponseBody,
+        fileName: String,
+        position: Int,
+        pagePosition: Int
+    ) {
         var imgFile = File.createTempFile(fileName, "png")
         imgFile.deleteOnExit()
         val fos = FileOutputStream(imgFile)
@@ -134,7 +141,7 @@ class PageViewModel:InjectedViewModel() {
         pages.postValue(pages.value)
     }
 
-    fun checkInputPage(id: String, position: Int){
+    fun checkInputPage(id: String, position: Int) {
 
         subscription = postService.checkPageId(id)
             .subscribeOn(Schedulers.io())
@@ -150,7 +157,13 @@ class PageViewModel:InjectedViewModel() {
     }
 
 
-    fun updatePost(position: Int, page:Model.Page, description:String, newPost:Model.Post, mulChoiceList: Array<Model.MultipleChoiceItem> = arrayOf()):Model.Post {
+    fun updatePost(
+        position: Int,
+        page: Model.Page,
+        description: String,
+        newPost: Model.Post,
+        mulChoiceList: Array<Model.MultipleChoiceItem> = arrayOf()
+    ): Model.Post {
         Log.d("POSTUPDATE", "CHECK")
         var currentPost = Model.Post()
         currentPost.page_id = page._id
@@ -158,34 +171,47 @@ class PageViewModel:InjectedViewModel() {
         currentPost.user_id = userRepo.user.value?._id
         currentPost._id = newPost._id
 
-        if (mulChoiceList.isNotEmpty()){
+        if (mulChoiceList.isNotEmpty()) {
             currentPost.multiple_choice_items = mulChoiceList
         } else {
             currentPost.inhoud = description
         }
 
-        if (currentPost._id == "none" || currentPost._id == null){
+        if (currentPost._id == "none" || currentPost._id == null) {
             currentPost._id = null
             subscription = postService.addPost(currentPost)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                    { result ->  onPostSaveResult(position, result) },
-                    { error ->  pageError.value?.error = "Input niet opgeslagen." }
+                    { result ->
+                        onPostSaveResult(position, result)
+                        uiMessage.postValue(Model.uiMessage("textinputsucces"))
+                    },
+                    { error ->
+                        pageError.value?.error = "Input niet opgeslagen."
+                        uiMessage.postValue(Model.uiMessage("textinputerror"))
+                    }
                 )
         } else {
             subscription = postService.changePost(currentPost)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                    { result -> Log.i("oldPost", "$result") },
-                    { error -> pageError.value?.error = "Input niet opgeslagen." }
+                    { result ->
+                        Log.i("oldPost", "$result")
+                        uiMessage.postValue(Model.uiMessage("textinputsucces"))
+                    },
+                    { error ->
+                        pageError.value?.error = "Input niet opgeslagen."
+                        uiMessage.postValue(Model.uiMessage("textinputerror"))
+                    }
                 )
         }
         return currentPost
     }
 
-    fun onPostSaveResult(position: Int, post:Model.Post) {
+    fun onPostSaveResult(position: Int, post: Model.Post) {
+
         Log.d("POSTS_SAVED", "CHECK")
         pages.value!![position].post = post
         pages.postValue(pages.value)
@@ -193,7 +219,7 @@ class PageViewModel:InjectedViewModel() {
         pageError.value?.error = "Input opgeslagen."
     }
 
-    fun updatePostImage(file:File, position: Int, page:Model.Page,  newPost:Model.Post):Model.Post {
+    fun updatePostImage(file: File, position: Int, page: Model.Page, newPost: Model.Post): Model.Post {
         val currentPost = Model.Post()
         currentPost.page_id = page._id
         currentPost.page_name = page.title
@@ -205,15 +231,15 @@ class PageViewModel:InjectedViewModel() {
             file
         )
         Log.d("POST_IMAGE", "$reqFile")
-        val body = MultipartBody.Part.createFormData("file",file.name + ".png", reqFile)
-        if (currentPost._id == "none" || currentPost._id == null){
+        val body = MultipartBody.Part.createFormData("file", file.name + ".png", reqFile)
+        if (currentPost._id == "none" || currentPost._id == null) {
             currentPost._id = null
-            subscription = postService.addImagePost( currentPost,body)
+            subscription = postService.addImagePost(currentPost, body)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                    { result ->  Log.d("POST_IMAGE", "$result") },
-                    { error ->  pageError.postValue(Model.errorMessage("" , "Input niet opgeslagen.")) }
+                    { result -> Log.d("POST_IMAGE", "$result") },
+                    { error -> pageError.postValue(Model.errorMessage("", "Input niet opgeslagen.")) }
                 )
         } else {
             Log.d("POST_IMAGE_BODY", "$body")
@@ -229,17 +255,17 @@ class PageViewModel:InjectedViewModel() {
         return currentPost
     }
 
-    fun retrievePostImg(post:Model.Post, position: Int){
+    fun retrievePostImg(post: Model.Post, position: Int) {
         subscription = fileService.getFile("post_image", post.image_file_name!!)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
-                { result -> convertPostBitmap( result, post.image_file_name!!, position) },
+                { result -> convertPostBitmap(result, post.image_file_name!!, position) },
                 { error -> Log.i("EXERCISE ERROR", "$error") }
             )
     }
 
-    fun convertPostBitmap(result:ResponseBody, fileName: String, position: Int ){
+    fun convertPostBitmap(result: ResponseBody, fileName: String, position: Int) {
         var imgFile = File.createTempFile(fileName, "png")
         imgFile.deleteOnExit()
         val fos = FileOutputStream(imgFile)

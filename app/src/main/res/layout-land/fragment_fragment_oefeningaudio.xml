@@ -1,56 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                             xmlns:app="http://schemas.android.com/apk/res-auto"
-                                             xmlns:tools="http://schemas.android.com/tools"
-                                             android:layout_width="match_parent"
-                                             android:layout_height="match_parent"
-                                             tools:context=".exercise_details.FragmentExerciseAudio"
-                                             android:id="@+id/linearLayout" tools:layout_editor_absoluteY="73dp"
-    android:orientation="horizontal">
-
-
-    <ImageView
-            android:layout_height="158dp"
-            android:layout_width="178dp"
-            android:src="@drawable/image"
-            android:id="@+id/media_player_image"
-            android:layout_marginTop="8dp"
-            app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"/>
-
-    <SeekBar
-            android:id="@+id/positionBar"
-            android:layout_width="508dp"
-            android:layout_height="20dp"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
-            android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/imageView"/>
-
-
-    <TextView
-            android:id="@+id/elapsedTimeLabel"
-            android:layout_width="wrap_content"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
             android:layout_height="wrap_content"
-            android:text="0:00"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="40dp"
-            android:layout_marginBottom="96dp" app:layout_constraintBottom_toBottomOf="parent"/>
-    <TextView
-            android:id="@+id/remainingTimeLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="-3:28"
-            android:layout_marginBottom="96dp"
-            app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="40dp"/>
+            android:layout_width="match_parent"
+            tools:context=".exercise_details.FragmentExerciseAudio">
 
 
-    <Button
-            android:id="@+id/playButn"
-            android:layout_width="28dp"
-            android:layout_height="30dp"
-            android:background="@drawable/play"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
-            android:layout_marginBottom="36dp" app:layout_constraintBottom_toBottomOf="parent"/>
+    <android.support.constraint.ConstraintLayout
 
-</android.support.constraint.ConstraintLayout>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+        <com.airbnb.lottie.LottieAnimationView
+                android:layout_height="250dp"
+                android:layout_width="250dp"
+                android:id="@+id/media_player_animation"
+                app:lottie_rawRes="@raw/rejection"
+                app:lottie_loop="true"
+                app:lottie_scale="1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginStart="32dp" android:layout_marginEnd="32dp" android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                android:layout_marginTop="32dp"
+                app:layout_constraintTop_toTopOf="parent" android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintVertical_bias="0.0"
+                android:cropToPadding="true"/>
+
+        <SeekBar
+                android:id="@+id/positionBar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="32dp" android:layout_marginEnd="32dp"
+                app:layout_constraintHorizontal_bias="0.0"
+                android:layout_marginTop="32dp" app:layout_constraintTop_toBottomOf="@+id/media_player_animation"/>
+
+
+        <TextView
+                android:id="@+id/elapsedTimeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0:00"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/positionBar"
+                app:layout_constraintStart_toStartOf="@+id/positionBar" android:layout_marginStart="8dp"/>
+        <TextView
+                android:id="@+id/remainingTimeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0:00"
+                app:layout_constraintEnd_toEndOf="@+id/positionBar"
+                android:layout_marginEnd="8dp" android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/positionBar"/>
+
+
+        <ImageButton
+                android:id="@+id/playButton"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/play"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/positionBar" android:layout_marginEnd="8dp"
+                app:layout_constraintEnd_toEndOf="parent" android:layout_marginStart="8dp"
+                app:layout_constraintStart_toStartOf="parent" android:adjustViewBounds="true"
+                android:scaleType="centerInside" android:tint="@color/colorAccent"
+                app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="8dp"/>
+
+    </android.support.constraint.ConstraintLayout>
+</ScrollView>
