@@ -153,7 +153,8 @@ object Model {
     )
 
     data class ForgotPassword(
-        val email: String
+        val email: String,
+        val message: String?
     )
 
     data class ForgotPasswordWithCode(

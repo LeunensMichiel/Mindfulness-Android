@@ -48,4 +48,9 @@ interface UserApiService {
 
     @PUT("/API/users/change_password/{id}")
     fun changePasswordWithAuth(@Path("id") id: String, @Body model : Model.OldAndNewPassword) : Observable<Model.OldAndNewPassword>
+
+    //I REUSE THE FORGETPASSWORD MODEL AS WE JUST NEED AN EMAIL BUT IT'LL SERVE FOR THE EXACT SAME THING
+    @PUT("/API/users/change_email/{id}")
+    fun changeEmail(@Path("id") id: String, @Body model : Model.ForgotPassword) : Observable<Model.ForgotPassword>
+
 }

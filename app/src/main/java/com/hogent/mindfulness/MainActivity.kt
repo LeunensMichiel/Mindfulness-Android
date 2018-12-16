@@ -362,12 +362,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         val itemThatWasClickedId = item.getItemId()
         when (itemThatWasClickedId) {
             R.id.settings -> {
-                val preferenceFragment = SettingsFragment()
-                supportFragmentManager.beginTransaction()
-                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                    .replace(R.id.session_container, preferenceFragment)
-                    .addToBackStack("ROOT")
-                    .commit()
+                toSettings()
                 return true
             }
             R.id.logout -> {
@@ -376,6 +371,15 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    fun toSettings() {
+        val preferenceFragment = SettingsFragment()
+        supportFragmentManager.beginTransaction()
+            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+            .replace(R.id.session_container, preferenceFragment)
+            .addToBackStack("ROOT")
+            .commit()
     }
 
     fun logout() {
