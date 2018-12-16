@@ -3,14 +3,26 @@ package com.hogent.mindfulness.domain.ViewModels
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.Log
 import com.hogent.mindfulness.data.API.UserApiService
+import com.hogent.mindfulness.data.FIleApiService
 import com.hogent.mindfulness.data.LocalDatabase.repository.UserRepository
 import com.hogent.mindfulness.domain.InjectedViewModel
 import com.hogent.mindfulness.domain.Model
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.ResponseBody
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import javax.inject.Inject
 
 class UserViewModel : InjectedViewModel() {
@@ -20,12 +32,17 @@ class UserViewModel : InjectedViewModel() {
     var errorMessage = MutableLiveData<Model.loginErrorMessage>()
     var toastMessage = MutableLiveData<String>()
     var dbUser: LiveData<Model.User> = userRepo.user
+    var bitmap = MutableLiveData<Bitmap>()
+    var loggingIn = true
 
     @Inject
     lateinit var userApi: UserApiService
 
     @Inject
     lateinit var userRepo: UserRepository
+
+    @Inject
+    lateinit var fIleApiService: FIleApiService
 
     private lateinit var subscription: Disposable
 
@@ -45,6 +62,7 @@ class UserViewModel : InjectedViewModel() {
             .subscribe(
                 { user ->
                     onRetrieveUserSucces(user)
+                    Log.d("PROFILE_PIC", "${user}")
                     uiMessage.postValue(Model.uiMessage("login_end_progress"))
                 },
                 { error ->
@@ -64,8 +82,7 @@ class UserViewModel : InjectedViewModel() {
             .subscribe(
                 { user ->
                     Log.d("register", "$user")
-                    rawUser.value = user
-                    userRepo.insert(user!!)
+                    onRetrieveUserSucces(user)
                     uiMessage.postValue(Model.uiMessage("registere_end_progress"))
                 },
                 { error ->
@@ -132,15 +149,73 @@ class UserViewModel : InjectedViewModel() {
             )
     }
 
-    fun updateProfilePicture(imageFileName : String) {
-        userRepo.user.value?.image_file_name = imageFileName
-        subscription = userApi.updateUserProfilePicture(userRepo.user.value!!._id!!, userRepo.user.value!!)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { result -> Log.d("PROFILE_PICTURE_RESULT", "$result") },
-                { error -> Log.d("PROFILE_PICTURE_ERROR", "$error") }
+    fun retrieveProfilePicture() {
+        doAsync {
+            if (userRepo.user.value?.image_file_name != null){
+                Log.d("PROFILE_PIC", "CHECK")
+                subscription = fIleApiService.getFile("profile_image", userRepo.user.value?.image_file_name!!)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                        { result -> convertToBitmap(result) },
+                        { error -> setToast("Profiel afbeeldingen niet kunnen ophalen.") }
+                    )
+
+            }
+        }
+    }
+
+    fun convertToBitmap(body: ResponseBody){
+        doAsync {
+            var imgFile: File
+            var fos: FileOutputStream
+            var bMap:Bitmap
+            try {
+                imgFile = File.createTempFile(userRepo.user.value?.image_file_name, "jpg")
+                imgFile.deleteOnExit()
+                fos = FileOutputStream(imgFile)
+                fos.write(body.bytes())
+                fos.close()
+                bMap = BitmapFactory.decodeFile(imgFile.absolutePath)
+                bitmap.postValue(bMap)
+                Log.d("PROFILE_PIC", "CHECK")
+            } catch (ex: IOException) {
+                setToast("Er ging iets mis. De afbeelding van de oefeningen werden niet opgehaald.")
+            }
+        }
+    }
+
+    fun updateProfilePicture(file: File, bitmap: Bitmap){
+            val reqFile = RequestBody.create(
+                MediaType.parse("image/jpg"),
+                file
             )
+            val body = MultipartBody.Part.createFormData("file", file.name + ".jpg", reqFile)
+            subscription = userApi.updateUserProfilePicture(userRepo.user.value?._id!!, body)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    { result ->
+                        Log.d("PROFILE_CHANGED", "RESULT")
+                        setBitmap(bitmap)
+                        loggingIn = false
+                        userRepo.user.value?.image_file_name = result.result
+                        userRepo.updateUser(userRepo.user.value!!)
+                    },
+                    { error ->
+                        setToast("Er is iets mis gegaan. Profielfoto is niet veranderd.")
+                    }
+                )
+
+    }
+
+    fun setBitmap(bitmap: Bitmap){
+        this.bitmap.postValue(bitmap)
+    }
+
+    private fun setToast(message:String){
+        toastMessage.postValue(null)
+        toastMessage.postValue(message)
     }
 
     fun sendPasswordEmail(email : String) {

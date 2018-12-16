@@ -1,19 +1,23 @@
 package com.hogent.mindfulness.profile
 
 import android.app.Activity.RESULT_OK
+import android.app.Instrumentation
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.ContentResolver
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,9 +31,14 @@ import com.hogent.mindfulness.domain.ViewModels.UserViewModel
 import com.mikhaellopez.circularimageview.CircularImageView
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
+import kotlinx.android.synthetic.main.fragment_image_input.*
 import kotlinx.android.synthetic.main.fragment_profile.*
 import kotlinx.android.synthetic.main.profile_info_item.view.*
+import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.imageBitmap
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 
 
 class ProfileFragment : Fragment() {
@@ -40,7 +49,7 @@ class ProfileFragment : Fragment() {
 
     private var icons: IntArray = intArrayOf()
     private var info: Array<String?> = arrayOf()
-     var profilePicBitmap: Bitmap? = null
+    var profilePicBitmap: Bitmap? = null
     //De circularimage, niet de effectieve profilepic URL
     lateinit var img: CircularImageView
 
@@ -63,18 +72,28 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        userViewModel.bitmap.observe(this, Observer {
+            if (it != null && ::img.isInitialized) {
+                img.setImageBitmap(it)
+            }
+        })
+
         userViewModel.dbUser.observe(this, Observer {
-            if (it != null){
+            if (it != null) {
                 //Name
                 profileFragment_profilename.text = it.firstname + " " + it.lastname
-                info = arrayOf(it.email, it.group?.name, "Feedback: " + if (it.feedbackSubscribed) "ingeschreven" else "uitgeschreven")
-                if (it.unlocked_sessions.isNotEmpty()){
+                info = arrayOf(
+                    it.email,
+                    it.group?.name,
+                    "Feedback: " + if (it.feedbackSubscribed) "ingeschreven" else "uitgeschreven"
+                )
+                if (it.unlocked_sessions.isNotEmpty()) {
                     //Level
                     profileFragment_Unlockedsessioncount.text = it.unlocked_sessions.size.toString()
                 } else {
                     profileFragment_Unlockedsessioncount.text = "1"
                 }
-                if (it.post_ids.isNotEmpty()){
+                if (it.post_ids.isNotEmpty()) {
                     //Posts
                     profileFragment_postCount.text = it.post_ids.size.toString()
                 } else {
@@ -85,7 +104,7 @@ class ProfileFragment : Fragment() {
 
         sessionView.sessionList.observe(this, Observer {
             if (it != null) {
-                val unlocked = sessionView.sessionList.value?.filter {ses ->
+                val unlocked = sessionView.sessionList.value?.filter { ses ->
                     ses.unlocked
                 }
                 //SessionName
@@ -109,6 +128,7 @@ class ProfileFragment : Fragment() {
         lv.apply {
             layoutManager = LinearLayoutManager(activity)
             adapter = profileAdapter
+            setHasFixedSize(true)
         }
 
         initUserScreen()
@@ -117,6 +137,7 @@ class ProfileFragment : Fragment() {
     private fun initUserScreen() {
         //profilePic
         img = profileFragment_profilepic
+        img.setImageBitmap(userViewModel.bitmap.value)
         img.setOnClickListener() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (ContextCompat.checkSelfPermission(
@@ -158,13 +179,21 @@ class ProfileFragment : Fragment() {
     //This changes the image visually, DONT REMOVE!! It is part of the API
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode === CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            val result = CropImage.getActivityResult(data)
             if (resultCode === RESULT_OK) {
-                this.profilePicBitmap = result.bitmap
-                img.imageBitmap = profilePicBitmap
-
+                var result:CropImage.ActivityResult = CropImage.getActivityResult(data)
+                val bitmap:Bitmap = MediaStore.Images.Media.getBitmap(activity?.contentResolver, result.uri)
+                Log.d("URI", "${result.uri}")
+                var file = File(context?.cacheDir, "temp")
+                var bos = ByteArrayOutputStream()
+                file.createNewFile()
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos)
+                var fos = FileOutputStream(file)
+                fos.write(bos.toByteArray())
+                fos.flush()
+                fos.close()
+                userViewModel.updateProfilePicture(file, bitmap)
             } else if (resultCode === CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                val error = result.error
+
             }
         }
     }
@@ -185,10 +214,18 @@ class ProfileAdapter(
     private var info: Array<String?>
 
     init {
-        info = arrayOf(userViewModel.dbUser.value?.email, userViewModel.dbUser.value?.group?.name, "Feedback: " + if (userViewModel.dbUser.value?.feedbackSubscribed!!) "ingeschreven" else "uitgeschreven")
+        info = arrayOf(
+            userViewModel.dbUser.value?.email,
+            userViewModel.dbUser.value?.group?.name,
+            "Feedback: " + if (userViewModel.dbUser.value?.feedbackSubscribed!!) "ingeschreven" else "uitgeschreven"
+        )
         userViewModel.dbUser.observe(lifecycleOwner, Observer {
-            if (it != null){
-                info = arrayOf(it.email, it.group?.name, "Feedback: " + if (it.feedbackSubscribed) "ingeschreven" else "uitgeschreven")
+            if (it != null) {
+                info = arrayOf(
+                    it.email,
+                    it.group?.name,
+                    "Feedback: " + if (it.feedbackSubscribed) "ingeschreven" else "uitgeschreven"
+                )
             }
         })
 
@@ -204,13 +241,13 @@ class ProfileAdapter(
     }
 
     override fun onBindViewHolder(p0: ProfileViewHolder, p1: Int) {
-            p0.icon.setImageResource(icons[p1])
-            p0.info.text = info[p1]
+        p0.icon.setImageResource(icons[p1])
+        p0.info.text = info[p1]
     }
 
 
-    inner class ProfileViewHolder(view:View) : RecyclerView.ViewHolder(view) {
-        val icon : ImageView = view.profileFragment_info_icon
-        val info : TextView = view.profileFragment_info_text
+    inner class ProfileViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val icon: ImageView = view.profileFragment_info_icon
+        val info: TextView = view.profileFragment_info_text
     }
 }

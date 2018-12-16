@@ -69,6 +69,13 @@ class ExerciseDetailFragment: Fragment(){
         }
         pageView.pages.observe(this, Observer {
             Log.d("PAGE_INIT_OBSERVER", "CHECK")
+            //Ik heb hier code bijgevoegd voor te controleren voor lege pages maar zou niets mogen breken
+            if (it == null || it.isEmpty()) {
+                emptyExerciseLayout.visibility = View.VISIBLE
+            }
+            else {
+                emptyExerciseLayout.visibility = View.GONE
+            }
             if (it != null && !pagesLock) {
                 it.forEach {
                     Log.d("PAGE_INIT", "${it}")

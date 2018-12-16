@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent" android:background="@drawable/ic_artboard">
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent">
     <android.support.v4.view.ViewPager
             android:id="@+id/viewPager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-    >
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toBottomOf="parent">
         <android.support.v4.view.PagerTabStrip
                 android:id="@+id/pager_header"
                 android:layout_width="match_parent"
@@ -15,6 +17,28 @@
                 android:background="@color/colorPrimary"
                 android:padding="13dp"
                 android:textColor="#FFFFFF"
-        />
+        >
+        </android.support.v4.view.PagerTabStrip>
     </android.support.v4.view.ViewPager>
-</LinearLayout>
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:gravity="center" android:id="@+id/emptyExerciseLayout"
+            android:visibility="gone" app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+        <ImageView
+                android:src="@drawable/ic_head"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:adjustViewBounds="true"/>
+        <TextView
+                android:text="Oeps!\nDeze oefening is nog niet afgewerkt.\nContacteer je begeleider."
+                android:layout_width="300dp"
+                android:layout_height="wrap_content" android:textAlignment="center"
+                android:textColor="@android:color/darker_gray" android:textSize="18sp" android:layout_marginTop="32dp"/>
+    </LinearLayout>
+</android.support.constraint.ConstraintLayout>

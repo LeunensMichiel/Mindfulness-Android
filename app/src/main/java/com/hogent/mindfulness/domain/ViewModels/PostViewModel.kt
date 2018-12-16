@@ -52,7 +52,7 @@ class PostViewModel : InjectedViewModel() {
                 { error ->
                     Log.d("POSTIE_WOSTIES", "${error.message}")
                     Log.d("POSTIE_WOSTIES", "${error.printStackTrace()}")
-                    this.error.value?.error = "Feed niet bereikbaar."
+                    this.error.postValue(Model.errorMessage("","Geschiedenis is niet beschikbaar"))
                 }
             )
     }
@@ -66,7 +66,7 @@ class PostViewModel : InjectedViewModel() {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                         { result -> convertToBitmap(result, it.image_file_name!!, index) },
-                        { error -> this.error.value?.error = "afbeeldingen van feed niet bereikbaar." }
+                        { error -> this.error.postValue(Model.errorMessage("","De afbeeldingen zijn niet beschikbaar")) }
                     )
             }
         }

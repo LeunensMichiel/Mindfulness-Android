@@ -4,6 +4,7 @@ package com.hogent.mindfulness.exercises_List_display
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.CardView
@@ -72,7 +73,17 @@ class ExercisesListFragment : Fragment() {
         exerciseSessiontitle.text = session.title
         sessionDescriptionExercise.text = session.description
 
-        val viewAdapter = ExerciseAdapter(this, exView, userViewModel, session)
+        exView.exercises.observe(this, Observer {
+            if (it == null || it.isEmpty()) {
+                emptySessionLayout.visibility = View.VISIBLE
+                rv_exercises.visibility = View.GONE
+            } else {
+                emptySessionLayout.visibility = View.GONE
+                rv_exercises.visibility = View.VISIBLE
+            }
+        })
+
+        val viewAdapter = ExerciseAdapter(this, exView)
         val viewManager = LinearLayoutManager(activity)
 
         rv_exercises.apply {
@@ -93,15 +104,22 @@ class ExercisesListFragment : Fragment() {
      ***********************************************************************************************/
     class ExerciseAdapter(
         private val lifecycleOwner: LifecycleOwner,
-        private val exView:ExerciseViewModel,
-        private val userView:UserViewModel,
-        val session: Model.Session
+        private val exView:ExerciseViewModel
     ) : RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder>() {
 
         private var mExercisesData: Array<Model.Exercise> = arrayOf()
-
+        private var sessionBitmap: Bitmap? = null
 
         init {
+            if (exView.sessionBitmap.value != null) {
+                sessionBitmap = exView.sessionBitmap.value
+            }
+            exView.sessionBitmap.observe(lifecycleOwner, Observer {
+                if (it != null){
+                    sessionBitmap = it
+                    this.notifyDataSetChanged()
+                }
+            })
             exView.exercises.observe(lifecycleOwner, Observer {
                 mExercisesData = it!!
                 this.notifyDataSetChanged()
@@ -116,9 +134,7 @@ class ExercisesListFragment : Fragment() {
 
             val view = inflater.inflate(layoutIdExListItem, parent, false)
 
-
-
-            return ExerciseViewHolder(view, userView)
+            return ExerciseViewHolder(view)
         }
 
         //  This function gives the size back of the data list
@@ -130,18 +146,15 @@ class ExercisesListFragment : Fragment() {
         override fun onBindViewHolder(holder: ExerciseViewHolder, position: Int) {
             val exerciseTitle = mExercisesData[position]
             holder.title.text = exerciseTitle.title
-            holder.image.imageBitmap = session.bitmap
-
+            if (sessionBitmap != null){
+                holder.image.imageBitmap = sessionBitmap
+            }
         }
 
-        inner class ExerciseViewHolder(view: View, userView:UserViewModel) : RecyclerView.ViewHolder(view) {
+        inner class ExerciseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val title: TextView = view.exerciseName
             val card: CardView = view.btn_exercise
-            val image: ImageView = view.exerciseImage
-
-
-
-            val dbUser = userView.dbUser.value!!
+            var image: ImageView = view.exerciseImage
 
             // Add clicklistener on the item from the recyclerview
             init {
