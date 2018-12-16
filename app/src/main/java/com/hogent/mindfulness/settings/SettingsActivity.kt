@@ -24,7 +24,6 @@ class SettingsActivity : AppCompatActivity(), SettingsFragment.OnPreferenceClick
     private lateinit var userView: UserViewModel
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.setContentView(R.layout.activity_settings)
