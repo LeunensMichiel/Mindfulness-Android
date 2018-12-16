@@ -1,69 +1,102 @@
 package com.hogent.mindfulness.settings
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
+import com.hogent.mindfulness.domain.ViewModels.UserViewModel
+import kotlinx.android.synthetic.main.fragment_change_email_settings.*
 
-
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Activities that contain this fragment must implement the
- * [ChangeEmailSettingsFragment.OnFragmentInteractionListener] interface
- * to handle interaction events.
- *
- */
 class ChangeEmailSettingsFragment : Fragment() {
-//    private var listener: OnFragmentInteractionListener? = null
+
+    private lateinit var userView: UserViewModel
+    var cancel = false
+    var focusView: View? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
+
+        userView = activity?.run {
+            ViewModelProviders.of(this).get(UserViewModel::class.java)
+        } ?: throw Exception("Invalid activity.")
         return inflater.inflate(R.layout.fragment_change_email_settings, container, false)
     }
 
-//    // TODO: Rename method, update argument and hook method into UI event
-//    fun onButtonPressed(uri: Uri) {
-//        listener?.onFragmentInteraction(uri)
-//    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-//    override fun onAttach(context: Context) {
-//        super.onAttach(context)
-//        if (context is OnFragmentInteractionListener) {
-//            listener = context
-//        } else {
-//            throw RuntimeException(context.toString() + " must implement OnFragmentInteractionListener")
-//        }
-//    }
+        userView.uiMessage.observe(this, Observer {
+            when (it!!.data) {
+                "emailchanged" -> {
+                    progressBar_changeEmail.visibility = View.GONE
+                    it.data = "changed"
+                    (activity as MainActivity).toSettings()
+                    Toast.makeText(activity as MainActivity, "Email geüpdated!", Toast.LENGTH_SHORT).show()
+                }
+                "emailchangederror" -> {
+                    progressBar_changeEmail.visibility = View.GONE
 
-//    override fun onDetach() {
-//        super.onDetach()
-//        listener = null
-//    }
+                    change_email_newEmail.text.clear()
+                    change_email_newEmailRepeat.text.clear()
+                    change_email_newEmail.error = getString(R.string.fout_opgetreden)
+                    change_email_newEmail.requestFocus()
+                    focusView = change_email_newEmail
+                    cancel = true
+                }
+            }
+        })
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     *
-     *
-     * See the Android Training lesson [Communicating with Other Fragments]
-     * (http://developer.android.com/training/basics/fragments/communicating.html)
-     * for more information.
-     */
-//    interface OnFragmentInteractionListener {
-//        // TODO: Update argument type and name
-//        fun onFragmentInteraction(uri: Uri)
-//    }
+        change_emailSaveBtn.setOnClickListener {
+            attemptChangingEmail()
+        }
+    }
+
+    private fun attemptChangingEmail() {
+        change_email_currEmail.error = null
+        change_email_newEmail.error = null
+        change_email_newEmailRepeat.error = null
+
+        if (TextUtils.isEmpty(change_email_currEmail.text.toString())) {
+            change_email_currEmail.error = getString(R.string.error_field_required)
+            focusView = change_email_currEmail
+            cancel = true
+        }
+
+        if (TextUtils.isEmpty(change_email_newEmail.text.toString())) {
+            change_email_newEmail.error = getString(R.string.error_field_required)
+            focusView = change_email_newEmail
+            cancel = true
+        }
+        if (TextUtils.isEmpty(change_email_newEmailRepeat.text.toString())) {
+            change_email_newEmailRepeat.error = getString(R.string.error_field_required)
+            focusView = change_email_newEmailRepeat
+            cancel = true
+        }
+
+        if (change_email_newEmail.text.toString() != change_email_newEmailRepeat.text.toString()) {
+            change_email_newEmailRepeat.text.clear()
+            change_email_newEmail.text.clear()
+            change_email_newEmail.error = getString(R.string.email_not_same)
+            focusView = change_email_newEmail
+            cancel = true
+        }
+
+
+        if (cancel) {
+            focusView?.requestFocus()
+        } else {
+            progressBar_changeEmail.visibility = View.VISIBLE
+            userView.changeEmail(change_email_newEmailRepeat.text.toString())
+        }
+    }
 
 }

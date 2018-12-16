@@ -52,15 +52,16 @@ class ChangePasswordFragment : Fragment() {
             when (it!!.data) {
                 "passwordchangedAuth" -> {
                     progressBar_changepassword.visibility = View.GONE
+                    it.data = "changed"
                     createDialog()
                 }
                 "passwordchangederrorInput" -> {
                     progressBar_changepassword.visibility = View.GONE
                     change_pass_new_pass.text.clear()
                     change_pass_new_pass_repeat.text.clear()
-                    change_pass_new_pass_repeat.error = getString(R.string.not_same_password)
-                    change_pass_new_pass_repeat.requestFocus()
-                    focusView = change_pass_new_pass_repeat
+                    change_pass_new_pass.error = getString(R.string.not_same_password)
+                    change_pass_new_pass.requestFocus()
+                    focusView = change_pass_new_pass
                     cancel = true
 
                 }
@@ -123,9 +124,9 @@ class ChangePasswordFragment : Fragment() {
         }
 
         if (change_pass_new_pass_repeat.text.toString() != change_pass_new_pass.text.toString()) {
-            change_pass_new_pass_repeat.error = getString(R.string.not_same_password)
             change_pass_new_pass_repeat.text.clear()
             change_pass_new_pass.text.clear()
+            change_pass_new_pass.error = getString(R.string.not_same_password)
             focusView = change_pass_new_pass
             cancel = true
         }

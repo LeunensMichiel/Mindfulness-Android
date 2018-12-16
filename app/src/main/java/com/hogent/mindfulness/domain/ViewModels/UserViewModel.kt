@@ -141,7 +141,7 @@ class UserViewModel : InjectedViewModel() {
     }
 
     fun sendPasswordEmail(email : String) {
-        val emailUser = Model.ForgotPassword(email)
+        val emailUser = Model.ForgotPassword(email, null)
         subscription = userApi.sendPasswordEmail(emailUser)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -193,6 +193,27 @@ class UserViewModel : InjectedViewModel() {
                 }
             )
     }
+
+    fun changeEmail(email: String) {
+        //I REUSE THE FORGETPASSWORDMODEL BECAUSE IT HAS THE EXACT SAME DATA I NEED FOR THIS
+        val email = Model.ForgotPassword(email, null)
+        subscription = userApi.changeEmail(dbUser.value?._id!!, email)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> run {
+                    uiMessage.postValue(Model.uiMessage("emailchanged"))
+                    Log.d("EMAIL_CHANGED_RESULT", "$result") }
+                },
+                { error -> run {
+                    when (error.message){
+                        "Input invalid!" -> uiMessage.postValue(Model.uiMessage("emailchangederror"))
+                    }
+                    Log.d("EMAIL_CHANGED_ERROR", "$error") }
+                }
+            )
+    }
+
 
     private fun onRetrieveUserSucces(user: Model.User?) {
         var pref = context.getSharedPreferences("userDetails", Context.MODE_PRIVATE)
