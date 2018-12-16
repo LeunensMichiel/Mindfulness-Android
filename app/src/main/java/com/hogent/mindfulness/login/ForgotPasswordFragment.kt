@@ -57,7 +57,7 @@ class ForgotPasswordFragment : Fragment() {
                     forgotpassword_loading.visibility = View.GONE
                     teforgotpassword_statustext.text = ""
                     teforgotpassword_statustext.visibility = View.INVISIBLE
-                    (activity as MainActivity).toLogin(btnBackToLogin)
+                    (activity as MainActivity).toLogin(btnBackToLoginfromBla)
                     Toast.makeText(activity as MainActivity, "Wachtwoord geüpdated!", Toast.LENGTH_SHORT).show()
                 }
                 "passwordchangederror" -> {
@@ -83,11 +83,6 @@ class ForgotPasswordFragment : Fragment() {
         forgotpassword_passwordrepeat.isEnabled = boolean
         forgotpassword_code.isEnabled = boolean
         forgotpassword_passBtn.isEnabled = boolean
-
-        forgotpassword_password.isFocusable = boolean
-        forgotpassword_passwordrepeat.isFocusable = boolean
-        forgotpassword_code.isFocusable = boolean
-        forgotpassword_passBtn.isFocusable = boolean
     }
 
     private fun attemptChangingPassword() {

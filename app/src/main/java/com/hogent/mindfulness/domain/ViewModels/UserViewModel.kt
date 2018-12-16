@@ -143,11 +143,11 @@ class UserViewModel : InjectedViewModel() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { result -> run {
-                    uiMessage.value?.data = "emailsent"
+                    uiMessage.postValue(Model.uiMessage("emailsent"))
                     Log.d("EMAIL_SENT_RESULT", "$result") }
                 },
                 { error -> run {
-                    uiMessage.value?.data = "emailerror"
+                    uiMessage.postValue(Model.uiMessage("emailerror"))
                     Log.d("EMAIL_SENT_ERROR", "$error") }
                 }
             )
@@ -160,11 +160,11 @@ class UserViewModel : InjectedViewModel() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
             { result -> run {
-                uiMessage.value?.data = "passwordchanged"
+                uiMessage.postValue(Model.uiMessage("passwordchanged"))
                 Log.d("PASSWORD_CHANGED_RESULT", "$result") }
             },
             { error -> run {
-                uiMessage.value?.data = "passwordchangederror"
+                uiMessage.postValue(Model.uiMessage("passwordchangederror"))
                 Log.d("PASSWORD_CHANGED_ERROR", "$error") }
             }
         )
