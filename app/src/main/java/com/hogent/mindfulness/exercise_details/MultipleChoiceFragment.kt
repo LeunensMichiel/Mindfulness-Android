@@ -16,7 +16,6 @@ import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.PageViewModel
 import kotlinx.android.synthetic.main.fragment_multiple_choice.*
-import kotlinx.android.synthetic.main.fragment_text_input.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 
 /**
@@ -70,7 +69,7 @@ class MultipleChoiceFragment : PagerFragment() {
                 }
             }
         })
-
+        fragment_mulchoice_btn.isEnabled = true
         fragment_mulchoice_btn.onClick {
             pageView.pageError.postValue(Model.errorMessage(null, "Input nog niet klaar."))
         }

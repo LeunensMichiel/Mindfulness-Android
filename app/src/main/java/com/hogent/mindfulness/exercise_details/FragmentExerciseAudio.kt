@@ -21,7 +21,6 @@ import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.ViewModels.PageViewModel
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.fragment_fragment_oefeningaudio.*
-import kotlinx.android.synthetic.main.fragment_fragment_oefeningaudio.view.*
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -89,6 +88,7 @@ class FragmentExerciseAudio : PagerFragment(), MediaPlayer.OnPreparedListener {
 
         playButton = view.findViewById(R.id.playButton)
         animation = view.findViewById(R.id.media_player_animation)
+        animation.frame = 50
     }
 
     /**

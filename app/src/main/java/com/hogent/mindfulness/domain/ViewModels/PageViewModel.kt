@@ -238,8 +238,14 @@ class PageViewModel : InjectedViewModel() {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                    { result -> Log.d("POST_IMAGE", "$result") },
-                    { error -> pageError.postValue(Model.errorMessage("", "Input niet opgeslagen.")) }
+                    { result ->
+                        Log.d("POST_IMAGE", "$result")
+                        uiMessage.postValue(Model.uiMessage("imageinputsucces"))
+                    },
+                    { error ->
+                        pageError.postValue(Model.errorMessage("", "Input niet opgeslagen."))
+                        uiMessage.postValue(Model.uiMessage("imageinputerror"))
+                    }
                 )
         } else {
             Log.d("POST_IMAGE_BODY", "$body")
@@ -248,8 +254,14 @@ class PageViewModel : InjectedViewModel() {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                    { result -> Log.i("POST_RESULT", "$result") },
-                    { error -> Log.d("POST_ERROR_IMAGE", "${error.printStackTrace()}") }
+                    { result ->
+                        Log.i("POST_RESULT", "$result")
+                        uiMessage.postValue(Model.uiMessage("imageinputsucces"))
+                    },
+                    { error ->
+                        Log.d("POST_ERROR_IMAGE", "${error.printStackTrace()}")
+                        uiMessage.postValue(Model.uiMessage("imageinputerror"))
+                    }
                 )
         }
         return currentPost

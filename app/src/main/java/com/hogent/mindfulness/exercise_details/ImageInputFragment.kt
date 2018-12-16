@@ -15,6 +15,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.PageViewModel
@@ -67,6 +68,22 @@ class ImageInputFragment : PagerFragment() {
             }
         })
 
+        pageView.uiMessage.observe(this, Observer {
+            when (it!!.data) {
+                "imageinputsucces" -> {
+                    progressBar_inputImage.visibility = View.GONE
+                    fragment_image_input_photoBtn.isEnabled = false
+                    it.data = "succes"
+                }
+                "imageinputerror" -> {
+                    progressBar_inputImage.visibility = View.GONE
+                    fragment_image_input_photoBtn.isEnabled = true
+                    Toast.makeText(activity as MainActivity, "Er is iets misgelopen", Toast.LENGTH_SHORT).show()
+                }
+            }
+        })
+
+        fragment_image_input_photoBtn.isEnabled = true
         fragment_image_input_txf.setText("Geschiedenis aan het ophalen...")
         Log.d("IMAGE_INPUT_LIST", "ON_VIEW_CREATED")
 
@@ -102,6 +119,7 @@ class ImageInputFragment : PagerFragment() {
         }
 
         fragment_image_input_txf.setText(page.title)
+        fragment_image_input_desc.text = page.description
     }
 
 //    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
@@ -131,6 +149,7 @@ class ImageInputFragment : PagerFragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (Activity.RESULT_OK == resultCode) {
+            progressBar_inputImage.visibility = View.VISIBLE
             var bitmap: Bitmap = data!!.extras.get("data") as Bitmap
             var file = File(context?.cacheDir, "temp")
             var bos = ByteArrayOutputStream()
