@@ -63,8 +63,9 @@ class UserViewModel : InjectedViewModel() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { user ->
+                    Log.d("register", "$user")
                     rawUser.value = user
-                     userRepo.insert(user!!)
+                    userRepo.insert(user!!)
                     uiMessage.postValue(Model.uiMessage("registere_end_progress"))
                 },
                 { error ->
@@ -81,10 +82,12 @@ class UserViewModel : InjectedViewModel() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { result ->
+                    Log.d("group", "$result")
                     userRepo.user.value?.group = result
                     userRepo.updateUser(userRepo.user.value!!)
                 },
                 { error ->
+                    Log.e("group", "$error")
                     toastMessage.postValue("Code niet herkend.")
                 }
             )

@@ -16,6 +16,7 @@ import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.FragmentTransaction
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -49,7 +50,9 @@ import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPreferenceClickforFragment {
     //initializing attributes
-    lateinit var loginFragment: LoginFragment
+    private lateinit var loginFragment: LoginFragment
+    private lateinit var registerFragment: RegisterFragment
+    private lateinit var forgotPasswordFragment: ForgotPasswordFragment
     private lateinit var sessionFragment: SessionFragment
     private lateinit var groupFragment: GroupFragment
     private lateinit var exerciseFragment: ExercisesListFragment
@@ -180,8 +183,9 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                 } else {
                     navigation.visibility = View.GONE
 
+                    groupFragment = GroupFragment()
                     supportFragmentManager.beginTransaction()
-                        .replace(R.id.session_container, GroupFragment())
+                        .replace(R.id.session_container, groupFragment)
                         .commit()
                     showAcionBar(true)
 
@@ -250,15 +254,17 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
 
     //This function starts the session Fragment
     fun toSessions() {
+        sessionFragment = SessionFragment()
         supportFragmentManager.beginTransaction()
-            .replace(R.id.session_container, SessionFragment())
+            .replace(R.id.session_container, sessionFragment)
             .commit()
     }
 
     //This function replaces the register fragment back with the login fragment
     fun toLogin(v: View) {
+        loginFragment = LoginFragment()
         supportFragmentManager.beginTransaction()
-            .replace(R.id.session_container, LoginFragment())
+            .replace(R.id.session_container, loginFragment)
             .commit()
     }
 
@@ -266,14 +272,16 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
      * This function replaces the login fragment with the register fragment
      */
     fun toRegister(v: View) {
+        registerFragment = RegisterFragment()
         supportFragmentManager.beginTransaction()
-            .replace(R.id.session_container, RegisterFragment())
+            .replace(R.id.session_container, registerFragment)
             .commit()
     }
 
     fun toForgot(v : View) {
+        forgotPasswordFragment = ForgotPasswordFragment()
         supportFragmentManager.beginTransaction()
-            .replace(R.id.session_container, ForgotPasswordFragment())
+            .replace(R.id.session_container, forgotPasswordFragment)
             .commit()
     }
 
@@ -281,8 +289,9 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         super.onResume()
         if (intent.hasExtra("code")) {
             if (intent.hasExtra("group")) {
+                groupFragment = GroupFragment()
                 supportFragmentManager.beginTransaction()
-                    .replace(R.id.session_container, GroupFragment())
+                    .replace(R.id.session_container, groupFragment)
                     .commit()
             } else if (intent.hasExtra("register")) {
                 supportFragmentManager.beginTransaction()
@@ -297,9 +306,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                     userView.unlockSession(Model.unlock_session("none", intent.getStringExtra("code")))
                 }
             }
-
         }
-
     }
 
     override fun showMonsterDialog() {

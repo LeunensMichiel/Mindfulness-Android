@@ -43,7 +43,8 @@ class SessionViewModel : InjectedViewModel() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
-                { result -> sessionsResult(result) },
+                { result ->
+                    sessionsResult(result) },
                 { error -> sessionError(error) }
             )
     }
