@@ -16,10 +16,6 @@ import com.hogent.mindfulness.domain.ViewModels.UserViewModel
 import kotlinx.android.synthetic.main.fragment_forgotpassword.*
 import kotlinx.android.synthetic.main.fragment_register.*
 
-/**
- * A simple [Fragment] subclass.
- *
- */
 class ForgotPasswordFragment : Fragment() {
 
     private lateinit var userView: UserViewModel
