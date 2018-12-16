@@ -25,6 +25,10 @@ class RegisterFragment : Fragment() {
 
     private lateinit var userView:UserViewModel
 
+    /**
+     * In the onCreateView, we'll initialize the UserViewModel so we can use its Login Methods.
+     * After that the layout for this fragment will be inflated
+     */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -33,13 +37,24 @@ class RegisterFragment : Fragment() {
             ViewModelProviders.of(this).get(UserViewModel::class.java)
         }?: throw Exception("Invalid activity.")
 
+        return inflater.inflate(R.layout.fragment_register, container, false)
+    }
+
+    /**
+     * In the OnViewCreated Method, we add observers to rawUser, uiMessage. When our register has succeeded and thus rawUser won't be null anymore, we'll put
+     * some data in the sharedPreferences that are key to our working application
+     * By observing UImessage we can display input to the user
+     * There are also ClickListeners to attempt the register method
+     */
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         userView.uiMessage.observe(this, android.arch.lifecycle.Observer {
             when(it!!.data) {
                 "register_start_progress" -> showProgress(true)
                 "register_end_progress" -> showProgress(false)
             }
         })
-
         userView.rawUser.observe(this, Observer {
             if (it != null){
                 activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
@@ -52,12 +67,6 @@ class RegisterFragment : Fragment() {
             }
         })
 
-        return inflater.inflate(R.layout.fragment_register, container, false)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
         edit_register_repeat_password.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
             if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
                 attemptRegister()
@@ -69,32 +78,12 @@ class RegisterFragment : Fragment() {
         btn_register.setOnClickListener { attemptRegister() }
     }
 
-    //    override fun onSaveInstanceState(outState: Bundle) {
-//        super.onSaveInstanceState(outState)
-//
-//        outState.putString("email", email.text.toString())
-//        outState.putString("password", edit_register_password.text.toString())
-//        outState.putString("repPassword", edit_register_repeat_password.text.toString())
-//        outState.putString("groupCode", edit_group_code.text.toString())
-//        Toast.makeText(activity, "email: "+outState.getString("email"), Toast.LENGTH_SHORT)
-//    }
-
-//    override fun onActivityCreated(savedInstanceState: Bundle?) {
-//        super.onActivityCreated(savedInstanceState)
-//
-//        if(savedInstanceState != null) {
-//
-//            email.setText(savedInstanceState.getString("email"))
-//            edit_register_password.setText(savedInstanceState.getString("password"))
-//            edit_register_repeat_password.setText(savedInstanceState.getString("repPassword"))
-//        }
-//    }
-
+    /**
+     * Attempts to sign in or register the account specified by the login form.
+     * If there are form errors (invalid email, missing fields, etc.), the
+     * errors are presented and no actual login attempt is made.
+     */
     private fun attemptRegister() {
-//        if (mAuthTask != null) {
-//            return
-//        }
-
         // Reset errors.
         register_email.error = null
         edit_register_repeat_password.error = null
@@ -156,25 +145,15 @@ class RegisterFragment : Fragment() {
         }
     }
 
-//    private fun successfulRegistration(user: Model.User) {
-//
-//        showProgress(false)
-//        activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-//            .edit()
-//            .putString(getString(R.string.authTokenKey), user.token)
-//            .putString(getString(R.string.userIdKey), user._id)
-//            .apply()
-//
-//        val intent = Intent(activity, MainActivity::class.java)
-//        startActivity(intent)
-//    }
-//
-//    private fun failedRegistration(error: String?) {
-//        edit_register_password.error = getString(R.string.failed_registration)
-//        edit_register_password.requestFocus()
-//        showProgress(false)
-//    }
-
+    /**
+     * Check's if email is valid
+     * Email is valid when it has a '@' sign
+     *
+     * no regex
+     * From Stack Overflow: Apparently the following is a reg-ex that correctly validates most e-mails addresses that conform to RFC 2822,
+     * (and will still fail on things like "user@gmail.com.nospam", as will org.apache.commons.validator.routines.EmailValidator)
+     * @param email is the email that will be checked
+     */
     private fun isEmailValid(email: String): Boolean {
         //TODO: Replace this with your own logic
         return email.contains("@")
@@ -213,9 +192,5 @@ class RegisterFragment : Fragment() {
                 })
         }
 
-    }
-
-    interface LoginFragmentCallBack {
-        fun onClickGoBackToLogin()
     }
 }

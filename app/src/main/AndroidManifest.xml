@@ -39,9 +39,6 @@
             </intent-filter>
         </activity>
         <activity
-                android:name=".login.LoginActivity">
-        </activity>
-        <activity
                 android:name=".scanner.ScannerActivity"
                 android:label="@string/title_activity_scanner"
                 android:theme="@style/AppTheme.NoActionBar">

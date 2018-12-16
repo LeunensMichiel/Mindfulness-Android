@@ -23,16 +23,32 @@ import kotlinx.android.synthetic.main.fragment_login.*
 class LoginFragment : Fragment() {
     private lateinit var userViewModel: UserViewModel
 
+
+    /**
+     * In the onCreateView, we'll initialize the UserViewModel so we can use its Login Methods.
+     * After that the layout for this fragment will be inflated
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         userViewModel = activity?.run {
             ViewModelProviders.of(this).get(UserViewModel::class.java)
         } ?: throw Exception("Invalid activity")
 
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_login, container, false)
+    }
+
+    /**
+     * In the OnViewCreated Method, we add observers to rawUser, uiMessage and errorMessage. When our login has succeeded and thus rawUser won't be null anymore, we'll put
+     * some data in the sharedPreferences that are key to our working application
+     * By observing UImessage and Errormessage we can display input to the user
+     * There are also ClickListeners to attempt the login method
+     */
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         userViewModel.rawUser.observe(this, Observer {
             if (it != null){
                 activity!!.getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
@@ -44,33 +60,21 @@ class LoginFragment : Fragment() {
                     .apply()
             }
         })
-
         userViewModel.uiMessage.observe(this, android.arch.lifecycle.Observer {
             when(it!!.data) {
                 "login_start_progress" -> showProgress(true)
                 "login_end_progress" -> showProgress(false)
             }
         })
-
         userViewModel.errorMessage.observe(this, Observer {
             when(it!!.data) {
                 "login_api_fail" -> kotlin.run {
-                    login_password.error = getString(R.string.error_incorrect_password)
+                    login_password.error = getString(R.string.fout_opgetreden)
                     login_password.requestFocus()
                     showProgress(false)
                 }
             }
         })
-
-        return inflater.inflate(R.layout.fragment_login, container, false)
-    }
-
-    /**
-     * Add's a listener to the password TextField to automatically login
-     * Add's listener to login Button
-     */
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         login_password.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
             if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
                 attemptLogin()
@@ -80,15 +84,7 @@ class LoginFragment : Fragment() {
         })
 
         email_sign_in_button.setOnClickListener { attemptLogin() }
-
     }
-
-    interface LoginFragmentCallBack {
-        fun onclickRegister()
-    }
-
-
-
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -96,7 +92,6 @@ class LoginFragment : Fragment() {
      * errors are presented and no actual login attempt is made.
      */
     private fun attemptLogin() {
-
         // Reset errors.
         email.error = null
         login_password.error = null
@@ -139,40 +134,22 @@ class LoginFragment : Fragment() {
         }
     }
 
+    /**
+     * Here we call the UserViewModel to do the login for us in an async method
+     * @param loginDetails we give a unique model that has a password and email so the backend can convert it to JSON
+     */
     private fun doLogin(loginDetails: Model.Login) {
         userViewModel.login(loginDetails)
-//        val loginService = ServiceGenerator.createService(UserApiService::class.java, (activity as LoginActivity))
-//        showProgress(true)
-//
-//        disposable = loginService.login(loginDetails)
-////            .doOnSubscribe {  }
-////            .doOnTerminate {  }
-//            .subscribeOn(Schedulers.io())
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe(
-//                { user ->
-//                    Log.i("user", "$user")
-//                    successfulLogin(user)
-//                },
-//                { error -> failedLogin(error.message) }
-//            )
-    }
-
-    /**
-     * Shows error msg when login failed
-     */
-    private fun failedLogin(error: String?) {
-        // TODO geef hier later een betere foutmelding op mss niet speciefiek op password
-        login_password.error = getString(R.string.error_incorrect_password)
-        login_password.requestFocus()
-        showProgress(false)
     }
 
     /**
      * Check's if email is valid
      * Email is valid when it has a '@' sign
      *
-     * It's maybe better to chance this the a regex
+     * no regex
+     * From Stack Overflow: Apparently the following is a reg-ex that correctly validates most e-mails addresses that conform to RFC 2822,
+     * (and will still fail on things like "user@gmail.com.nospam", as will org.apache.commons.validator.routines.EmailValidator)
+     * @param email is the email that will be checked
      */
     private fun isEmailValid(email: String): Boolean {
         //TODO: Replace this with your own logic
