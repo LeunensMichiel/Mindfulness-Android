@@ -64,6 +64,7 @@ class UserViewModel : InjectedViewModel() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { user ->
+                    Log.d("register", "$user")
                     rawUser.value = user
                      userRepo.insert(user!!)
                     uiMessage.postValue(Model.uiMessage("registere_end_progress"))
