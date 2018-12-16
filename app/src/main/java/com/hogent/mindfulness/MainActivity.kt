@@ -107,7 +107,6 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                         .commit()
                 }
                 "PAGE_VIEW" -> {
-                    Log.d("PAGE_INIT_OBSERVER_MINI", "check")
                     pageView.retrievePages()
                     exerciseDetailFragment = ExerciseDetailFragment()
                     exerciseDetailFragment.manager = supportFragmentManager
