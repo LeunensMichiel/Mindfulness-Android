@@ -62,14 +62,10 @@ class PageViewModel : InjectedViewModel() {
                         kotlin.run {
                             pages.postValue(result)
                             pageCopies.postValue(result)
-                            Log.d("PAGE_INIT_OBSERVERY_BO", "____________________")
-                            Log.d("PAGE_INIT_OBSERVERY_BO", exercise_id)
-                            Log.d("PAGE_INIT_OBSERVERY_BO", "_${result.size}_")
-                            result.forEach { Log.d("PAGE_INIT_OBSERVERY_BO", it._id) }
                         }
                     }
                     ,
-                    { error -> Log.d("PAGE_ERR", error.message) }
+                    { error -> pageError.postValue(Model.errorMessage("", "Fout bij het ophalen van de pagina's")) }
                 )
         }
     }
@@ -110,7 +106,6 @@ class PageViewModel : InjectedViewModel() {
         mp.setOnPreparedListener { mp ->
             pages.value!![position].mediaPlayer = mp
             pages.value = pages.value
-            Log.d("PAGE_VIEW", "REPEAT_1")
         }
     }
 
@@ -136,6 +131,7 @@ class PageViewModel : InjectedViewModel() {
     }
 
     fun checkInputPage(id: String, position: Int) {
+        pageError.postValue(Model.errorMessage())
         subscription = postService.checkPageId(id)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -144,7 +140,7 @@ class PageViewModel : InjectedViewModel() {
                     pages.value!![position].post = result
                     pages.value = pages.value
                 },
-                { error -> Log.i("fuck", "fuck") }
+                { error -> pageError.postValue(Model.errorMessage("", "Fout bij het ophalen van geschiedenis.")) }
             )
     }
 
@@ -202,10 +198,8 @@ class PageViewModel : InjectedViewModel() {
     }
 
     fun onPostSaveResult(position: Int, post: Model.Post) {
-        Log.d("POSTS_SAVED", "CHECK")
         pages.value!![position].post = post
         pages.postValue(pages.value)
-        Log.d("PAGE_VIEW", "REPEAT_3")
         pageError.value?.error = "Input opgeslagen."
     }
 
@@ -220,7 +214,6 @@ class PageViewModel : InjectedViewModel() {
             MediaType.parse("image/png"),
             file
         )
-        Log.d("POST_IMAGE", "$reqFile")
         val body = MultipartBody.Part.createFormData("file", file.name + ".png", reqFile)
         if (currentPost._id == "none" || currentPost._id == null) {
             currentPost._id = null
@@ -229,7 +222,6 @@ class PageViewModel : InjectedViewModel() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     { result ->
-                        Log.d("POST_IMAGE", "$result")
                         uiMessage.postValue(Model.uiMessage("imageinputsucces"))
                     },
                     { error ->
@@ -238,8 +230,6 @@ class PageViewModel : InjectedViewModel() {
                     }
                 )
         } else {
-            Log.d("POST_IMAGE_BODY", "$body")
-            Log.d("POST_IMAGE_ID", currentPost._id!!)
             subscription = postService.changeImagePost(currentPost._id!!, body)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -274,6 +264,5 @@ class PageViewModel : InjectedViewModel() {
         fos.write(result.bytes())
         pages.value!![position].post?.bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
         pages.postValue(pages.value)
-        Log.d("POST_IMAGE", "CREATION_CHECK")
     }
 }
