@@ -145,14 +145,15 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         userView.dbUser.observe(this, Observer<Model.User?> {
             if (it == null) {
                 navigation.visibility = View.GONE
-                showAcionBar(false)
                 loginFragment = LoginFragment()
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.session_container, loginFragment)
                     .commit()
+                showAcionBar(false)
+
             } else {
-                showAcionBar(true)
                 if (it.group != null) {
+                    showAcionBar(true)
                     sessionView.resetunlockedSession()
                     navigation.visibility = View.VISIBLE
                     val notifs = userView.dbUser.value!!.group!!.notifications
@@ -182,6 +183,8 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.session_container, GroupFragment())
                         .commit()
+                    showAcionBar(true)
+
                 }
             }
 
