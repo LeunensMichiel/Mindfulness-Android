@@ -15,8 +15,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.SeekBar
-import com.hogent.mindfulness.MainActivity
+import com.airbnb.lottie.LottieAnimationView
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.data.FIleApiService
 import com.hogent.mindfulness.data.ServiceGenerator
@@ -45,23 +46,26 @@ class FragmentExerciseAudio : PagerFragment(), MediaPlayer.OnPreparedListener {
     private lateinit var fis: FileInputStream
     lateinit var audioFilename: String
     lateinit var disposable: Disposable
-    var position:Int = -1
-    private lateinit var pageView:PageViewModel
+    var position: Int = -1
+    private lateinit var pageView: PageViewModel
     var totalTime: Int = 0
     private var progress: Int = 0
+    private lateinit var playButton: ImageButton
+    private lateinit var animation: LottieAnimationView
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pageView = activity?.run {
             ViewModelProviders.of(this).get(PageViewModel::class.java)
-        }?: throw Exception("Invalid acitivity")
+        } ?: throw Exception("Invalid acitivity")
 
 
         Log.d("MEDIA_PLAYER_" + position, "ON_CREATE")
 
         pageView.pages.observe(this, android.arch.lifecycle.Observer {
-            if (it != null && it.isNotEmpty()){
-                if (it[position].mediaPlayer != null){
+            if (it != null && it.isNotEmpty()) {
+                if (it[position].mediaPlayer != null) {
                     mp = it[position].mediaPlayer
                     onPrepared(mp)
                     Log.d("MEDIA_PLAYER_" + position, "MP_OBSERVED")
@@ -85,6 +89,14 @@ class FragmentExerciseAudio : PagerFragment(), MediaPlayer.OnPreparedListener {
         return inflater.inflate(R.layout.fragment_fragment_oefeningaudio, container, false)
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        playButton = view.findViewById(R.id.playButton)
+        animation = view.findViewById(R.id.media_player_animation)
+        animation.frame = 50
+    }
+
     /**
      * Als de onResume-methode uitgevoerd wordt, checken we of de gebruiker audio kan laten afspelen of niet
      * Indien het device audio kan afspelen en de mediaplayer null is, gaan we de audio voorbereiden
@@ -96,7 +108,7 @@ class FragmentExerciseAudio : PagerFragment(), MediaPlayer.OnPreparedListener {
         super.onResume()
 
         Log.i("MEDIA_PLAYER_" + position, "RESUME")
-        if (mp != null){
+        if (mp != null) {
             Log.i("MEDIA_PLAYER_" + position, "RESUME_PREPARE_CHECK")
 //            pageView.pages.value!![position].mediaPlayer?.reset()
 //            pageView.pageReset()
@@ -107,15 +119,17 @@ class FragmentExerciseAudio : PagerFragment(), MediaPlayer.OnPreparedListener {
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
         if (isAdded()) {
-            if (isVisibleToUser && isResumed){
+            if (isVisibleToUser && isResumed) {
                 Log.i("MEDIA_PLAYER_" + position, "IS_VISIBLE_&_RESUMED")
                 onPrepared(mp)
-            } else if (!isVisibleToUser){
-                if (playButn != null)
-                    playButn.setBackgroundResource(R.drawable.play)
+            } else if (!isVisibleToUser) {
+                if (playButton != null) {
+                    playButton.setImageResource(R.drawable.play)
+                    animation.pauseAnimation()
+                }
                 Log.i("MEDIA_PLAYER_" + position, "IS_INVISIBLE")
-                if (mp != null){
-                    if (mp?.isPlaying!!){
+                if (mp != null) {
+                    if (mp?.isPlaying!!) {
                         mp?.pause()
                     }
                 }
@@ -142,16 +156,16 @@ class FragmentExerciseAudio : PagerFragment(), MediaPlayer.OnPreparedListener {
         override fun handleMessage(msg: Message) {
             val currentPosition = msg.what
             // Update positionBar.
-            if (positionBar != null){
+            if (positionBar != null) {
                 positionBar.progress = currentPosition
             }
             // Update Labels.
-            if (elapsedTimeLabel != null){
+            if (elapsedTimeLabel != null) {
                 val elapsedTime = createTimeLabel(currentPosition)
                 elapsedTimeLabel.text = elapsedTime
             }
 
-            if (remainingTimeLabel != null){
+            if (remainingTimeLabel != null) {
                 val remainingTime = createTimeLabel(totalTime - currentPosition)
                 remainingTimeLabel.text = "- $remainingTime"
             }
@@ -229,7 +243,8 @@ class FragmentExerciseAudio : PagerFragment(), MediaPlayer.OnPreparedListener {
 
 //        pageView.pages.value!![position].progress = positionBar.progress
 //        Log.d("MEDIA_PLAYER" + position, "${positionBar.progress}")
-        playButn.setBackgroundResource(R.drawable.play)
+        playButton.setImageResource(R.drawable.play)
+        animation.pauseAnimation()
     }
 
 
@@ -237,21 +252,21 @@ class FragmentExerciseAudio : PagerFragment(), MediaPlayer.OnPreparedListener {
         Log.d("MEDIA_PLAYER_" + position, "PREPARED")
         if (mp != null) {
             audioVoorbereiden()
-            if (playButn != null){
-
+            if (playButton != null) {
                 Log.d("MEDIA_PLAYER_" + position, "PREPARED_ON_CLICK")
-                playButn.setOnClickListener {
+                playButton.setOnClickListener {
                     if (!mp.isPlaying) {
                         mp.start()
-                        playButn.setBackgroundResource(R.drawable.stop)
+                        playButton.setImageResource(R.drawable.stop)
+                        animation.resumeAnimation()
 
                     } else {
                         mp.pause()
-                        playButn.setBackgroundResource(R.drawable.play)
+                        playButton.setImageResource(R.drawable.play)
+                        animation.pauseAnimation()
                     }
                 }
             }
-
         }
     }
 
@@ -268,7 +283,7 @@ class FragmentExerciseAudio : PagerFragment(), MediaPlayer.OnPreparedListener {
         mp!!.isLooping = false
         mp!!.seekTo(mp!!.currentPosition)
         totalTime = mp!!.duration
-        if (positionBar != null){
+        if (positionBar != null) {
             positionBar.max = totalTime
             positionBar.setOnSeekBarChangeListener(
                 object : SeekBar.OnSeekBarChangeListener {

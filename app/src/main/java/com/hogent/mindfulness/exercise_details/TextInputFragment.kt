@@ -9,9 +9,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.PageViewModel
+import kotlinx.android.synthetic.main.fragment_change_password.*
 import kotlinx.android.synthetic.main.fragment_text_input.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 
@@ -23,14 +26,14 @@ class TextInputFragment : PagerFragment() {
 
     private lateinit var pageView: PageViewModel
     private var post: Model.Post? = null
-    var position:Int = -1
+    var position: Int = -1
     lateinit var page: Model.Page
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pageView = activity?.run {
             ViewModelProviders.of(this).get(PageViewModel::class.java)
-        }?: throw Exception("Invlaid activity.")
+        } ?: throw Exception("Invalid activity.")
 
     }
 
@@ -44,6 +47,21 @@ class TextInputFragment : PagerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        pageView.uiMessage.observe(this, Observer {
+            when (it!!.data) {
+                "textinputsucces" -> {
+                    progressBar_textInput.visibility = View.GONE
+                    fragment_textinput_btn.isEnabled = false
+                    it.data = "changed"
+                }
+                "textinputerror" -> {
+                    progressBar_textInput.visibility = View.GONE
+                    fragment_textinput_btn.isEnabled = true
+                    Toast.makeText(activity as MainActivity, "Er is iets misgelopen", Toast.LENGTH_SHORT).show()
+                }
+            }
+        })
 
         pageView.pages.observe(this, Observer {
             Log.d("PAGE_INIT_CHECK_SIZE", "${it?.size}")
@@ -71,23 +89,14 @@ class TextInputFragment : PagerFragment() {
         }
     }
 
-//    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
-//        super.setUserVisibleHint(isVisibleToUser)
-//        Log.d("INPUT", "WHY")
-//        if (isAdded()) {
-//            Log.d("TEXT_INPUT_POST", "${pageView.pages.value!![position].post}")
-//            if (isVisibleToUser && pageView.pages.value!![position].post == null){
-//                pageView.checkInputPage(page._id, position)
-//            }
-//        }
-//    }
-
-    fun setupTextInput(){
+    fun setupTextInput() {
         if (post != null)
             fragment_textinput_textfield.hint = post?.inhoud
         fragment_textinput_titel.setText(page.title)
+        fragment_text_input_desc.text = page.description
 
         fragment_textinput_btn.onClick {
+            progressBar_textInput.visibility = View.VISIBLE
             post = pageView.updatePost(position, page, fragment_textinput_textfield.text.toString(), post!!)
         }
     }
