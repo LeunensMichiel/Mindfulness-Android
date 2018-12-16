@@ -2,6 +2,7 @@ package com.hogent.mindfulness.domain.ViewModels
 
 import android.arch.lifecycle.MutableLiveData
 import android.graphics.BitmapFactory
+import android.util.Log
 import com.hogent.mindfulness.data.FIleApiService
 import com.hogent.mindfulness.data.LocalDatabase.repository.UserRepository
 import com.hogent.mindfulness.data.PostApiService
@@ -36,15 +37,23 @@ class PostViewModel : InjectedViewModel() {
 
     fun retrievePosts() {
         error.postValue(Model.errorMessage())
-        subscription = postService!!.getPosts(userRepo.user.value?._id!!)
+        subscription = postService.getPosts(userRepo.user.value?._id!!)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { result ->
-                    setPosts(result)
+                    Log.d("POSTIE_WOSTIES", "POST_RETRIEVAL")
+                    result.forEach {
+                        Log.d("POSTIE_WOSTIES", "$it")
+                    }
+                    posts.postValue(result)
                     retrieveImages(result)
                 },
-                { error -> this.error.value?.error = "Feed niet bereikbaar." }
+                { error ->
+                    Log.d("POSTIE_WOSTIES", "${error.message}")
+                    Log.d("POSTIE_WOSTIES", "${error.printStackTrace()}")
+                    this.error.value?.error = "Feed niet bereikbaar."
+                }
             )
     }
 
@@ -69,6 +78,6 @@ class PostViewModel : InjectedViewModel() {
         val fos = FileOutputStream(imgFile)
         fos.write(result.bytes())
         posts.value!![position].bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
-        setPosts(posts.value!!)
+        posts.postValue(posts.value!!)
     }
 }

@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment
 import android.support.v7.widget.CardView
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,9 +17,12 @@ import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.PostViewModel
+import com.hogent.mindfulness.exercise_details.MultipleChoiceItemAdapter
 import kotlinx.android.synthetic.main.fragment_post.*
 import kotlinx.android.synthetic.main.post_view.view.*
 import org.jetbrains.anko.imageBitmap
+import java.util.*
+import java.text.SimpleDateFormat
 
 /**
  * A simple [Fragment] subclass.
@@ -36,40 +40,53 @@ class PostFragment : Fragment() {
             ViewModelProviders.of(this).get(PostViewModel::class.java)
         }?: throw Exception("Invalid activity.")
         postView.retrievePosts()
+        Log.d("POSTIE_WOSTIE", "CREATION_CHECK")
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
+
         return inflater.inflate(R.layout.fragment_post, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        Log.d("POSTIE_WOSTIE", "VIEW_CREATED_CHECK")
         viewManager = LinearLayoutManager((activity as MainActivity))
-        viewAdapter = PostAdapter(postView, this)
+        viewAdapter = PostAdapter(postView, this,(activity as MainActivity))
         post_recycler_view.apply {
             setHasFixedSize(true)
             layoutManager = viewManager
-            swapAdapter(viewAdapter, false)
+            adapter = viewAdapter
         }
         //postService = ServiceGenerator.createService(PostApiService::class.java, (activity as MainActivity))
     }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as MainActivity).setActionBarTitle("Uw persoonlijke tijdlijn")
+    }
 }
 
+
+
 class PostAdapter(private var viewModel: PostViewModel,
-                  private val lifecycleOwner: LifecycleOwner)
+                  private val lifecycleOwner: LifecycleOwner,
+                  private val activity: MainActivity)
     : RecyclerView.Adapter<PostAdapter.viewHolder>() {
 
     class viewHolder(val postView: CardView) : RecyclerView.ViewHolder(postView)
     private var dataSet: Array<Model.Post> = arrayOf()
 
     init {
+        Log.d("POSTIE_WOSTIES", "ADAPTER_CREATION_CHECK")
         if (viewModel.posts.value != null){
             dataSet = viewModel.posts.value!!
         }
         viewModel.posts.observe(lifecycleOwner, Observer {
+            Log.d("POSTIE_WOSTIES", "CHECK")
             if (it != null){
+                Log.d("POSTIE_WOSTIES", "${it}")
                 dataSet = it
                 notifyDataSetChanged()
             } else {
@@ -94,16 +111,26 @@ class PostAdapter(private var viewModel: PostViewModel,
         holder.postView.post_session_name.text = dataSet[position].session_name
         holder.postView.post_ex_name.text = dataSet[position].exercise_name
         if (dataSet[position].bitmap != null) {
-            holder.postView.post_card_image.imageBitmap = dataSet[position].bitmap
-        } else {
+            holder.setIsRecyclable(false)
+            holder.postView.post_card_image.setImageBitmap(dataSet[position].bitmap)
+            holder.postView.post_desc.visibility = View.GONE
+            holder.postView.post_card_list.visibility = View.GONE
+        } else if (dataSet[position].inhoud != null ) {
             holder.postView.post_card_image.visibility = View.GONE
-        }
-
-        if (dataSet[position].inhoud != null) {
+            holder.postView.post_card_list.visibility = View.GONE
             holder.postView.post_desc.text = dataSet[position].inhoud
         } else {
+            holder.postView.post_card_image.visibility = View.GONE
             holder.postView.post_desc.visibility = View.GONE
+            holder.postView.post_card_list.apply {
+                adapter = MultipleChoiceItemAdapter(dataSet[position].multiple_choice_items, false)
+                layoutManager = LinearLayoutManager(activity)
+            }
         }
+
+        val format = SimpleDateFormat("dd-MMM-yyyy  hh:mm a")
+        if (dataSet[position].date != null)
+            holder.postView.post_date.text = format.format(dataSet[position].date)
     }
 
 }

@@ -16,6 +16,7 @@ class Notifications {
             message: String,
             channelId: String,
             context: Context,
+            vibrate: Boolean,
             targetIntent: Intent
         ): Notification {
 
@@ -25,9 +26,13 @@ class Notifications {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(title)
                 .setContentText(message)
+                .setVisibility(1)
                 .setAutoCancel(true)
-                .setPriority(NotificationCompat.FLAG_FOREGROUND_SERVICE)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setContentIntent(contentIntent)
+            if (vibrate) {
+                mBuilder.setVibrate(longArrayOf(1000, 1000, 1000, 1000, 1000))
+            }
 
             return mBuilder.build()
         }

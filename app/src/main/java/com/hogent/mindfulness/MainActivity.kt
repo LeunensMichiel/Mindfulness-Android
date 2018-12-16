@@ -2,6 +2,7 @@ package com.hogent.mindfulness
 
 // Notificaties
 // Settings
+
 import android.app.Dialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
@@ -9,53 +10,49 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.support.design.widget.BottomNavigationView
-import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.WindowManager
 import android.widget.Toast
 import com.evernote.android.job.JobManager
-import com.hogent.mindfulness.data.API.UserApiService
-import com.hogent.mindfulness.data.LocalDatabase.MindfulnessDBHelper
-import com.hogent.mindfulness.data.PostApiService
-import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.*
 import com.hogent.mindfulness.exercise_details.ExerciseDetailFragment
 import com.hogent.mindfulness.exercises_List_display.ExercisesListFragment
 import com.hogent.mindfulness.group.GroupFragment
-import com.hogent.mindfulness.login.LoginActivity
+import com.hogent.mindfulness.login.ForgotPasswordFragment
 import com.hogent.mindfulness.login.LoginFragment
 import com.hogent.mindfulness.login.RegisterFragment
 import com.hogent.mindfulness.post.PostFragment
 import com.hogent.mindfulness.profile.ProfileFragment
 import com.hogent.mindfulness.services.NotifyJobCreator
-import com.hogent.mindfulness.services.PeriodicNotificationJob
+import com.hogent.mindfulness.services.SingleJob
 import com.hogent.mindfulness.sessions.FullscreenDialogWithAnimation
 import com.hogent.mindfulness.sessions.SessionFragment
 import com.hogent.mindfulness.sessions.SessionFragment.SessionAdapter.SessionAdapterOnUnlockSession
 import com.hogent.mindfulness.settings.*
 import com.hogent.mindfulness.settings.SettingsFragment.OnPreferenceClickforFragment
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.feedback_popup.*
-import kotlinx.android.synthetic.main.feedback_popup.view.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.toast
 import java.util.*
 import java.util.concurrent.TimeUnit
 
+
 class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPreferenceClickforFragment {
     //initializing attributes
-    lateinit var loginFragment: LoginFragment
+    private lateinit var loginFragment: LoginFragment
+    private lateinit var registerFragment: RegisterFragment
+    private lateinit var forgotPasswordFragment: ForgotPasswordFragment
     private lateinit var sessionFragment: SessionFragment
     private lateinit var groupFragment: GroupFragment
     private lateinit var exerciseFragment: ExercisesListFragment
@@ -67,7 +64,6 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
     private lateinit var EULAFragment: EULAFragment
     private lateinit var feedbackDialog: Dialog
     private lateinit var fullscreenMonsterDialog: FullscreenDialogWithAnimation
-    private var currentUser: Model.User? = null
     private lateinit var userView: UserViewModel
     private lateinit var sessionView: SessionViewModel
     private lateinit var exView: ExerciseViewModel
@@ -86,7 +82,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        supportActionBar!!.elevation = 0F
 
         navigation.visibility = View.GONE
         userView = ViewModelProviders.of(this).get(UserViewModel::class.java)
@@ -102,6 +98,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                     if (!::exerciseFragment.isInitialized) {
                         exerciseFragment = ExercisesListFragment()
                     }
+                    sessionView.loadImages()
                     exerciseFragment.session = sessionView.selectedSession.value!!
                     currentPost.session_name = sessionView.selectedSession.value!!.title
                     supportFragmentManager.beginTransaction()
@@ -110,10 +107,8 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                         .commit()
                 }
                 "PAGE_VIEW" -> {
-                    if (!::exerciseDetailFragment.isInitialized) {
-                        exerciseDetailFragment = ExerciseDetailFragment()
-                        exerciseDetailFragment.manager = supportFragmentManager
-                    }
+                    exerciseDetailFragment = ExerciseDetailFragment()
+                    exerciseDetailFragment.manager = supportFragmentManager
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.session_container, exerciseDetailFragment)
                         .addToBackStack("tag")
@@ -157,24 +152,43 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.session_container, loginFragment)
                     .commit()
+                showAcionBar(false)
+
             } else {
                 if (it.group != null) {
+                    showAcionBar(true)
+                    sessionView.resetunlockedSession()
                     navigation.visibility = View.VISIBLE
+                    val notifs = userView.dbUser.value!!.group!!.notifications
+                    if (notifs != null) {
+                        notifs?.let {
+                            for (i in it) {
+                                SingleJob.scheduleJob(
+                                    (i.notification_launchtijdstip.hours * 60) + i.notification_launchtijdstip.minutes,
+                                    TimeUnit.HOURS.toMillis(24),
+                                    i.notification_title,
+                                    i.notification_beschrijving,
+                                    "mindfulness",
+                                    "notif${i._id}"
+                                )
+                            }
+                        }
+                    }
                     sessionFragment = SessionFragment()
 
                     postFragment = PostFragment()
                     profileFragment = ProfileFragment()
 
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.session_container, sessionFragment)
-                        .commit()
+                    toSessions()
                 } else {
                     navigation.visibility = View.GONE
-                    groupFragment = GroupFragment()
 
+                    groupFragment = GroupFragment()
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.session_container, groupFragment)
                         .commit()
+                    showAcionBar(true)
+
                 }
             }
 
@@ -225,20 +239,32 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
 
         // Starts van notification service
         JobManager.create(this).addJobCreator(NotifyJobCreator())
-        PeriodicNotificationJob.scheduleJob(
-            TimeUnit.MINUTES.toMillis(15),
-            "Mindfulness",
-            "clean ur teeth boi",
-            "mindfulness"
-        )
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
     }
 
-    //This function replqces the register fragment back with the login fragment
-    fun toLogin(v: View) {
+    override fun onNewIntent(newIntent: Intent) {
+        this.intent = newIntent
+
+        if (intent.hasExtra("sessionID")) {
+            sessionView.setSession(intent.getStringExtra("sessionID"))
+            stateView.dialogState?.value = "FEEDBACK_DIALOG"
+        }
+    }
+
+    //This function starts the session Fragment
+    fun toSessions() {
+        sessionFragment = SessionFragment()
         supportFragmentManager.beginTransaction()
-            .replace(R.id.session_container, LoginFragment())
+            .replace(R.id.session_container, sessionFragment)
+            .commit()
+    }
+
+    //This function replaces the register fragment back with the login fragment
+    fun toLogin(v: View) {
+        loginFragment = LoginFragment()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.session_container, loginFragment)
             .commit()
     }
 
@@ -246,50 +272,47 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
      * This function replaces the login fragment with the register fragment
      */
     fun toRegister(v: View) {
+        registerFragment = RegisterFragment()
         supportFragmentManager.beginTransaction()
-            .replace(R.id.session_container, RegisterFragment())
+            .replace(R.id.session_container, registerFragment)
             .commit()
     }
 
-    override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
-        super.onSaveInstanceState(outState, outPersistentState)
-        Log.i("ACTIVITY", "SAVE_INSTANCE_STATE")
+    fun toForgot(v : View) {
+        forgotPasswordFragment = ForgotPasswordFragment()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.session_container, forgotPasswordFragment)
+            .commit()
     }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
-        super.onRestoreInstanceState(savedInstanceState)
-        Log.i("ACTIVITY", "RESTORE_INSTANCE_STATE")
-    }
-
-    private fun checkIfLoggedIn(): Boolean {
-        val token = getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-            .getString(getString(R.string.authTokenKey), null)
-        return token == null
-    }
-
-    private fun checkIfHasGroup(): Boolean {
-        return currentUser!!.group == null
-    }
-
 
     override fun onResume() {
         super.onResume()
-        if (intent.hasExtra("code")){
-            if (userView.userRepo.user.value?.group == null) {
+        if (intent.hasExtra("code")) {
+            if (intent.hasExtra("group")) {
+                groupFragment = GroupFragment()
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.session_container, groupFragment)
+                    .commit()
+            } else if (intent.hasExtra("register")) {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.session_container, RegisterFragment())
+                    .commit()
+            } else if (userView.userRepo.user.value?.group == null) {
                 userView.addGroup(Model.user_group(intent.getStringExtra("code")))
             } else {
-                userView.unlockSession(Model.unlock_session("none", intent.getStringExtra("code")))
+                if (userView.userRepo.user.value?.unlocked_sessions!!.contains(intent.getStringExtra("code"))) {
+                    Toast.makeText(this, "Sessie reeds vrijgespeeld", Toast.LENGTH_SHORT).show()
+                } else {
+                    userView.unlockSession(Model.unlock_session("none", intent.getStringExtra("code")))
+                }
             }
-
         }
-
     }
 
     override fun showMonsterDialog() {
         fullscreenMonsterDialog = FullscreenDialogWithAnimation()
 
         fullscreenMonsterDialog.show(supportFragmentManager.beginTransaction(), FullscreenDialogWithAnimation.TAG)
-
     }
 
     /**
@@ -349,30 +372,38 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         val itemThatWasClickedId = item.getItemId()
         when (itemThatWasClickedId) {
             R.id.settings -> {
-                val preferenceFragment = SettingsFragment()
-                supportFragmentManager.beginTransaction()
-                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                    .replace(R.id.session_container, preferenceFragment)
-                    .addToBackStack("ROOT")
-                    .commit()
+                toSettings()
                 return true
             }
             R.id.logout -> {
-                userView.userRepo.nukeUsers()
-                getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-                    .edit()
-                    .remove(getString(R.string.userIdKey))
-                    .remove(getString(R.string.authTokenKey))
-                    .apply()
-                navigation.visibility = View.GONE
-                loginFragment = LoginFragment()
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.session_container, loginFragment)
-                    .commit()
+                logout()
                 return true
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    fun toSettings() {
+        val preferenceFragment = SettingsFragment()
+        supportFragmentManager.beginTransaction()
+            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+            .replace(R.id.session_container, preferenceFragment)
+            .addToBackStack("ROOT")
+            .commit()
+    }
+
+    fun logout() {
+        userView.userRepo.nukeUsers()
+        getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+            .edit()
+            .remove(getString(R.string.userIdKey))
+            .remove(getString(R.string.authTokenKey))
+            .apply()
+        navigation.visibility = View.GONE
+        loginFragment = LoginFragment()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.session_container, loginFragment)
+            .commit()
     }
 
     //Settings Management
@@ -409,6 +440,28 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                     .addToBackStack(null)
                     .setTransition(R.anim.slide_up)
                     .commit()
+            }
+        }
+    }
+
+    fun setActionBarTitle(title: String) {
+        this.supportActionBar?.title = title
+    }
+
+    fun showAcionBar(bool: Boolean) {
+        if (bool) {
+            this.supportActionBar?.show()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                window.statusBarColor = ContextCompat.getColor(this, R.color.colorPrimaryDark)
+
+            }
+        } else {
+            this.supportActionBar?.hide()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                window.statusBarColor = Color.parseColor("#A3A29F")
+
             }
         }
     }

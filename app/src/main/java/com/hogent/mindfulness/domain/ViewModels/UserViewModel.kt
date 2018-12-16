@@ -2,6 +2,7 @@ package com.hogent.mindfulness.domain.ViewModels
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
+import android.content.Context
 import android.util.Log
 import com.hogent.mindfulness.data.API.UserApiService
 import com.hogent.mindfulness.data.LocalDatabase.repository.UserRepository
@@ -28,6 +29,9 @@ class UserViewModel : InjectedViewModel() {
 
     private lateinit var subscription: Disposable
 
+    @Inject
+    lateinit var context: Context
+
     init {
         errorMessage.value = Model.loginErrorMessage()
     }
@@ -53,12 +57,13 @@ class UserViewModel : InjectedViewModel() {
     }
     
     fun register(registerDetails: Model.Register){
-        uiMessage.postValue(Model.uiMessage("registere_start_progress"))
+        uiMessage.postValue(Model.uiMessage("registeren_start_progress"))
         subscription = userApi.register(registerDetails)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { user ->
+                    Log.d("register", "$user")
                     rawUser.value = user
                     userRepo.insert(user!!)
                     uiMessage.postValue(Model.uiMessage("registere_end_progress"))
@@ -77,10 +82,12 @@ class UserViewModel : InjectedViewModel() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { result ->
+                    Log.d("group", "$result")
                     userRepo.user.value?.group = result
                     userRepo.updateUser(userRepo.user.value!!)
                 },
                 { error ->
+                    Log.e("group", "$error")
                     toastMessage.postValue("Code niet herkend.")
                 }
             )
@@ -136,7 +143,84 @@ class UserViewModel : InjectedViewModel() {
             )
     }
 
+    fun sendPasswordEmail(email : String) {
+        val emailUser = Model.ForgotPassword(email, null)
+        subscription = userApi.sendPasswordEmail(emailUser)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> run {
+                    uiMessage.postValue(Model.uiMessage("emailsent"))
+                    Log.d("EMAIL_SENT_RESULT", "$result") }
+                },
+                { error -> run {
+                    uiMessage.postValue(Model.uiMessage("emailerror"))
+                    Log.d("EMAIL_SENT_ERROR", "$error") }
+                }
+            )
+    }
+
+    fun changePasswordWithoutAuth(password: String, email: String, code: String) {
+        val changePasswordWithCode = Model.ForgotPasswordWithCode(email, code, password)
+        subscription = userApi.changePasswordWithoutAuth(changePasswordWithCode)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+            { result -> run {
+                uiMessage.postValue(Model.uiMessage("passwordchanged"))
+                Log.d("PASSWORD_CHANGED_RESULT", "$result") }
+            },
+            { error -> run {
+                uiMessage.postValue(Model.uiMessage("passwordchangederror"))
+                Log.d("PASSWORD_CHANGED_ERROR", "$error") }
+            }
+        )
+    }
+
+    fun changePasswordWithAuth(new: String, old: String) {
+        val changePassword = Model.OldAndNewPassword(new, old, null)
+            subscription = userApi.changePasswordWithAuth(dbUser.value?._id!!, changePassword)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> run {
+                    uiMessage.postValue(Model.uiMessage("passwordchangedAuth"))
+                    Log.d("PASSWORD_CHANGED_RESULT", "$result") }
+                },
+                { error -> run {
+                    when (error.message){
+                        "Input invalid!" -> uiMessage.postValue(Model.uiMessage("passwordchangederrorInput"))
+                        "Unauthorized!" -> uiMessage.postValue(Model.uiMessage("passwordchangederrorAuth"))
+                    }
+                    Log.d("PASSWORD_CHANGED_ERROR", "$error") }
+                }
+            )
+    }
+
+    fun changeEmail(email: String) {
+        //I REUSE THE FORGETPASSWORDMODEL BECAUSE IT HAS THE EXACT SAME DATA I NEED FOR THIS
+        val email = Model.ForgotPassword(email, null)
+        subscription = userApi.changeEmail(dbUser.value?._id!!, email)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> run {
+                    uiMessage.postValue(Model.uiMessage("emailchanged"))
+                    Log.d("EMAIL_CHANGED_RESULT", "$result") }
+                },
+                { error -> run {
+                    when (error.message){
+                        "Input invalid!" -> uiMessage.postValue(Model.uiMessage("emailchangederror"))
+                    }
+                    Log.d("EMAIL_CHANGED_ERROR", "$error") }
+                }
+            )
+    }
+
+
     private fun onRetrieveUserSucces(user: Model.User?) {
+        var pref = context.getSharedPreferences("userDetails", Context.MODE_PRIVATE)
+        pref.edit().putString("authToken", user?.token).apply()
         rawUser.value = user
         userRepo.insert(user!!)
     }

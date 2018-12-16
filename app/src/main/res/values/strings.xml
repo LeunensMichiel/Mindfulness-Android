@@ -101,5 +101,10 @@
     <string name="pref_privacy">pref_privacy</string>
     <string name="empty_email_err">Email niet ingevuld.</string>
     <string name="empty_passw_err">Wachtwoord niet ingevuld.</string>
+    <string name="failed_registration">Er is iets mis gegaan, probeer later opnieuw</string>
+    <string name="input_loading_text">Geschiedenis word opgehaald...</string>
+    <string name="not_same_password">Wachtwoord komt niet overeen</string>
+    <string name="fout_opgetreden">Er is een fout opgetreden, probeer opnieuw</string>
+    <string name="email_not_same">Emails komen niet overeen</string>
 
 </resources>

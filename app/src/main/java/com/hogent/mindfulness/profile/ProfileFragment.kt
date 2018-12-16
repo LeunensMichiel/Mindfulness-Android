@@ -39,7 +39,7 @@ class ProfileFragment : Fragment() {
     private lateinit var sessionView: SessionViewModel
 
     private var icons: IntArray = intArrayOf()
-    private var info: Array<String> = arrayOf()
+    private var info: Array<String?> = arrayOf()
      var profilePicBitmap: Bitmap? = null
     //De circularimage, niet de effectieve profilepic URL
     lateinit var img: CircularImageView
@@ -63,18 +63,47 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        userViewModel.dbUser.observe(this, Observer {
+            if (it != null){
+                //Name
+                profileFragment_profilename.text = it.firstname + " " + it.lastname
+                info = arrayOf(it.email, it.group?.name, "Feedback: " + if (it.feedbackSubscribed) "ingeschreven" else "uitgeschreven")
+                if (it.unlocked_sessions.isNotEmpty()){
+                    //Level
+                    profileFragment_Unlockedsessioncount.text = it.unlocked_sessions.size.toString()
+                } else {
+                    profileFragment_Unlockedsessioncount.text = "1"
+                }
+                if (it.post_ids.isNotEmpty()){
+                    //Posts
+                    profileFragment_postCount.text = it.post_ids.size.toString()
+                } else {
+                    profileFragment_postCount.text = "0"
+                }
+            }
+        })
+
+        sessionView.sessionList.observe(this, Observer {
+            if (it != null) {
+                val unlocked = sessionView.sessionList.value?.filter {ses ->
+                    ses.unlocked
+                }
+                //SessionName
+                if (unlocked!!.isNotEmpty()) {
+                    profileFragment_CurrentSession.text = unlocked.last().title
+                } else {
+                    profileFragment_CurrentSession.text = "Nog geen vrijgespeeld"
+                }
+            }
+        })
+
         icons = intArrayOf(
             R.drawable.ic_email_black_24dp,
             R.drawable.ic_group_black_24dp,
             R.drawable.ic_feedback_black_24dp
         )
-        info = arrayOf(
-            dbUser.email!!,
-            dbUser.group!!.name!!,
-            "Feedback: " + if (dbUser.feedbackSubscribed!!) "ingeschreven" else "uitgeschreven"
-        )
 
-        val profileAdapter = ProfileAdapter(this, userViewModel, icons, info)
+        val profileAdapter = ProfileAdapter(this, userViewModel, icons)
 
         val lv = profileFragment_lv
         lv.apply {
@@ -117,15 +146,6 @@ class ProfileFragment : Fragment() {
             }
         }
 
-        //Name
-        profileFragment_profilename.text = dbUser.firstname + " " + dbUser.lastname
-        //Level
-        profileFragment_Unlockedsessioncount.text = dbUser.unlocked_sessions.size.toString()
-        //SessionName
-        profileFragment_CurrentSession.text = sessions.last().title
-        //Posts
-        profileFragment_postCount.text = dbUser.post_ids.size.toString()
-
     }
 
     private fun selectImage() {
@@ -148,21 +168,30 @@ class ProfileFragment : Fragment() {
             }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as MainActivity).setActionBarTitle("Uw profiel")
+
+    }
 }
 
 class ProfileAdapter(
     private val lifecycleOwner: LifecycleOwner,
     private val userViewModel: UserViewModel,
-    private var icons: IntArray,
-    private var info: Array<String>
+    private var icons: IntArray
 ) : RecyclerView.Adapter<ProfileAdapter.ProfileViewHolder>() {
 
+    private var info: Array<String?>
+
     init {
+        info = arrayOf(userViewModel.dbUser.value?.email, userViewModel.dbUser.value?.group?.name, "Feedback: " + if (userViewModel.dbUser.value?.feedbackSubscribed!!) "ingeschreven" else "uitgeschreven")
         userViewModel.dbUser.observe(lifecycleOwner, Observer {
-            info[0] = it!!.email!!
-            info[1] = it.group!!.name!!
-            info[2] = "Feedback: " + if (it.feedbackSubscribed) "ingeschreven" else "uitgeschreven"
+            if (it != null){
+                info = arrayOf(it.email, it.group?.name, "Feedback: " + if (it.feedbackSubscribed) "ingeschreven" else "uitgeschreven")
+            }
         })
+
     }
 
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ProfileViewHolder {

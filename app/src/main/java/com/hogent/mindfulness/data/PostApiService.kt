@@ -3,7 +3,6 @@ package com.hogent.mindfulness.data
 import com.hogent.mindfulness.domain.Model
 import io.reactivex.Observable
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import retrofit2.http.*
 
 interface PostApiService {
@@ -29,4 +28,8 @@ interface PostApiService {
     @Multipart
     @POST("/API/post/post/image")
     fun addImagePost(@Part("post") post: Model.Post, @Part file:MultipartBody.Part):Observable<Model.Post>
+
+    @Multipart
+    @PUT("/API/post/post/image/{post_image_id}")
+    fun changeImagePost(@Path("post_image_id") id: String, @Part file:MultipartBody.Part):Observable<Model.toastMessage>
 }

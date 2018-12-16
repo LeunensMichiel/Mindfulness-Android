@@ -31,7 +31,7 @@ import java.io.FileOutputStream
  * Deze klasse is een Fragment die verantwoordelijk is voor de audiopagina van de oefening
  * De layout die hiermee gelinkt is is fragment_fragment_oefeningaudio
  */
-class FragmentExerciseAudio : Fragment(), MediaPlayer.OnPreparedListener {
+class FragmentExerciseAudio : PagerFragment(), MediaPlayer.OnPreparedListener {
 
     /**
      * de variabele mp is van het type MediaPlayer
@@ -45,7 +45,6 @@ class FragmentExerciseAudio : Fragment(), MediaPlayer.OnPreparedListener {
     private lateinit var fis: FileInputStream
     lateinit var audioFilename: String
     lateinit var disposable: Disposable
-    lateinit var fileService: FIleApiService
     var position:Int = -1
     private lateinit var pageView:PageViewModel
     var totalTime: Int = 0
@@ -80,8 +79,6 @@ class FragmentExerciseAudio : Fragment(), MediaPlayer.OnPreparedListener {
                 pageView.retrieveAudio(position)
             }
         }
-
-        fileService = ServiceGenerator.createService(FIleApiService::class.java, (activity as MainActivity))
         return inflater.inflate(R.layout.fragment_fragment_oefeningaudio, container, false)
     }
 

@@ -4,7 +4,6 @@ package com.hogent.mindfulness.exercise_details
 import android.app.Activity.RESULT_OK
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -17,39 +16,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import kotlinx.android.synthetic.main.fragment_fragment_oefeninginvoer.*
-import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
-import com.hogent.mindfulness.data.PostApiService
-import com.hogent.mindfulness.data.PostInformation
-import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.PageViewModel
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.fragment_fragment_oefeningaudio.*
 import kotlinx.android.synthetic.main.fragment_fragment_oefeninginvoer.*
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.lang.Exception
-import kotlin.properties.Delegates
 
 
 /**
  * Deze klasse is een Fragment die verantwoordelijk is voor de invoerpagina van de oefening
  * De layout die hiermee gelinkt is is fragment_fragment_oefeninginvoer
  */
-class FragmentExerciseInvoer : Fragment() {
+class FragmentExerciseInvoer : PagerFragment() {
 
-    private var postId: String? = null
-    private lateinit var disposable: Disposable
     private lateinit var post: Model.Post
     private lateinit var pageView:PageViewModel
     var position:Int = -1
-
-    private lateinit var postService: PostApiService
 
     lateinit var page: Model.Page
 
@@ -59,14 +43,6 @@ class FragmentExerciseInvoer : Fragment() {
         pageView = activity?.run {
             ViewModelProviders.of(this).get(PageViewModel::class.java)
         }?: throw Exception("Invalid activity.")
-
-        pageView.pages.observe(this, Observer {
-            Log.d("PAGE_VIEW", "FUCK_OFF")
-            if(pageView.pages.value!![position].post != null){
-                post = pageView.pages.value!![position].post!!
-                showResult()
-            }
-        })
     }
 
     /**
@@ -78,7 +54,6 @@ class FragmentExerciseInvoer : Fragment() {
     ): View? {
         //beginRetrievePost()
         // Inflate the layout for this fragment
-        postService = ServiceGenerator.createService(PostApiService::class.java, (activity as MainActivity))
         return inflater.inflate(R.layout.fragment_fragment_oefeninginvoer, container, false)
     }
 
@@ -95,6 +70,15 @@ class FragmentExerciseInvoer : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
+        pageView.pages.observe(this, Observer {
+            Log.d("PAGE_VIEW", "FUCK_OFF")
+            if(pageView.pages.value!![position].post != null){
+                post = pageView.pages.value!![position].post!!
+                showResult()
+            }
+        })
 
         if (this.arguments!!.containsKey("opgave")) {
             inputlayout.hint = this.arguments!!.getString("opgave", "check")
@@ -174,7 +158,7 @@ class FragmentExerciseInvoer : Fragment() {
             fos.write(bos.toByteArray())
             fos.flush()
             fos.close()
-            pageView.updatePostImage(file, position, page, text_edit.text.toString(), post)
+            pageView.updatePostImage(file, position, page, post)
         } else {
             Toast.makeText(activity, "Geen foto genomen", Toast.LENGTH_SHORT).show()
         }
