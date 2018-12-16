@@ -298,12 +298,14 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
     override fun onResume() {
         super.onResume()
         if (intent.hasExtra("code")) {
-            if (intent.hasExtra("group")) {
-                groupFragment = GroupFragment()
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.session_container, groupFragment)
-                    .commit()
-            } else if (intent.hasExtra("register")) {
+//            if (intent.hasExtra("group")) {
+//                Log.d("GROUP_CHECK", "GROUP_OPEN")
+//                groupFragment = GroupFragment()
+//                supportFragmentManager.beginTransaction()
+//                    .replace(R.id.session_container, groupFragment)
+//                    .commit()
+//            } else
+            if (intent.hasExtra("register")) {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.session_container, RegisterFragment())
                     .commit()

@@ -39,6 +39,7 @@ class SessionViewModel : InjectedViewModel() {
 
 
     fun retrieveSessions() {
+        Log.d("GROUP_CHECK", "${userRepo.user.value?.group}")
         subscribe = sessionService.getSessions(userRepo.user.value?.group?.sessionmap_id!!)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

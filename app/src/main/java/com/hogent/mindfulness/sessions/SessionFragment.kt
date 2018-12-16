@@ -83,11 +83,15 @@ class SessionFragment : Fragment() {
             if (it != null) {
                 var unlocked:Array<Model.Session> = arrayOf()
                 var unlocked_session:Model.Session? = null
+                var tempUnlockedCheck:List<Model.Session> = listOf()
                 if (sessionView.userRepo.user.value?.unlocked_sessions!!.isNotEmpty()) {
                     unlocked = sessionView.sessionList.value!!
-                    unlocked_session = unlocked.filter {
+                    tempUnlockedCheck = unlocked.filter {
                         it._id == sessionView.userRepo.user.value?.unlocked_sessions?.last()
-                    }.last()
+                    }
+                    if (tempUnlockedCheck.isNotEmpty()){
+                        unlocked_session = tempUnlockedCheck.last()
+                    }
                 }
                 if (unlocked_session != null){
                     Progress_subtext.text = ("Huidige sessie: " + unlocked_session.title).toUpperCase()
