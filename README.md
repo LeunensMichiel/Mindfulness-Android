@@ -21,23 +21,7 @@ End with an example of getting some data out of the system or using it for a lit
 
 ## Tests uitvoeren
 
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
+Als testing library gebruikten we JUnit4 en Espresso voor e2e testing. We hebben enkel e2e testen voor de loginpagina en de registreerpagina. Om de testen te runnen ga je naar Android Studio en druk je op run tests.
 
 ## Deployment
 
@@ -52,7 +36,8 @@ Add additional notes about how to deploy this on a live system
 * [Dagger](https://google.github.io/dagger/) -Voor dependecy injection
 * [Moshi](https://github.com/square/moshi) - JSON converter
 * [Anko](https://github.com/Kotlin/anko) 
-
+* [JUnit4](https://github.com/junit-team/junit4) - Testing
+* [Espresso](https://github.com/googlesamples/android-testing/tree/master/ui/espresso) - E2E Testing
 
 ## Auteurs
 
