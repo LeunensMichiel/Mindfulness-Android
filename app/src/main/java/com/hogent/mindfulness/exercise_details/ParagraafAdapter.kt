@@ -11,6 +11,7 @@ import android.widget.TextView
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.R.drawable.tweedetestfoto
 import com.hogent.mindfulness.domain.Model
+import com.hogent.mindfulness.domain.ViewModels.PageViewModel
 import com.hogent.mindfulness.exercise_details.ParagraafAdapter.ParagraafViewHolder
 import kotlinx.android.synthetic.main.paragraaf_list_item.view.*
 import org.jetbrains.anko.imageResource
@@ -20,7 +21,7 @@ import org.jetbrains.anko.imageResource
  * de variabele mParagrafen heeft de data voor de recyclerviewadapter
  * tutorial voor RecyclerView: https://www.youtube.com/watch?v=Vyqz_-sJGFk
  */
-class ParagraafAdapter(private var mParagrafen: Array<Model.Paragraph>): RecyclerView.Adapter<ParagraafViewHolder>(){
+class ParagraafAdapter(private var mParagrafen: Array<Model.Paragraph>, private var pageView:PageViewModel): RecyclerView.Adapter<ParagraafViewHolder>(){
 
     fun setDataSet(pars: Array<Model.Paragraph>) {
         Log.d("TEXT_VIEW_CHANGE","DATASET_SET")
@@ -59,10 +60,15 @@ class ParagraafAdapter(private var mParagrafen: Array<Model.Paragraph>): Recycle
             holder.title.text = paragraafTitle.description
         }
         else if(paragraafTitle.type == "IMAGE"){
-            if (mParagrafen[position].bitmap == null)
+            Log.d("FILE_NAME", mParagrafen[position].imageFilename)
+            if (pageView.bitHashMap.containsKey(mParagrafen[position].imageFilename)) {
+                Log.d("FILE_NAME", "")
+                holder.foto.setImageBitmap(pageView.bitHashMap.get(mParagrafen[position].imageFilename))
+
+            } else {
+                pageView.retrieveTextPageImg(mParagrafen[position].imageFilename)
                 holder.foto.imageResource = tweedetestfoto
-            else
-                holder.foto.setImageBitmap(mParagrafen[position].bitmap)
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 package com.hogent.mindfulness.domain.ViewModels
 
 import android.arch.lifecycle.MutableLiveData
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import com.hogent.mindfulness.data.FIleApiService
@@ -21,6 +22,7 @@ class PostViewModel : InjectedViewModel() {
     var posts = MutableLiveData<Array<Model.Post>>()
     var error = MutableLiveData<Model.errorMessage>()
     private lateinit var subscription: Disposable
+    var bitHashMap: HashMap<String, Bitmap> = HashMap()
 
     @Inject
     lateinit var userRepo: UserRepository
@@ -66,7 +68,10 @@ class PostViewModel : InjectedViewModel() {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                         { result -> convertToBitmap(result, it.image_file_name!!, index) },
-                        { error -> this.error.postValue(Model.errorMessage("","De afbeeldingen zijn niet beschikbaar")) }
+                        { error ->
+                            Log.d("POST_FILE_NAME", it._id)
+                            this.error.postValue(Model.errorMessage("","De afbeeldingen zijn niet beschikbaar"))
+                        }
                     )
             }
         }
@@ -77,7 +82,8 @@ class PostViewModel : InjectedViewModel() {
         imgFile.deleteOnExit()
         val fos = FileOutputStream(imgFile)
         fos.write(result.bytes())
-        posts.value!![position].bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
+        //posts.value!![position].bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
+        bitHashMap.put(fileName, BitmapFactory.decodeFile(imgFile.absolutePath))
         posts.postValue(posts.value!!)
     }
 }

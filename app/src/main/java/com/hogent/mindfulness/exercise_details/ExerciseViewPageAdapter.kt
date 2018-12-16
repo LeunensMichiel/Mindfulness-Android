@@ -5,6 +5,7 @@ import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.app.FragmentStatePagerAdapter
 import android.support.v4.view.PagerAdapter
+import android.view.ViewGroup
 
 /**
  * We gebruiken een ViewPager om door de verschillende fragments van de oefening te swipen
@@ -17,8 +18,9 @@ import android.support.v4.view.PagerAdapter
  * de getPageTitle-methode zal dienen om de titel van de page tonen van de fragment
  */
 class OefeningViewPagerAdapter(manager: FragmentManager) : FragmentStatePagerAdapter(manager) {
-    private var fragmentList: MutableList<PagerFragment> = ArrayList()
-    private var titles: MutableList<String> = ArrayList()
+    var fragmentList: MutableList<PagerFragment> = ArrayList()
+    var titles: MutableList<String> = ArrayList()
+    private var baseId:Long = 0
 
     override fun getItemPosition(`object`: Any): Int {
         return PagerAdapter.POSITION_NONE
@@ -37,6 +39,10 @@ class OefeningViewPagerAdapter(manager: FragmentManager) : FragmentStatePagerAda
         fragmentList.add(fragment)
         titles.add(title)
         notifyDataSetChanged()
+    }
+
+    override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
+        super.destroyItem(container, position, `object`)
     }
 
     override fun getPageTitle(position: Int): CharSequence? = titles.get(position)

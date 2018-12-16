@@ -10,6 +10,7 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
+import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +19,8 @@ import android.widget.ImageButton
 import android.widget.SeekBar
 import com.airbnb.lottie.LottieAnimationView
 import com.hogent.mindfulness.R
+import com.hogent.mindfulness.data.FIleApiService
+import com.hogent.mindfulness.data.ServiceGenerator
 import com.hogent.mindfulness.domain.ViewModels.PageViewModel
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.fragment_fragment_oefeningaudio.*
@@ -61,7 +64,7 @@ class FragmentExerciseAudio : PagerFragment(), MediaPlayer.OnPreparedListener {
         Log.d("MEDIA_PLAYER_" + position, "ON_CREATE")
 
         pageView.pages.observe(this, android.arch.lifecycle.Observer {
-            if (it != null) {
+            if (it != null && it.isNotEmpty()) {
                 if (it[position].mediaPlayer != null) {
                     mp = it[position].mediaPlayer
                     onPrepared(mp)
@@ -75,10 +78,13 @@ class FragmentExerciseAudio : PagerFragment(), MediaPlayer.OnPreparedListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        if (hasAudio()) {
-            if (pageView.pages.value!![position].mediaPlayer == null) {
-                pageView.retrieveAudio(position)
+        if (hasAudio()){
+            if (pageView.pages.value?.isNotEmpty()!!){
+                if (pageView.pages.value!![position].mediaPlayer == null){
+                    pageView.retrieveAudio(position)
+                }
             }
+
         }
         return inflater.inflate(R.layout.fragment_fragment_oefeningaudio, container, false)
     }
@@ -117,8 +123,10 @@ class FragmentExerciseAudio : PagerFragment(), MediaPlayer.OnPreparedListener {
                 Log.i("MEDIA_PLAYER_" + position, "IS_VISIBLE_&_RESUMED")
                 onPrepared(mp)
             } else if (!isVisibleToUser) {
-                playButton.setImageResource(R.drawable.play)
-                animation.pauseAnimation()
+                if (playButton != null) {
+                    playButton.setImageResource(R.drawable.play)
+                    animation.pauseAnimation()
+                }
                 Log.i("MEDIA_PLAYER_" + position, "IS_INVISIBLE")
                 if (mp != null) {
                     if (mp?.isPlaying!!) {
@@ -244,22 +252,21 @@ class FragmentExerciseAudio : PagerFragment(), MediaPlayer.OnPreparedListener {
         Log.d("MEDIA_PLAYER_" + position, "PREPARED")
         if (mp != null) {
             audioVoorbereiden()
+            if (playButton != null) {
+                Log.d("MEDIA_PLAYER_" + position, "PREPARED_ON_CLICK")
+                playButton.setOnClickListener {
+                    if (!mp.isPlaying) {
+                        mp.start()
+                        playButton.setImageResource(R.drawable.stop)
+                        animation.resumeAnimation()
 
-            Log.d("MEDIA_PLAYER_" + position, "PREPARED_ON_CLICK")
-            playButton.setOnClickListener {
-                if (!mp.isPlaying) {
-                    mp.start()
-                    playButton.setImageResource(R.drawable.stop)
-                    animation.resumeAnimation()
-
-                } else {
-                    mp.pause()
-                    playButton.setImageResource(R.drawable.play)
-                    animation.pauseAnimation()
+                    } else {
+                        mp.pause()
+                        playButton.setImageResource(R.drawable.play)
+                        animation.pauseAnimation()
+                    }
                 }
-
             }
-
         }
     }
 
