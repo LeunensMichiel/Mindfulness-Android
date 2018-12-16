@@ -2,6 +2,7 @@ package com.hogent.mindfulness.data.API
 
 import com.hogent.mindfulness.domain.Model
 import io.reactivex.Observable
+import okhttp3.MultipartBody
 import retrofit2.http.*
 
 interface UserApiService {
@@ -37,8 +38,9 @@ interface UserApiService {
     @PUT("/API/users/user/feedback")
     fun updateUserFeedback(@Body wantsFeedback : Model.User) : Observable<Model.Result>
 
-    @PUT("/API/users/user{id}/image")
-    fun updateUserProfilePicture(@Path("id") id: String, @Body user: Model.User) : Observable<Model.User>
+    @Multipart
+    @PUT("/API/users/user/{id}/image")
+    fun updateUserProfilePicture(@Path("id") id: String, @Part file: MultipartBody.Part) : Observable<Model.Result>
 
     @POST("/API/users/forgot_password")
     fun sendPasswordEmail(@Body email: Model.ForgotPassword) : Observable<Model.Result>

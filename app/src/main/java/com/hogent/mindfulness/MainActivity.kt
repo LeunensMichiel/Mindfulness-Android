@@ -175,7 +175,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
 
                     postFragment = PostFragment()
                     profileFragment = ProfileFragment()
-
+                    userView.retrieveProfilePicture()
                     toSessions()
                 } else {
                     navigation.visibility = View.GONE

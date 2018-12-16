@@ -13,7 +13,6 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import okhttp3.ResponseBody
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import javax.inject.Inject
@@ -56,17 +55,17 @@ class ExerciseViewModel:InjectedViewModel() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
-                { result -> convertByteArrayToAudio(result) },
+                { result -> convertToBitmap(result) },
                 { error -> setToast("Er ging iets mis. De afbeelding van de oefeningen werden niet opgehaald.") }
             )
     }
 
-    private fun convertByteArrayToAudio(result: ResponseBody) {
+    private fun convertToBitmap(result: ResponseBody) {
         var imgFile: File
         var fos: FileOutputStream
         var bMap:Bitmap
         try {
-            imgFile = File.createTempFile(session_image_filename, "aac")
+            imgFile = File.createTempFile(session_image_filename, "jpg")
             imgFile.deleteOnExit()
             fos = FileOutputStream(imgFile)
             fos.write(result.bytes())
@@ -79,7 +78,7 @@ class ExerciseViewModel:InjectedViewModel() {
         }
     }
 
-    fun setToast(message:String){
+    private fun setToast(message:String){
         toastMessage.postValue(null)
         toastMessage.postValue(message)
     }
