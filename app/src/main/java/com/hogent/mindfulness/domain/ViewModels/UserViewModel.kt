@@ -1,6 +1,5 @@
 package com.hogent.mindfulness.domain.ViewModels
 
-import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.content.Context
@@ -173,6 +172,26 @@ class UserViewModel : InjectedViewModel() {
                 Log.d("PASSWORD_CHANGED_ERROR", "$error") }
             }
         )
+    }
+
+    fun changePasswordWithAuth(new: String, old: String) {
+        val changePassword = Model.OldAndNewPassword(new, old, null)
+            subscription = userApi.changePasswordWithAuth(dbUser.value?._id!!, changePassword)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> run {
+                    uiMessage.postValue(Model.uiMessage("passwordchangedAuth"))
+                    Log.d("PASSWORD_CHANGED_RESULT", "$result") }
+                },
+                { error -> run {
+                    when (error.message){
+                        "Input invalid!" -> uiMessage.postValue(Model.uiMessage("passwordchangederrorInput"))
+                        "Unauthorized!" -> uiMessage.postValue(Model.uiMessage("passwordchangederrorAuth"))
+                    }
+                    Log.d("PASSWORD_CHANGED_ERROR", "$error") }
+                }
+            )
     }
 
     private fun onRetrieveUserSucces(user: Model.User?) {
