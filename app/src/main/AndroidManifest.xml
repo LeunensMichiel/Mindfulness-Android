@@ -26,7 +26,6 @@
             android:usesCleartextTraffic="true" tools:ignore="GoogleAppIndexingWarning">
         <activity
                 android:name=".MainActivity"
-                android:screenOrientation="portrait"
                 android:configChanges="keyboard|orientation|locale|fontScale|screenLayout|screenSize|uiMode|navigation|touchscreen|keyboardHidden|layoutDirection|smallestScreenSize"
                 android:windowSoftInputMode="adjustPan|adjustResize"
                 android:theme="@style/AppTheme.Launcher"

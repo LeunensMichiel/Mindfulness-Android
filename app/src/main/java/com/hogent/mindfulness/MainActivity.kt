@@ -256,6 +256,12 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
             }
         })
 
+        postView.postError.observe(this, Observer {
+            if (it != null ){
+                toast(it).show()
+            }
+        })
+
         postView.error.observe(this, Observer {
             if (it != null && !it.equals(Model.errorMessage())) {
                 toast(it.error).show()
