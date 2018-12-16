@@ -48,10 +48,15 @@ class MultipleChoiceFragment : PagerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        Log.d("MUL_CHOICE_CHECKY_BOI", "ON_VIEW_CREATED")
+
         pageView.pages.observe(this, Observer {
-            if (it!![position].post != null) {
-                post = it!![position].post!!
-                initialiseMulChoiceList(it!![position])
+            if (it != null && it!!.isNotEmpty()){
+                if (it!![position].post != null) {
+                    Log.d("MUL_CHOICE_CHECKY_BOI", "POST")
+                    post = it!![position].post!!
+                    initialiseMulChoiceList(it!![position])
+                }
             }
         })
 
@@ -74,13 +79,15 @@ class MultipleChoiceFragment : PagerFragment() {
             pageView.pageError.postValue(Model.errorMessage(null, "Input nog niet klaar."))
         }
 
-        if (pageView.pages.value!![position].post == null){
-            Log.d("MUL_CHOICE", "POST_IS_NULL")
-            pageView.checkInputPage(page._id, position)
-        } else {
-            initialiseMulChoiceList(pageView.pages.value!![position])
+        if (pageView.pages.value?.isNotEmpty()!!) {
+            if (pageView.pages.value!![position].post == null){
+                Log.d("MUL_CHOICE_CHECKY_BOI", "POST_IS_NULL")
+                pageView.checkInputPage(page._id, position)
+            } else {
+                Log.d("MUL_CHOICE_CHECKY_BOI", "POST")
+                initialiseMulChoiceList(pageView.pages.value!![position])
+            }
         }
-
     }
 
     fun initialiseMulChoiceList(it: Model.Page) {

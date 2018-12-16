@@ -1,6 +1,7 @@
 package com.hogent.mindfulness.domain.ViewModels
 
 import android.arch.lifecycle.MutableLiveData
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaPlayer
 import android.util.Log
@@ -28,11 +29,14 @@ class PageViewModel : InjectedViewModel() {
     var pages = MutableLiveData<Array<Model.Page>>()
     var pageError = MutableLiveData<Model.errorMessage>()
     var uiMessage = MutableLiveData<Model.uiMessage>()
+    var pageCopies = MutableLiveData<Array<Model.Page>>()
 
     lateinit var exercise_id: String
     private lateinit var subscription: Disposable
     lateinit var ex_name: String
     lateinit var session_name: String
+
+    var bitHashMap: HashMap<String, Bitmap> = hashMapOf()
 
     @Inject
     lateinit var userRepo: UserRepository
@@ -47,14 +51,22 @@ class PageViewModel : InjectedViewModel() {
     lateinit var fileService: FIleApiService
 
     fun retrievePages() {
+        pageCopies.postValue(arrayOf())
+        pages.postValue(arrayOf())
         if (::exercise_id.isInitialized) {
             subscription = pageService.getPages(exercise_id)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     { result ->
-                        pages.value = result
-                        Log.d("PAGE_RESULT", "FUCK")
+                        kotlin.run {
+                            pages.postValue(result)
+                            pageCopies.postValue(result)
+                            Log.d("PAGE_INIT_OBSERVERY_BO", "____________________")
+                            Log.d("PAGE_INIT_OBSERVERY_BO", exercise_id)
+                            Log.d("PAGE_INIT_OBSERVERY_BO", "_${result.size}_")
+                            result.forEach { Log.d("PAGE_INIT_OBSERVERY_BO", it._id) }
+                        }
                     }
                     ,
                     { error -> Log.d("PAGE_ERR", error.message) }
@@ -102,47 +114,28 @@ class PageViewModel : InjectedViewModel() {
         }
     }
 
-    fun retrieveTextPageImg(paragragphs: Array<Model.Paragraph>, pagePosition: Int) {
-        Log.d("TEXT_VIEW", "IMG_RETRIEVE_FUNCTION")
-        paragragphs
-            .filter { it.type == "IMAGE" }
-            .forEach {
-                Log.i("TEXT_VIEW", it.imageFilename)
-                subscription = fileService.getFile("paragraphs_image", it.imageFilename)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        { result ->
-                            Log.d("TEXT_VIEW_CHANGE_BOY_2", "RESULT_CHECK")
-                            convertToBitmap(paragragphs, result, it.imageFilename, it.position, pagePosition)
-                        },
-                        { error -> Log.i("EXERCISE ERROR", "$error") }
-                    )
-            }
+    fun retrieveTextPageImg(imageFilename: String) {
+        subscription = fileService.getFile("paragraphs_image", imageFilename)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result ->
+                    convertToBitmap(result, imageFilename)
+                },
+                { error -> Log.i("EXERCISE ERROR", "$error") }
+            )
     }
 
-    private fun convertToBitmap(
-        paragragphs: Array<Model.Paragraph>,
-        result: ResponseBody,
-        fileName: String,
-        position: Int,
-        pagePosition: Int
-    ) {
+    private fun convertToBitmap(result: ResponseBody, fileName: String) {
         var imgFile = File.createTempFile(fileName, "png")
-        imgFile.deleteOnExit()
         val fos = FileOutputStream(imgFile)
         fos.write(result.bytes())
-        Log.d("TEXT_VIEW_CHANGE_BOY_3", "1")
-        //paragragphs[position].bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
-        pages.value!![pagePosition].paragraphs[position].bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
-        Log.d("TEXT_VIEW_CHANGE_BOY_3", "2")
-        Log.d("TEXT_VIEW_CHANGE_BOY_3", "${pages.value!![position].paragraphs[position].bitmap}")
-        Log.d("TEXT_VIEW_CHANGE_BOY_3", "3")
+        bitHashMap.put(fileName, BitmapFactory.decodeFile(imgFile.absolutePath))
         pages.postValue(pages.value)
+        imgFile.delete()
     }
 
     fun checkInputPage(id: String, position: Int) {
-
         subscription = postService.checkPageId(id)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -150,7 +143,6 @@ class PageViewModel : InjectedViewModel() {
                 { result ->
                     pages.value!![position].post = result
                     pages.value = pages.value
-                    Log.d("CHECKY_BOY", "RESULT_CREATED")
                 },
                 { error -> Log.i("fuck", "fuck") }
             )
@@ -164,7 +156,6 @@ class PageViewModel : InjectedViewModel() {
         newPost: Model.Post,
         mulChoiceList: Array<Model.MultipleChoiceItem> = arrayOf()
     ): Model.Post {
-        Log.d("POSTUPDATE", "CHECK")
         var currentPost = Model.Post()
         currentPost.page_id = page._id
         currentPost.page_name = page.title
@@ -211,7 +202,6 @@ class PageViewModel : InjectedViewModel() {
     }
 
     fun onPostSaveResult(position: Int, post: Model.Post) {
-
         Log.d("POSTS_SAVED", "CHECK")
         pages.value!![position].post = post
         pages.postValue(pages.value)

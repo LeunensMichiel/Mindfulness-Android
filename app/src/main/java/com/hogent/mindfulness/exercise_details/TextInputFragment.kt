@@ -33,7 +33,7 @@ class TextInputFragment : PagerFragment() {
         super.onCreate(savedInstanceState)
         pageView = activity?.run {
             ViewModelProviders.of(this).get(PageViewModel::class.java)
-        } ?: throw Exception("Invlaid activity.")
+        } ?: throw Exception("Invalid activity.")
 
     }
 
@@ -47,13 +47,6 @@ class TextInputFragment : PagerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        pageView.pages.observe(this, Observer {
-            if (pageView.pages.value!![position].post != null) {
-                post = pageView.pages.value!![position].post!!
-                setupTextInput()
-            }
-        })
 
         pageView.uiMessage.observe(this, Observer {
             when (it!!.data) {
@@ -70,23 +63,29 @@ class TextInputFragment : PagerFragment() {
             }
         })
 
-        fragment_textinput_titel.setText("Geschiedenis aan het nakijken...")
-        fragment_textinput_btn.isEnabled = true
-
-        fragment_textinput_btn.onClick {
-            pageView.pageError.postValue(Model.errorMessage(null, "Input nog niet klaar."))
-        }
-
-        pageView.checkInputPage(page._id, position)
-    }
-
-    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
-        super.setUserVisibleHint(isVisibleToUser)
-        if (isAdded()) {
-            Log.d("TEXT_INPUT_POST", "${pageView.pages.value!![position].post}")
-            if (isVisibleToUser && pageView.pages.value!![position].post == null) {
-                pageView.checkInputPage(page._id, position)
+        pageView.pages.observe(this, Observer {
+            Log.d("PAGE_INIT_CHECK_SIZE", "${it?.size}")
+            Log.d("PAGE_INIT_CHECK_POS", "$position")
+            if (pageView.pages.value?.isNotEmpty()!!) {
+                Log.d("PAGE_INIT_CHECK_EMPT", "NOT_EMPTY")
+                if(pageView.pages.value!![position].post != null){
+                    post = pageView.pages.value!![position].post!!
+                    setupTextInput()
+                }
             }
+        })
+
+        if(pageView.pages.value?.isNotEmpty()!! && pageView.pages.value!![position].post != null){
+            post = pageView.pages.value!![position].post!!
+            setupTextInput()
+        } else {
+            fragment_textinput_titel.setText("Geschiedenis aan het nakijken...")
+
+            fragment_textinput_btn.onClick {
+                pageView.pageError.postValue(Model.errorMessage(null, "Input nog niet klaar."))
+            }
+
+            pageView.checkInputPage(page._id, position)
         }
     }
 

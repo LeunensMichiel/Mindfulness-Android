@@ -15,11 +15,13 @@ import android.view.View
 import android.view.ViewGroup
 import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
+import com.hogent.mindfulness.R.drawable.tweedetestfoto
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.PostViewModel
 import com.hogent.mindfulness.exercise_details.MultipleChoiceItemAdapter
 import kotlinx.android.synthetic.main.fragment_post.*
 import kotlinx.android.synthetic.main.post_view.view.*
+import org.jetbrains.anko.imageResource
 import java.text.SimpleDateFormat
 
 /**
@@ -116,9 +118,12 @@ class PostAdapter(private var viewModel: PostViewModel,
     override fun onBindViewHolder(holder: PostAdapter.viewHolder, position: Int) {
         holder.postView.post_session_name.text = dataSet[position].session_name
         holder.postView.post_ex_name.text = dataSet[position].exercise_name
-        if (dataSet[position].bitmap != null) {
+        if (dataSet[position].image_file_name != null) {
             holder.setIsRecyclable(false)
-            holder.postView.post_card_image.setImageBitmap(dataSet[position].bitmap)
+            if (viewModel.bitHashMap.containsKey(dataSet[position].image_file_name))
+                holder.postView.post_card_image.setImageBitmap(viewModel.bitHashMap.get(dataSet[position].image_file_name))
+            else
+                holder.postView.post_card_image.imageResource = tweedetestfoto
             holder.postView.post_desc.visibility = View.GONE
             holder.postView.post_card_list.visibility = View.GONE
         } else if (dataSet[position].inhoud != null ) {
