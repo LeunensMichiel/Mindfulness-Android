@@ -65,7 +65,7 @@ class UserViewModel : InjectedViewModel() {
                 { user ->
                     Log.d("register", "$user")
                     rawUser.value = user
-                     userRepo.insert(user!!)
+                    userRepo.insert(user!!)
                     uiMessage.postValue(Model.uiMessage("registere_end_progress"))
                 },
                 { error ->
