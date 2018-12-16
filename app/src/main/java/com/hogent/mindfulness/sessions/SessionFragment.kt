@@ -42,6 +42,8 @@ class SessionFragment : Fragment() {
      * Here will the sessionData be stored
      * Disposable used for calling api calls
      */
+
+    private lateinit var sessions: Array<Model.Session>
     private lateinit var mAdapter: SessionAdapter
     private lateinit var sessionView: SessionViewModel
     private lateinit var stateView:StateViewModel

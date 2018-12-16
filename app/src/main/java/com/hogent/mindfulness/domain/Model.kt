@@ -94,13 +94,13 @@ object Model {
         var feedbackSubscribed: Boolean = false,
         var image_file_name: String? = null
     ) {
-        constructor():this(
+        constructor() : this(
             null,
             null,
             null,
             null,
             null,
-            null ,
+            null,
             null,
             null,
             arrayListOf(),
@@ -118,17 +118,27 @@ object Model {
         var _id: String? = null,
         var name: String? = null,
         var sessionmap_id: String? = null,
-        var sessionmap: Sessionmap? = null
+        var sessionmap: Sessionmap? = null,
+        var notifications: Array<Notification>? = null
     ) {
-        constructor():this(
+        constructor() : this(
+            null,
             null,
             null,
             null,
             null
         )
+
         @PrimaryKey
         var db_id: Int = 0
     }
+
+    data class Notification(
+        var _id: String,
+        var notification_title: String,
+        var notification_beschrijving: String,
+        var notification_launchtijdstip: Date
+    )
 
     data class Login(
         val email: String,
@@ -140,6 +150,16 @@ object Model {
         val password: String,
         val firstname: String,
         val lastname: String
+    )
+
+    data class ForgotPassword(
+        val email: String
+    )
+
+    data class ForgotPasswordWithCode(
+        val email: String,
+        val validation_code: String,
+        val new_password: String
     )
 
     data class Result(
@@ -166,21 +186,21 @@ object Model {
         var password:String? = null
     )
 
-    data class user_group (
+    data class user_group(
         val group_id: String
     )
 
     data class Post(
-        var _id:String? = "none",
-        var inhoud:String? = null,
-        var afbeelding:String? = null,
-        var sessionmap_id:String? = null,
-        var session_id:String? = null,
-        var exercise_id:String? = null,
-        var page_id:String? = null,
-        var user_id:String? = null,
-        var session_map_name:String? = null,
-        var session_name:String? = null,
+        var _id: String? = "none",
+        var inhoud: String? = null,
+        var afbeelding: String? = null,
+        var sessionmap_id: String? = null,
+        var session_id: String? = null,
+        var exercise_id: String? = null,
+        var page_id: String? = null,
+        var user_id: String? = null,
+        var session_map_name: String? = null,
+        var session_name: String? = null,
         var exercise_name:String? = null
         ,
         var page_name:String? = null,
@@ -203,7 +223,7 @@ object Model {
     )
 
     data class File(
-        val path:String?
+        val path: String?
     )
 
     data class toastMessage(

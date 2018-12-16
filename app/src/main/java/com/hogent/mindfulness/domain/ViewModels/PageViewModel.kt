@@ -1,7 +1,6 @@
 package com.hogent.mindfulness.domain.ViewModels
 
 import android.arch.lifecycle.MutableLiveData
-import android.content.ContentResolver
 import android.graphics.BitmapFactory
 import android.media.MediaPlayer
 import android.util.Log

@@ -53,7 +53,7 @@ class UserViewModel : InjectedViewModel() {
     }
     
     fun register(registerDetails: Model.Register){
-        uiMessage.postValue(Model.uiMessage("registere_start_progress"))
+        uiMessage.postValue(Model.uiMessage("registeren_start_progress"))
         subscription = userApi.register(registerDetails)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -134,6 +134,40 @@ class UserViewModel : InjectedViewModel() {
                 { result -> Log.d("PROFILE_PICTURE_RESULT", "$result") },
                 { error -> Log.d("PROFILE_PICTURE_ERROR", "$error") }
             )
+    }
+
+    fun sendPasswordEmail(email : String) {
+        val emailUser = Model.ForgotPassword(email)
+        subscription = userApi.sendPasswordEmail(emailUser)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result -> run {
+                    uiMessage.postValue(Model.uiMessage("emailsent"))
+                    Log.d("EMAIL_SENT_RESULT", "$result") }
+                },
+                { error -> run {
+                    uiMessage.postValue(Model.uiMessage("emailerror"))
+                    Log.d("EMAIL_SENT_ERROR", "$error") }
+                }
+            )
+    }
+
+    fun changePasswordWithoutAuth(password: String, email: String, code: String) {
+        val changePasswordWithCode = Model.ForgotPasswordWithCode(email, code, password)
+        subscription = userApi.changePasswordWithoutAuth(changePasswordWithCode)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+            { result -> run {
+                uiMessage.postValue(Model.uiMessage("passwordchanged"))
+                Log.d("PASSWORD_CHANGED_RESULT", "$result") }
+            },
+            { error -> run {
+                uiMessage.postValue(Model.uiMessage("passwordchangederror"))
+                Log.d("PASSWORD_CHANGED_ERROR", "$error") }
+            }
+        )
     }
 
     private fun onRetrieveUserSucces(user: Model.User?) {

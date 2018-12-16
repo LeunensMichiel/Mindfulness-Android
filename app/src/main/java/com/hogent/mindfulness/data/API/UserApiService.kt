@@ -39,4 +39,10 @@ interface UserApiService {
 
     @PUT("/API/users/user{id}/image")
     fun updateUserProfilePicture(@Path("id") id: String, @Body user: Model.User) : Observable<Model.User>
+
+    @POST("/API/users/forgot_password")
+    fun sendPasswordEmail(@Body email: Model.ForgotPassword) : Observable<Model.Result>
+
+    @POST("/API/users/change_password")
+    fun changePasswordWithoutAuth(@Body changeInfo : Model.ForgotPasswordWithCode) : Observable<Model.Result>
 }
