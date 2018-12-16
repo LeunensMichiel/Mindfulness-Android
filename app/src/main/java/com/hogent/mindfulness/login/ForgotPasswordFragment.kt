@@ -54,6 +54,7 @@ class ForgotPasswordFragment : Fragment() {
                     forgotpassword_email.requestFocus()
                 }
                 "passwordchanged" -> {
+                    it.data = "changed"
                     forgotpassword_loading.visibility = View.GONE
                     teforgotpassword_statustext.text = ""
                     teforgotpassword_statustext.visibility = View.INVISIBLE
@@ -110,9 +111,9 @@ class ForgotPasswordFragment : Fragment() {
         }
 
         if (forgotpassword_password.text.toString() != forgotpassword_passwordrepeat.text.toString()) {
-            forgotpassword_passwordrepeat.error = getString(R.string.not_same_password)
             forgotpassword_passwordrepeat.text.clear()
             forgotpassword_password.text.clear()
+            forgotpassword_password.error = getString(R.string.not_same_password)
             focusView = forgotpassword_password
             cancel = true
         }

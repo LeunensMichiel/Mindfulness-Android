@@ -13,7 +13,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
-import android.support.v4.app.*
+import android.support.v4.app.FragmentTransaction
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
@@ -45,7 +45,6 @@ import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.toast
 import java.util.*
 import java.util.concurrent.TimeUnit
-import android.support.v4.app.FragmentManager
 
 
 class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPreferenceClickforFragment {
@@ -146,14 +145,15 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         userView.dbUser.observe(this, Observer<Model.User?> {
             if (it == null) {
                 navigation.visibility = View.GONE
-                showAcionBar(false)
                 loginFragment = LoginFragment()
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.session_container, loginFragment)
                     .commit()
+                showAcionBar(false)
+
             } else {
-                showAcionBar(true)
                 if (it.group != null) {
+                    showAcionBar(true)
                     sessionView.resetunlockedSession()
                     navigation.visibility = View.VISIBLE
                     val notifs = userView.dbUser.value!!.group!!.notifications
@@ -183,6 +183,8 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.session_container, GroupFragment())
                         .commit()
+                    showAcionBar(true)
+
                 }
             }
 
@@ -363,30 +365,38 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         val itemThatWasClickedId = item.getItemId()
         when (itemThatWasClickedId) {
             R.id.settings -> {
-                val preferenceFragment = SettingsFragment()
-                supportFragmentManager.beginTransaction()
-                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                    .replace(R.id.session_container, preferenceFragment)
-                    .addToBackStack("ROOT")
-                    .commit()
+                toSettings()
                 return true
             }
             R.id.logout -> {
-                userView.userRepo.nukeUsers()
-                getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
-                    .edit()
-                    .remove(getString(R.string.userIdKey))
-                    .remove(getString(R.string.authTokenKey))
-                    .apply()
-                navigation.visibility = View.GONE
-                loginFragment = LoginFragment()
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.session_container, loginFragment)
-                    .commit()
+                logout()
                 return true
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    fun toSettings() {
+        val preferenceFragment = SettingsFragment()
+        supportFragmentManager.beginTransaction()
+            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+            .replace(R.id.session_container, preferenceFragment)
+            .addToBackStack("ROOT")
+            .commit()
+    }
+
+    fun logout() {
+        userView.userRepo.nukeUsers()
+        getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
+            .edit()
+            .remove(getString(R.string.userIdKey))
+            .remove(getString(R.string.authTokenKey))
+            .apply()
+        navigation.visibility = View.GONE
+        loginFragment = LoginFragment()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.session_container, loginFragment)
+            .commit()
     }
 
     //Settings Management

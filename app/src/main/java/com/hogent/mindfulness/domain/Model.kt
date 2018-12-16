@@ -153,13 +153,20 @@ object Model {
     )
 
     data class ForgotPassword(
-        val email: String
+        val email: String,
+        val message: String?
     )
 
     data class ForgotPasswordWithCode(
         val email: String,
         val validation_code: String,
         val new_password: String
+    )
+
+    data class OldAndNewPassword(
+        val new_password: String?,
+        val old_password: String?,
+        val token: String?
     )
 
     data class Result(
@@ -207,7 +214,8 @@ object Model {
         @Transient
         var bitmap: Bitmap? = null,
         var image_file_name: String? = null,
-        var multiple_choice_items:Array<MultipleChoiceItem> = arrayOf()
+        var multiple_choice_items:Array<MultipleChoiceItem> = arrayOf(),
+        var date: Date?= null
     )
 
     data class Point(

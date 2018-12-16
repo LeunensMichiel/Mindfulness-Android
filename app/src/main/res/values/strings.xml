@@ -105,5 +105,6 @@
     <string name="input_loading_text">Geschiedenis word opgehaald...</string>
     <string name="not_same_password">Wachtwoord komt niet overeen</string>
     <string name="fout_opgetreden">Er is een fout opgetreden, probeer opnieuw</string>
+    <string name="email_not_same">Emails komen niet overeen</string>
 
 </resources>
