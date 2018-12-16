@@ -3,7 +3,6 @@ package com.hogent.mindfulness.domain.ViewModels
 import android.arch.lifecycle.MutableLiveData
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.util.Log
 import com.hogent.mindfulness.data.FIleApiService
 import com.hogent.mindfulness.data.LocalDatabase.repository.UserRepository
 import com.hogent.mindfulness.data.PostApiService
@@ -21,6 +20,7 @@ class PostViewModel : InjectedViewModel() {
 
     var posts = MutableLiveData<Array<Model.Post>>()
     var error = MutableLiveData<Model.errorMessage>()
+    var postError = MutableLiveData<String>()
     private lateinit var subscription: Disposable
     var bitHashMap: HashMap<String, Bitmap> = HashMap()
 
@@ -37,47 +37,56 @@ class PostViewModel : InjectedViewModel() {
         posts.postValue(newPosts)
     }
 
+
+    /**
+     * Hier worden alle posts opgehaald. Deze methode word opgeroepen in de postfragment.
+     * Bij succes word de posts geupdate en word de observer in postfragment getriggered.
+     * De retrieveimages functie word ook opgeroepen bij succes. Bij error word de waarde
+     * van posterror gezet. De observer in mainacvtity word getriggered en toont een toast
+     */
     fun retrievePosts() {
-        error.postValue(Model.errorMessage())
+        posts.postValue(null)
+        postError.postValue(null)
         subscription = postService.getPosts(userRepo.user.value?._id!!)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { result ->
-                    Log.d("POSTIE_WOSTIES", "POST_RETRIEVAL")
-                    result.forEach {
-                        Log.d("POSTIE_WOSTIES", "$it")
-                    }
                     posts.postValue(result)
                     retrieveImages(result)
                 },
                 { error ->
-                    Log.d("POSTIE_WOSTIES", "${error.message}")
-                    Log.d("POSTIE_WOSTIES", "${error.printStackTrace()}")
-                    this.error.postValue(Model.errorMessage("","Geschiedenis is niet beschikbaar"))
+                    this.postError.postValue("Geschiedenis is niet beschikbaar")
                 }
             )
     }
 
+    /**
+     * Voor elke post die een image bevat en die nog niet in de hashmap staat word de image opgehaald. Bij succes
+     * word de opgehaalde ResponseBody opgehaald van de backend. Bij een error word ene toast getoond adhv een observer
+     * in de mainactivity.
+     */
     fun retrieveImages(newPosts: Array<Model.Post>) {
-        error.postValue(Model.errorMessage())
+        postError.postValue(null)
         newPosts.forEachIndexed { index, it ->
-            if (it.image_file_name != null) {
+            if (it.image_file_name != null && !bitHashMap.containsKey(it.image_file_name!!)) {
                 subscription = fileService.getFile("post_image", it.image_file_name!!)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
-                        { result -> convertToBitmap(result, it.image_file_name!!, index) },
+                        { result -> convertToBitmap(result, it.image_file_name!!) },
                         { error ->
-                            Log.d("POST_FILE_NAME", it._id)
-                            this.error.postValue(Model.errorMessage("","De afbeeldingen zijn niet beschikbaar"))
+                            this.postError.postValue("De afbeeldingen van de geschiedenis zijn niet beschikbaar")
                         }
                     )
             }
         }
     }
 
-    private fun convertToBitmap(result: ResponseBody, fileName: String, position: Int) {
+    /**
+     * ResponseBody word omgezet naar een bitmap die word opgeslagen inde hashmap te samen met de imagefilename als key.
+     */
+    private fun convertToBitmap(result: ResponseBody, fileName: String) {
         var imgFile = File.createTempFile(fileName, "png")
         imgFile.deleteOnExit()
         val fos = FileOutputStream(imgFile)
