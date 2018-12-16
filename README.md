@@ -5,7 +5,7 @@ One Paragraph of project description goes here
 ## Voorbereiding
 
 Surf naar deze link, en download de mindfulness APK.
-> [Mindfulness APK](https://drive.google.com/open?id=1xx4wGdRWcwuH9KaXlA9yspizGNjIgf3Y)
+> [Mindfulness APK](https://drive.google.com/file/d/1xx4wGdRWcwuH9KaXlA9yspizGNjIgf3Y/view?usp=sharing)
 
 ### Installeren
 
