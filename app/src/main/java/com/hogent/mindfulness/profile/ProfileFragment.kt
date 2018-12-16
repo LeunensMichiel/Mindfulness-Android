@@ -53,7 +53,11 @@ class ProfileFragment : Fragment() {
     //De circularimage, niet de effectieve profilepic URL
     lateinit var img: CircularImageView
 
-
+    /*
+     * In the onCreateView we initialize the userViewModel to access the current user and the sessionViewModel, to access
+     *  the user's current session. We also initialize dbUser, which contains the current user object and it's sessions
+     *  for easy access. After that we inflate the layout for the fragment.
+     */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         //Profile Layout attach to this Fragment
         userViewModel = activity?.run {
@@ -69,6 +73,13 @@ class ProfileFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_profile, container, false)
     }
 
+    /*
+     * In the onViewCreated method we set bitmap of the profile image of the user, this way we can view the image in the layout.
+     * We also get the user's details and put them into a more readable format. We calculate the user's amount
+     * of unlocked sessions (level), the last unlocked session and the amount of posts by the user.
+     * After that we get the icons used in the layout of the fragment. We also initialize the recyclerview
+     * with it's adapter and call the initUserScreen method.
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -134,6 +145,9 @@ class ProfileFragment : Fragment() {
         initUserScreen()
     }
 
+    /* In the initUserScreen
+     *
+     */
     private fun initUserScreen() {
         //profilePic
         img = profileFragment_profilepic
@@ -176,7 +190,9 @@ class ProfileFragment : Fragment() {
             .start(context!!, this)
     }
 
-    //This changes the image visually, DONT REMOVE!! It is part of the API
+    /*
+     * The onActivityResult method changes the image visually, It is part of the APIi
+     */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode === CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             if (resultCode === RESULT_OK) {
@@ -198,6 +214,11 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    /*
+     * The onResume method is called when the app has been minimized and is activated again, or when another activity
+     * was finished and this activity was returned to the top of the stack. It sets the title of the action bar on the
+     * top of the screen.
+     */
     override fun onResume() {
         super.onResume()
         (activity as MainActivity).setActionBarTitle("Uw profiel")
@@ -205,6 +226,11 @@ class ProfileFragment : Fragment() {
     }
 }
 
+/***********************************************************************************************
+ * Adapter
+ *
+ ***********************************************************************************************
+ */
 class ProfileAdapter(
     private val lifecycleOwner: LifecycleOwner,
     private val userViewModel: UserViewModel,
@@ -212,6 +238,7 @@ class ProfileAdapter(
 ) : RecyclerView.Adapter<ProfileAdapter.ProfileViewHolder>() {
 
     private var info: Array<String?>
+
 
     init {
         info = arrayOf(
@@ -231,21 +258,32 @@ class ProfileAdapter(
 
     }
 
+    /**
+     * This function loads in the item view
+     */
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ProfileViewHolder {
         val view = LayoutInflater.from(p0.context).inflate(R.layout.profile_info_item, p0, false)
         return ProfileViewHolder(view)
     }
 
+    /**
+     * This function attaches the data to item view
+     */
     override fun getItemCount(): Int {
         return icons.size
     }
 
+    /**
+     * This function attaches the data to item view
+     */
     override fun onBindViewHolder(p0: ProfileViewHolder, p1: Int) {
         p0.icon.setImageResource(icons[p1])
         p0.info.text = info[p1]
     }
 
-
+    /**
+     * Viewholder for the profile RecyclerView
+     */
     inner class ProfileViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val icon: ImageView = view.profileFragment_info_icon
         val info: TextView = view.profileFragment_info_text

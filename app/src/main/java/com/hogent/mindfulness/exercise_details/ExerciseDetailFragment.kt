@@ -127,7 +127,7 @@ class ExerciseDetailFragment: Fragment(){
                     val arg = Bundle()
                     arg.putString("audioFilename", it.audioFilename)
                     fragment.arguments = arg
-                    (viewPager.adapter as OefeningViewPagerAdapter).addFragment(fragment, "Audio")
+                    (viewPager.adapter as OefeningViewPagerAdapter).addFragment(fragment, it.title)
 //                    frags.add(fragment)
 //                    titles.add("Audio")
                 }
@@ -140,7 +140,7 @@ class ExerciseDetailFragment: Fragment(){
                     fragment.paragraphs = it.paragraphs
 
                     fragment.arguments = arg
-                    (viewPager.adapter as OefeningViewPagerAdapter).addFragment(fragment, "Beschrijving")
+                    (viewPager.adapter as OefeningViewPagerAdapter).addFragment(fragment, it.title)
 //                    frags.add(fragment)
 //                    titles.add("Beschrijving")
                 }
@@ -152,19 +152,19 @@ class ExerciseDetailFragment: Fragment(){
                             val fragment = TextInputFragment()
                             fragment.position = index
                             fragment.page = it
-                            (viewPager.adapter as OefeningViewPagerAdapter).addFragment(fragment, "Invoer")
+                            (viewPager.adapter as OefeningViewPagerAdapter).addFragment(fragment, it.title)
                         }
                         "IMAGE" -> {
                             val fragment = ImageInputFragment()
                             fragment.position = index
                             fragment.page = it
-                            (viewPager.adapter as OefeningViewPagerAdapter).addFragment(fragment, "Invoer")
+                            (viewPager.adapter as OefeningViewPagerAdapter).addFragment(fragment, it.title)
                         }
                         "MULTIPLE_CHOICE" -> {
                             val fragment = MultipleChoiceFragment()
                             fragment.position = index
                             fragment.page = it
-                            (viewPager.adapter as OefeningViewPagerAdapter).addFragment(fragment, "Invoer")
+                            (viewPager.adapter as OefeningViewPagerAdapter).addFragment(fragment, it.title)
                         }
                     }
                 }

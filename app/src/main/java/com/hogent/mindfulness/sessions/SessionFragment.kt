@@ -67,7 +67,8 @@ class SessionFragment : Fragment() {
 
     /**
      * In the onViewCreated, we update the UI to display the current status of the user.
-     * we also observe on the list of sessions to trigger UI changes. Thanks to this the textfields are updated, we scroll to the our latest unlocked session.
+     * we also observe on the list of sessions to trigger UI changes. Thanks to this the
+     * textfields are updated, we scroll to the our latest unlocked session.
      * We also Initialize the Recyclerview with its adapter and make it *Snappy*
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -293,8 +294,8 @@ class SessionFragment : Fragment() {
             }
         }
 
-        /**
-         * This function gives the size back of the data list
+        /*
+         * This function attaches the data to item view
          */
         override fun getItemCount(): Int {
             return mSessionData.count()

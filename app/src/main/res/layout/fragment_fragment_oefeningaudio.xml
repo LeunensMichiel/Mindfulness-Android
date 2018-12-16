@@ -33,6 +33,8 @@
                 android:id="@+id/positionBar"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:minHeight="5dip"
+                android:maxHeight="5dip"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginStart="32dp" android:layout_marginEnd="32dp"
@@ -47,7 +49,8 @@
                 android:text="0:00"
                 android:layout_marginTop="8dp"
                 app:layout_constraintTop_toBottomOf="@+id/positionBar"
-                app:layout_constraintStart_toStartOf="@+id/positionBar" android:layout_marginStart="8dp"/>
+                app:layout_constraintStart_toStartOf="@+id/positionBar" android:layout_marginStart="8dp"
+                android:textStyle="bold"/>
         <TextView
                 android:id="@+id/remainingTimeLabel"
                 android:layout_width="wrap_content"
@@ -55,13 +58,13 @@
                 android:text="0:00"
                 app:layout_constraintEnd_toEndOf="@+id/positionBar"
                 android:layout_marginEnd="8dp" android:layout_marginTop="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/positionBar"/>
+                app:layout_constraintTop_toBottomOf="@+id/positionBar" android:textStyle="bold"/>
 
 
         <ImageButton
                 android:id="@+id/playButton"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:src="@drawable/play"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:layout_marginTop="8dp"
