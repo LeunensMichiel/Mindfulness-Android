@@ -94,6 +94,8 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         stateView = ViewModelProviders.of(this).get(StateViewModel::class.java)
         postView = ViewModelProviders.of(this).get(PostViewModel::class.java)
 
+        userView.loggingIn = true
+
         stateView.viewState.observe(this, Observer {
             when (it!!) {
                 "EXERCISE_VIEW" -> {
@@ -157,7 +159,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                 showAcionBar(false)
 
             } else {
-                if (it.group != null) {
+                if (it.group != null && userView.loggingIn) {
                     showAcionBar(true)
                     sessionView.resetunlockedSession()
                     navigation.visibility = View.VISIBLE
@@ -182,7 +184,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                     profileFragment = ProfileFragment()
                     userView.retrieveProfilePicture()
                     toSessions()
-                } else {
+                } else if (it.group == null) {
                     navigation.visibility = View.GONE
 
                     groupFragment = GroupFragment()
@@ -298,12 +300,14 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
     override fun onResume() {
         super.onResume()
         if (intent.hasExtra("code")) {
-            if (intent.hasExtra("group")) {
-                groupFragment = GroupFragment()
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.session_container, groupFragment)
-                    .commit()
-            } else if (intent.hasExtra("register")) {
+//            if (intent.hasExtra("group")) {
+//                Log.d("GROUP_CHECK", "GROUP_OPEN")
+//                groupFragment = GroupFragment()
+//                supportFragmentManager.beginTransaction()
+//                    .replace(R.id.session_container, groupFragment)
+//                    .commit()
+//            } else
+            if (intent.hasExtra("register")) {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.session_container, RegisterFragment())
                     .commit()
@@ -403,6 +407,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
     }
 
     fun logout() {
+        userView.loggingIn = true
         userView.userRepo.nukeUsers()
         getSharedPreferences(getString(R.string.sharedPreferenceUserDetailsKey), Context.MODE_PRIVATE)
             .edit()

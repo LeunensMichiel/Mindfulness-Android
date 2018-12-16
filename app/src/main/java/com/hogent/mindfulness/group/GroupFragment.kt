@@ -45,10 +45,10 @@ class GroupFragment() : Fragment() {
             startActivity(intent)
         }
 
-        groepscanners_BtnConfirm.onClick {
-            userViewModel.addGroup(Model.user_group(groepscodeScanner.text.toString()))
-            (activity as MainActivity).toSessions()
-        }
+//        groepscanners_BtnConfirm.onClick {
+//            userViewModel.addGroup(Model.user_group(groepscodeScanner.text.toString()))
+//            (activity as MainActivity).toSessions()
+//        }
     }
 
     override fun onResume() {

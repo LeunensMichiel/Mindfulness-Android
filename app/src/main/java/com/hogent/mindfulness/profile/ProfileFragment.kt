@@ -179,18 +179,6 @@ class ProfileFragment : Fragment() {
     //This changes the image visually, DONT REMOVE!! It is part of the API
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode === CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-//            data!!.extras.keySet().forEach {
-//                Log.d("FUCKING_IMAGE", it)
-//            }
-
-//            var result: = data!!.extras.get("CROP_IMAGE_EXTRA_RESULT") as Instrumentation.ActivityResult
-////            Log.d("WUK", "${result }")
-////            Log.d("WUK", "${data!!.extras.get("CROP_IMAGE_EXTRA_RESULT") }")
-////            Log.d("WUK", "${data!!.extras.get("CROP_IMAGE_EXTRA_BUNDLE") }")
-//            var extras:Bundle = data.getExtras()
-            // get the cropped bitmap
-//            Log.d("CHECK", "${extras.getParcelable<Bitmap>("data")}")
-
             if (resultCode === RESULT_OK) {
                 var result:CropImage.ActivityResult = CropImage.getActivityResult(data)
                 val bitmap:Bitmap = MediaStore.Images.Media.getBitmap(activity?.contentResolver, result.uri)

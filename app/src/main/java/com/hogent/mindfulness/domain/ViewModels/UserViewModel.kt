@@ -33,6 +33,7 @@ class UserViewModel : InjectedViewModel() {
     var toastMessage = MutableLiveData<String>()
     var dbUser: LiveData<Model.User> = userRepo.user
     var bitmap = MutableLiveData<Bitmap>()
+    var loggingIn = true
 
     @Inject
     lateinit var userApi: UserApiService
@@ -81,8 +82,7 @@ class UserViewModel : InjectedViewModel() {
             .subscribe(
                 { user ->
                     Log.d("register", "$user")
-                    rawUser.value = user
-                    userRepo.insert(user!!)
+                    onRetrieveUserSucces(user)
                     uiMessage.postValue(Model.uiMessage("registere_end_progress"))
                 },
                 { error ->
@@ -198,12 +198,13 @@ class UserViewModel : InjectedViewModel() {
                     { result ->
                         Log.d("PROFILE_CHANGED", "RESULT")
                         setBitmap(bitmap)
+                        loggingIn = false
+                        userRepo.user.value?.image_file_name = result.result
+                        userRepo.updateUser(userRepo.user.value!!)
+                    },
+                    { error ->
+                        setToast("Er is iets mis gegaan. Profielfoto is niet veranderd.")
                     }
-//                    ,
-//                    { error ->
-//
-//                        setToast("Er is iets mis gegaan. Profielfoto is niet veranderd.")
-//                    }
                 )
 
     }
