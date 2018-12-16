@@ -55,10 +55,12 @@ class FragmentExerciseText : PagerFragment() {
         Log.d("TEXT_VIEW", "IMG_RETRIEVE_CALL")
         pageView.pages.observe(this, Observer {
             Log.d("TEXT_VIEW_CHANGE_BOY_1","${it!![position].paragraphs[0]}")
-            parAdapter.setDataSet(it[position].paragraphs)
+            if (it.isNotEmpty()) {
+                parAdapter.setDataSet(it[position].paragraphs)
+            }
         })
-        pageView.retrieveTextPageImg(pageView.pages.value!![position].paragraphs, position)
-        parAdapter = ParagraafAdapter(pageView.pages.value!![position].paragraphs)
+        //pageView.retrieveTextPageImg(pageView.pages.value!![position].paragraphs, position)
+        parAdapter = ParagraafAdapter(pageView.pages.value!![position].paragraphs, pageView)
         val viewManager = LinearLayoutManager(activity)
 
         rv_paragrafen.apply {
@@ -78,7 +80,7 @@ class FragmentExerciseText : PagerFragment() {
         val ft = fragmentManager!!.beginTransaction()
         ft.detach(this).attach(this).commit()
 
-        val viewAdapter = ParagraafAdapter(paragraphs)
+        val viewAdapter = ParagraafAdapter(paragraphs, pageView)
         val viewManager = LinearLayoutManager(activity)
 
         rv_paragrafen.apply {

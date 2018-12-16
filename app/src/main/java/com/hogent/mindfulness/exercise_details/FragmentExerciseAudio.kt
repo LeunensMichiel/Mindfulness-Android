@@ -60,7 +60,7 @@ class FragmentExerciseAudio : PagerFragment(), MediaPlayer.OnPreparedListener {
         Log.d("MEDIA_PLAYER_" + position, "ON_CREATE")
 
         pageView.pages.observe(this, android.arch.lifecycle.Observer {
-            if (it != null){
+            if (it != null && it.isNotEmpty()){
                 if (it[position].mediaPlayer != null){
                     mp = it[position].mediaPlayer
                     onPrepared(mp)
@@ -75,9 +75,12 @@ class FragmentExerciseAudio : PagerFragment(), MediaPlayer.OnPreparedListener {
         savedInstanceState: Bundle?
     ): View? {
         if (hasAudio()){
-            if (pageView.pages.value!![position].mediaPlayer == null){
-                pageView.retrieveAudio(position)
+            if (pageView.pages.value?.isNotEmpty()!!){
+                if (pageView.pages.value!![position].mediaPlayer == null){
+                    pageView.retrieveAudio(position)
+                }
             }
+
         }
         return inflater.inflate(R.layout.fragment_fragment_oefeningaudio, container, false)
     }

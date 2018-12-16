@@ -46,32 +46,41 @@ class TextInputFragment : PagerFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         pageView.pages.observe(this, Observer {
-            Log.d("PAGE_VIEW", "FUCK_OFF")
-            if(pageView.pages.value!![position].post != null){
-                post = pageView.pages.value!![position].post!!
-                setupTextInput()
+            Log.d("PAGE_INIT_CHECK_SIZE", "${it?.size}")
+            Log.d("PAGE_INIT_CHECK_POS", "$position")
+            if (pageView.pages.value?.isNotEmpty()!!) {
+                Log.d("PAGE_INIT_CHECK_EMPT", "NOT_EMPTY")
+                if(pageView.pages.value!![position].post != null){
+                    post = pageView.pages.value!![position].post!!
+                    setupTextInput()
+                }
             }
         })
 
-        fragment_textinput_titel.setText("Geschiedenis aan het nakijken...")
+        if(pageView.pages.value?.isNotEmpty()!! && pageView.pages.value!![position].post != null){
+            post = pageView.pages.value!![position].post!!
+            setupTextInput()
+        } else {
+            fragment_textinput_titel.setText("Geschiedenis aan het nakijken...")
 
-        fragment_textinput_btn.onClick {
-            pageView.pageError.postValue(Model.errorMessage(null, "Input nog niet klaar."))
-        }
-
-        pageView.checkInputPage(page._id, position)
-    }
-
-    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
-        super.setUserVisibleHint(isVisibleToUser)
-        Log.d("INPUT", "WHY")
-        if (isAdded()) {
-            Log.d("TEXT_INPUT_POST", "${pageView.pages.value!![position].post}")
-            if (isVisibleToUser && pageView.pages.value!![position].post == null){
-                pageView.checkInputPage(page._id, position)
+            fragment_textinput_btn.onClick {
+                pageView.pageError.postValue(Model.errorMessage(null, "Input nog niet klaar."))
             }
+
+            pageView.checkInputPage(page._id, position)
         }
     }
+
+//    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
+//        super.setUserVisibleHint(isVisibleToUser)
+//        Log.d("INPUT", "WHY")
+//        if (isAdded()) {
+//            Log.d("TEXT_INPUT_POST", "${pageView.pages.value!![position].post}")
+//            if (isVisibleToUser && pageView.pages.value!![position].post == null){
+//                pageView.checkInputPage(page._id, position)
+//            }
+//        }
+//    }
 
     fun setupTextInput(){
         if (post != null)

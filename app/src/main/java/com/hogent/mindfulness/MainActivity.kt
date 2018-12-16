@@ -109,6 +109,8 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                         .commit()
                 }
                 "PAGE_VIEW" -> {
+                    Log.d("PAGE_INIT_OBSERVER_MINI", "check")
+                    pageView.retrievePages()
                     exerciseDetailFragment = ExerciseDetailFragment()
                     exerciseDetailFragment.manager = supportFragmentManager
                     supportFragmentManager.beginTransaction()
@@ -332,6 +334,8 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
      * Specify Fragment to add to Activity via itemId in Navigation
      */
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
+        if (::exerciseDetailFragment.isInitialized)
+            supportFragmentManager.beginTransaction().remove(exerciseDetailFragment).commit()
         when (item.itemId) {
             R.id.navigation_home -> {
                 supportFragmentManager.beginTransaction()

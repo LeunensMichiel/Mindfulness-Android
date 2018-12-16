@@ -55,7 +55,7 @@ class ImageInputFragment : PagerFragment() {
 
         pageView.pages.observe(this, Observer {
             Log.d("CHECKY_BOY", "FUCK_OFF")
-            if (it!![position].post != null) {
+            if (it!!.isNotEmpty() && it!![position].post != null) {
                 if (it[position].post?.bitmap == null) {
                     post = pageView.pages.value!![position].post!!
                     Log.d("CHECKY_BOY", "SHOW_RESULT_CALL")
@@ -69,17 +69,18 @@ class ImageInputFragment : PagerFragment() {
 
         fragment_image_input_txf.setText("Geschiedenis aan het ophalen...")
         Log.d("IMAGE_INPUT_LIST", "ON_VIEW_CREATED")
+        if (pageView.pages.value?.isNotEmpty()!!){
+            if (pageView.pages.value!![position].post == null){
+                fragment_image_input_photoBtn.onClick {
+                    pageView.pageError.postValue(Model.errorMessage(null, "Input nog niet klaar."))
+                }
 
-        if (pageView.pages.value!![position].post == null){
-            fragment_image_input_photoBtn.onClick {
-                pageView.pageError.postValue(Model.errorMessage(null, "Input nog niet klaar."))
+                Log.d("CHECKY_BOY", "GET_THEM_BACK")
+                pageView.checkInputPage(page._id, position)
+            } else {
+                fragment_image_input_txf.setText(pageView.pages.value!![position].title)
+                fragment_image_input_image.setImageBitmap(pageView.pages.value!![position].post?.bitmap)
             }
-
-            Log.d("CHECKY_BOY", "GET_THEM_BACK")
-            pageView.checkInputPage(page._id, position)
-        } else {
-            fragment_image_input_txf.setText(pageView.pages.value!![position].title)
-            fragment_image_input_image.setImageBitmap(pageView.pages.value!![position].post?.bitmap)
         }
     }
 
