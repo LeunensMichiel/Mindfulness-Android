@@ -214,7 +214,8 @@ object Model {
         @Transient
         var bitmap: Bitmap? = null,
         var image_file_name: String? = null,
-        var multiple_choice_items:Array<MultipleChoiceItem> = arrayOf()
+        var multiple_choice_items:Array<MultipleChoiceItem> = arrayOf(),
+        var date: Date?= null
     )
 
     data class Point(

@@ -12,7 +12,8 @@ import kotlinx.android.synthetic.main.multiple_choice_checkbox.view.*
 import org.jetbrains.anko.sdk27.coroutines.onCheckedChange
 
 class MultipleChoiceItemAdapter(
-    private var mulChoiceItems: Array<Model.MultipleChoiceItem>
+    private var mulChoiceItems: Array<Model.MultipleChoiceItem>,
+    private var isEnabled:Boolean = true
 ): RecyclerView.Adapter<MultipleChoiceItemAdapter.MultipleChoiceViewHolder>() {
 
     fun getMulChoiceItems(): Array<Model.MultipleChoiceItem> {
@@ -37,8 +38,12 @@ class MultipleChoiceItemAdapter(
         val mulChoice = mulChoiceItems[position]
         holder.cBox.setText(mulChoice.message)
         holder.cBox.isChecked = mulChoice.checked
-        holder.cBox.onCheckedChange { buttonView, isChecked ->
-            mulChoiceItems[position].checked = isChecked
+        if (isEnabled) {
+            holder.cBox.onCheckedChange { buttonView, isChecked ->
+                mulChoiceItems[position].checked = isChecked
+            }
+        } else {
+            holder.cBox.isEnabled = false
         }
     }
 
