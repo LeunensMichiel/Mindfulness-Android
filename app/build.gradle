@@ -58,6 +58,7 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.8.0'
     implementation "me.dm7.barcodescanner:zxing:1.9"
 
+
     //ROOM
     implementation "android.arch.persistence.room:guava:$room_version"
     kapt "android.arch.persistence.room:compiler:$room_version"

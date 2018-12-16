@@ -106,5 +106,7 @@
     <string name="not_same_password">Wachtwoord komt niet overeen</string>
     <string name="fout_opgetreden">Er is een fout opgetreden, probeer opnieuw</string>
     <string name="email_not_same">Emails komen niet overeen</string>
+    <string name="lockedSession">Deze sessie is nog niet unlocked.</string>
+    <string name="NoSessionsYet">Huidige sessie: Nog geen vrijgespeeld!</string>
 
 </resources>

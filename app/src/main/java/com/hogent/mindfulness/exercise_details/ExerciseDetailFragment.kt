@@ -5,7 +5,6 @@ import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,17 +31,42 @@ class ExerciseDetailFragment: Fragment(){
     lateinit var exerciseId:String
     lateinit var manager: FragmentManager
     private lateinit var pageView:PageViewModel
-    private var pagesLock = false
+    private lateinit var pageAdapter:OefeningViewPagerAdapter
+    var pagesLock = false
 
     override fun onResume() {
         super.onResume()
         (activity as MainActivity).setActionBarTitle(pageView.ex_name)
+        if (pageView.pageCopies.value != null && pageView.pageCopies.value!!.isNotEmpty()) {
+            viewPager.visibility = View.VISIBLE
+            emptyExerciseLayout.visibility = View.GONE
+            initializePages(pageView.pageCopies.value!!)
+        } else if(pageView.pageCopies.value != null && pageView.pageCopies.value!!.isEmpty()) {
+            emptyExerciseLayout.visibility = View.VISIBLE
+            viewPager.visibility = View.GONE
+        }
+        pageView.pageCopies.observe(this, Observer {
+            //Ik heb hier code bijgevoegd voor te controleren voor lege pages maar zou niets mogen breken
+            if (it == null || it.isEmpty()) {
+                emptyExerciseLayout.visibility = View.VISIBLE
+                viewPager.visibility = View.GONE
+            }
+            else {
+                viewPager.visibility = View.VISIBLE
+                emptyExerciseLayout.visibility = View.GONE
+            }
+            if (it != null) {
 
+                initializePages(it!!)
+                pagesLock = true
+            }
+        })
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pagesLock = false
+
     }
 
     /**
@@ -56,34 +80,25 @@ class ExerciseDetailFragment: Fragment(){
         pageView = activity?.run {
             ViewModelProviders.of(this).get(PageViewModel::class.java)
         }?: throw Exception("Invalid activity.")
-        pageView.retrievePages()
+        //pageView.retrievePages()
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.oefening_details_fragment, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("INITILIAZE_PAGES_DETAIL", "VIEW_CREATED")
-        if (pageView.pages.value != null && pageView.pages.value!!.isNotEmpty()) {
-            initializePages(pageView.pages.value!!)
+
+        pageAdapter = OefeningViewPagerAdapter(manager)
+        viewPager.adapter = pageAdapter
+        viewPager.adapter!!.notifyDataSetChanged()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        (viewPager.adapter as OefeningViewPagerAdapter).fragmentList.forEach {
+            manager.beginTransaction().remove(it).commit()
         }
-        pageView.pages.observe(this, Observer {
-            Log.d("PAGE_INIT_OBSERVER", "CHECK")
-            //Ik heb hier code bijgevoegd voor te controleren voor lege pages maar zou niets mogen breken
-            if (it == null || it.isEmpty()) {
-                emptyExerciseLayout.visibility = View.VISIBLE
-            }
-            else {
-                emptyExerciseLayout.visibility = View.GONE
-            }
-            if (it != null && !pagesLock) {
-                it.forEach {
-                    Log.d("PAGE_INIT", "${it}")
-                }
-                initializePages(it!!)
-                pagesLock = true
-            }
-        })
+        //viewPager.adapter!!.notifyDataSetChanged()
     }
 
     /**
@@ -95,28 +110,29 @@ class ExerciseDetailFragment: Fragment(){
      * op het einde zeggen we dat de adapter die we gemaakt hebben de adapter is van onze viewpager
      */
     private fun initializePages(pages: Array<Model.Page>) {
-        Log.d("INITILIAZE_PAGES_MAN", "${manager}")
-        val adapter = OefeningViewPagerAdapter(manager)
-        adapter.notifyDataSetChanged()
+
+        pageAdapter = OefeningViewPagerAdapter(manager)
+        viewPager.adapter = pageAdapter
+        viewPager.adapter!!.notifyDataSetChanged()
+        (viewPager.adapter as OefeningViewPagerAdapter).fragmentList = mutableListOf()
+        (viewPager.adapter as OefeningViewPagerAdapter).titles = mutableListOf()
+        viewPager.adapter?.notifyDataSetChanged()
         pages.forEachIndexed { index, it ->
             when (it.type) {
                 "AUDIO" ->
                 {
-                    Log.i("INITILIAZE_PAGES", "AUDIO")
                     val fragment = FragmentExerciseAudio()
                     fragment.position = index
-                    Log.i("FUCKINGAUDIO_" + index, it.audioFilename)
                     fragment.audioFilename = it.audioFilename
                     val arg = Bundle()
                     arg.putString("audioFilename", it.audioFilename)
                     fragment.arguments = arg
-                    adapter.addFragment(fragment, "Audio")
+                    (viewPager.adapter as OefeningViewPagerAdapter).addFragment(fragment, it.title)
 //                    frags.add(fragment)
 //                    titles.add("Audio")
                 }
                 "TEXT" ->
                 {
-                    Log.i("INITILIAZE_PAGES", "TEXT")
                     val fragment = FragmentExerciseText()
                     val arg = Bundle()
                     arg.putString("description", it.description)
@@ -124,38 +140,37 @@ class ExerciseDetailFragment: Fragment(){
                     fragment.paragraphs = it.paragraphs
 
                     fragment.arguments = arg
-                    adapter.addFragment(fragment, "Beschrijving")
+                    (viewPager.adapter as OefeningViewPagerAdapter).addFragment(fragment, it.title)
 //                    frags.add(fragment)
 //                    titles.add("Beschrijving")
                 }
                 "INPUT" ->
                 {
 
-                    Log.d("INPUT_TYPE", it.type_input)
                     when(it.type_input) {
                         "TEXT" -> {
                             val fragment = TextInputFragment()
                             fragment.position = index
                             fragment.page = it
-                            adapter.addFragment(fragment, "Invoer")
+                            (viewPager.adapter as OefeningViewPagerAdapter).addFragment(fragment, it.title)
                         }
                         "IMAGE" -> {
                             val fragment = ImageInputFragment()
                             fragment.position = index
                             fragment.page = it
-                            adapter.addFragment(fragment, "Invoer")
+                            (viewPager.adapter as OefeningViewPagerAdapter).addFragment(fragment, it.title)
                         }
                         "MULTIPLE_CHOICE" -> {
                             val fragment = MultipleChoiceFragment()
                             fragment.position = index
                             fragment.page = it
-                            adapter.addFragment(fragment, "Invoer")
+                            (viewPager.adapter as OefeningViewPagerAdapter).addFragment(fragment, it.title)
                         }
                     }
                 }
             }
         }
         viewPager.offscreenPageLimit = 1
-        viewPager.setAdapter(adapter);
+        viewPager.adapter?.notifyDataSetChanged()
     }
 }

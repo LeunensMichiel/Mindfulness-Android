@@ -10,6 +10,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.PageViewModel
@@ -46,24 +48,46 @@ class MultipleChoiceFragment : PagerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        Log.d("MUL_CHOICE_CHECKY_BOI", "ON_VIEW_CREATED")
+
         pageView.pages.observe(this, Observer {
-            if (it!![position].post != null) {
-                post = it!![position].post!!
-                initialiseMulChoiceList(it!![position])
+            if (it != null && it!!.isNotEmpty()){
+                if (it!![position].post != null) {
+                    Log.d("MUL_CHOICE_CHECKY_BOI", "POST")
+                    post = it!![position].post!!
+                    initialiseMulChoiceList(it!![position])
+                }
             }
         })
 
+        pageView.uiMessage.observe(this, Observer {
+            when (it!!.data) {
+                "textinputsucces" -> {
+                    progressBar_multipleChoice.visibility = View.INVISIBLE
+                    fragment_mulchoice_btn.isEnabled = false
+                    it.data = "succes"
+                }
+                "textinputerror" -> {
+                    progressBar_multipleChoice.visibility = View.INVISIBLE
+                    fragment_mulchoice_btn.isEnabled = true
+                    Toast.makeText(activity as MainActivity, "Er is iets misgelopen", Toast.LENGTH_SHORT).show()
+                }
+            }
+        })
+        fragment_mulchoice_btn.isEnabled = true
         fragment_mulchoice_btn.onClick {
             pageView.pageError.postValue(Model.errorMessage(null, "Input nog niet klaar."))
         }
 
-        if (pageView.pages.value!![position].post == null){
-            Log.d("MUL_CHOICE", "POST_IS_NULL")
-            pageView.checkInputPage(page._id, position)
-        } else {
-            initialiseMulChoiceList(pageView.pages.value!![position])
+        if (pageView.pages.value?.isNotEmpty()!!) {
+            if (pageView.pages.value!![position].post == null){
+                Log.d("MUL_CHOICE_CHECKY_BOI", "POST_IS_NULL")
+                pageView.checkInputPage(page._id, position)
+            } else {
+                Log.d("MUL_CHOICE_CHECKY_BOI", "POST")
+                initialiseMulChoiceList(pageView.pages.value!![position])
+            }
         }
-
     }
 
     fun initialiseMulChoiceList(it: Model.Page) {
@@ -85,8 +109,10 @@ class MultipleChoiceFragment : PagerFragment() {
             }
 
             fragment_mulchoice_input_txf.setText(page.title)
+            fragment_text_multiplechoice_desc.text = page.description
 
             fragment_mulchoice_btn.onClick {
+                progressBar_multipleChoice.visibility = View.VISIBLE
                 post = pageView.updatePost(position, page, fragment_mulchoice_input_txf.text.toString(), post, (rv_mulchoice.adapter as MultipleChoiceItemAdapter).getMulChoiceItems())
             }
         }

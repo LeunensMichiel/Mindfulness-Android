@@ -1,8 +1,4 @@
 package com.hogent.mindfulness
-
-// Notificaties
-// Settings
-
 import android.app.Dialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
@@ -16,7 +12,6 @@ import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.FragmentTransaction
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -47,7 +42,6 @@ import org.jetbrains.anko.toast
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-
 class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPreferenceClickforFragment {
     //initializing attributes
     private lateinit var loginFragment: LoginFragment
@@ -71,11 +65,12 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
     private lateinit var stateView: StateViewModel
     private lateinit var postView: PostViewModel
     private var currentPost = Model.Post()
+
     /**
      * Set view to MainActivity
-     * Set ItemSelectedListener for the navigation
-     * initialize SessionFragment
-     * add SessionFragment to activity
+     * Sets bottom Navigation
+     * Initializes ViewModels (all of them)
+     * Observes all the viewmodels so that the right fragments get loaded into view and data gets initialized
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
@@ -94,6 +89,9 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
 
         userView.loggingIn = true
 
+        /**
+         * Is used to update the Fragments for the Exercises and Pages
+         */
         stateView.viewState.observe(this, Observer {
             when (it!!) {
                 "EXERCISE_VIEW" -> {
@@ -109,6 +107,7 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
                         .commit()
                 }
                 "PAGE_VIEW" -> {
+                    pageView.retrievePages()
                     exerciseDetailFragment = ExerciseDetailFragment()
                     exerciseDetailFragment.manager = supportFragmentManager
                     supportFragmentManager.beginTransaction()
@@ -119,6 +118,9 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
             }
         })
 
+        /**
+         * Displays a dialog so the user can give feedback about a session or can unsusbcribe from notifications about feedback
+         */
         stateView.dialogState.observe(this, Observer {
             when (it!!) {
                 "FEEDBACK_DIALOG" -> {
@@ -147,6 +149,10 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
             }
         })
 
+        /**
+         * Checks if the applications has a user. and updates the UI accordingly and will also initialize the notifications if the app has a user
+         * If the user doesnt have a group, it will be redirected to the groupfragment, otherwhise sessionFragment Will load
+         */
         userView.dbUser.observe(this, Observer<Model.User?> {
             if (it == null) {
                 navigation.visibility = View.GONE
@@ -196,11 +202,17 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
 
         })
 
+        /**
+         * Will observe for a toastmessage and shall display it
+         */
         userView.toastMessage.observe(this, Observer {
             if (it != null)
                 toast(it).show()
         })
 
+        /**
+         * Retrieves the exercises if a sessions is selected and observes it
+         */
         sessionView.selectedSession.observe(this, Observer<Model.Session> {
             if (it != null) {
                 if (it.unlocked) {
@@ -221,6 +233,9 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
             }
         })
 
+        /**
+         * Observes the selectedExercise so the ui changes accordingly
+         */
         exView.selectedExercise.observe(this, Observer {
             if (it != null) {
                 pageView.exercise_id = it._id
@@ -247,12 +262,19 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
             }
         })
 
+        /**
+         * This wil create a JobManager so that we can have notifications
+         */
         // Starts van notification service
         JobManager.create(this).addJobCreator(NotifyJobCreator())
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
     }
 
+    /**
+     * This method checks if an Intent has an extra called sessionID. If so, the mainactivity uses it to show a Feedback Screen
+     * @param newIntent is the intent we recieve
+     */
     override fun onNewIntent(newIntent: Intent) {
         this.intent = newIntent
 
@@ -262,7 +284,10 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         }
     }
 
-    //This function starts the session Fragment
+    /**
+     *     This function starts the session Fragment
+
+     */
     fun toSessions() {
         sessionFragment = SessionFragment()
         supportFragmentManager.beginTransaction()
@@ -270,7 +295,9 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
             .commit()
     }
 
-    //This function replaces the register fragment back with the login fragment
+    /**
+     *  This function replaces the register or forgotPassword fragment back with the login fragment
+     */
     fun toLogin(v: View) {
         loginFragment = LoginFragment()
         supportFragmentManager.beginTransaction()
@@ -287,7 +314,9 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
             .replace(R.id.session_container, registerFragment)
             .commit()
     }
-
+    /**
+     * This function replaces the login fragment with the forgotPassword fragment
+     */
     fun toForgot(v : View) {
         forgotPasswordFragment = ForgotPasswordFragment()
         supportFragmentManager.beginTransaction()
@@ -295,15 +324,14 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
             .commit()
     }
 
+    /**
+     * Checks when the app restarts, a uses has given a group code.
+     * If the app was exited straight after pressing register, this makes sure the app doesnt crash due to a groupless user
+     */
     override fun onResume() {
         super.onResume()
         if (intent.hasExtra("code")) {
-            if (intent.hasExtra("group")) {
-                groupFragment = GroupFragment()
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.session_container, groupFragment)
-                    .commit()
-            } else if (intent.hasExtra("register")) {
+            if (intent.hasExtra("register")) {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.session_container, RegisterFragment())
                     .commit()
@@ -319,9 +347,11 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         }
     }
 
+    /**
+     * This method displays a Dialog to congratulate the user on unlocking a session and thus getting a new monster
+     */
     override fun showMonsterDialog() {
         fullscreenMonsterDialog = FullscreenDialogWithAnimation()
-
         fullscreenMonsterDialog.show(supportFragmentManager.beginTransaction(), FullscreenDialogWithAnimation.TAG)
     }
 
@@ -330,6 +360,8 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
      * Specify Fragment to add to Activity via itemId in Navigation
      */
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
+        if (::exerciseDetailFragment.isInitialized)
+            supportFragmentManager.beginTransaction().remove(exerciseDetailFragment).commit()
         when (item.itemId) {
             R.id.navigation_home -> {
                 supportFragmentManager.beginTransaction()
@@ -359,26 +391,31 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         false
     }
 
+    /**
+     * Pops the supportFragmentManager to get to the previous fragment
+     */
     override fun onBackPressed() {
-
         val count = supportFragmentManager.backStackEntryCount
-
         if (count == 0) {
             super.onBackPressed()
             //additional code
         } else {
             supportFragmentManager.popBackStack()
         }
-
     }
 
+    /**
+     * This creates an option Menu
+     */
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.logout_menu, menu)
         return true
     }
 
+    /**
+     * Checks what the user has clicked in the optionMenu
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
         val itemThatWasClickedId = item.getItemId()
         when (itemThatWasClickedId) {
             R.id.settings -> {
@@ -393,6 +430,9 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         return super.onOptionsItemSelected(item)
     }
 
+    /**
+     * This will bring the user to the settingsFragment
+     */
     fun toSettings() {
         val preferenceFragment = SettingsFragment()
         supportFragmentManager.beginTransaction()
@@ -401,7 +441,9 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
             .addToBackStack("ROOT")
             .commit()
     }
-
+    /**
+     * This will log the user out and make sure the sharedPreferences are set correctly so the app gets closed correctly
+     */
     fun logout() {
         userView.loggingIn = true
         userView.userRepo.nukeUsers()
@@ -417,7 +459,9 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
             .commit()
     }
 
-    //Settings Management
+    /**
+     * This is a function that checks which Custom Preference Fragment has been clicked on and redirects the user
+     */
     override fun onPreferenceClick(fragmentType: FragmentType) {
         when (fragmentType) {
             FragmentType.GROUP -> {
@@ -455,10 +499,18 @@ class MainActivity : AppCompatActivity(), SessionAdapterOnUnlockSession, OnPrefe
         }
     }
 
+    /**
+     * Accessable method to change the actionBarTitle from a fragment
+     * @param title the title for the actionbar
+     */
     fun setActionBarTitle(title: String) {
         this.supportActionBar?.title = title
     }
 
+    /**
+     *  Hides or shows the Actionbar for if the user is logged in or not
+     *  @param bool will change it accordingly
+     */
     fun showAcionBar(bool: Boolean) {
         if (bool) {
             this.supportActionBar?.show()

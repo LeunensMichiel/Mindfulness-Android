@@ -15,6 +15,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.hogent.mindfulness.MainActivity
 import com.hogent.mindfulness.R
 import com.hogent.mindfulness.domain.Model
 import com.hogent.mindfulness.domain.ViewModels.PageViewModel
@@ -55,7 +56,7 @@ class ImageInputFragment : PagerFragment() {
 
         pageView.pages.observe(this, Observer {
             Log.d("CHECKY_BOY", "FUCK_OFF")
-            if (it!![position].post != null) {
+            if (it!!.isNotEmpty() && it!![position].post != null) {
                 if (it[position].post?.bitmap == null) {
                     post = pageView.pages.value!![position].post!!
                     Log.d("CHECKY_BOY", "SHOW_RESULT_CALL")
@@ -67,19 +68,36 @@ class ImageInputFragment : PagerFragment() {
             }
         })
 
+        pageView.uiMessage.observe(this, Observer {
+            when (it!!.data) {
+                "imageinputsucces" -> {
+                    progressBar_inputImage.visibility = View.GONE
+                    fragment_image_input_photoBtn.isEnabled = false
+                    it.data = "succes"
+                }
+                "imageinputerror" -> {
+                    progressBar_inputImage.visibility = View.GONE
+                    fragment_image_input_photoBtn.isEnabled = true
+                    Toast.makeText(activity as MainActivity, "Er is iets misgelopen", Toast.LENGTH_SHORT).show()
+                }
+            }
+        })
+
+        fragment_image_input_photoBtn.isEnabled = true
         fragment_image_input_txf.setText("Geschiedenis aan het ophalen...")
         Log.d("IMAGE_INPUT_LIST", "ON_VIEW_CREATED")
+        if (pageView.pages.value?.isNotEmpty()!!){
+            if (pageView.pages.value!![position].post == null){
+                fragment_image_input_photoBtn.onClick {
+                    pageView.pageError.postValue(Model.errorMessage(null, "Input nog niet klaar."))
+                }
 
-        if (pageView.pages.value!![position].post == null){
-            fragment_image_input_photoBtn.onClick {
-                pageView.pageError.postValue(Model.errorMessage(null, "Input nog niet klaar."))
+                Log.d("CHECKY_BOY", "GET_THEM_BACK")
+                pageView.checkInputPage(page._id, position)
+            } else {
+                fragment_image_input_txf.setText(pageView.pages.value!![position].title)
+                fragment_image_input_image.setImageBitmap(pageView.pages.value!![position].post?.bitmap)
             }
-
-            Log.d("CHECKY_BOY", "GET_THEM_BACK")
-            pageView.checkInputPage(page._id, position)
-        } else {
-            fragment_image_input_txf.setText(pageView.pages.value!![position].title)
-            fragment_image_input_image.setImageBitmap(pageView.pages.value!![position].post?.bitmap)
         }
     }
 
@@ -102,6 +120,7 @@ class ImageInputFragment : PagerFragment() {
         }
 
         fragment_image_input_txf.setText(page.title)
+        fragment_image_input_desc.text = page.description
     }
 
 //    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
@@ -131,6 +150,7 @@ class ImageInputFragment : PagerFragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (Activity.RESULT_OK == resultCode) {
+            progressBar_inputImage.visibility = View.VISIBLE
             var bitmap: Bitmap = data!!.extras.get("data") as Bitmap
             var file = File(context?.cacheDir, "temp")
             var bos = ByteArrayOutputStream()
