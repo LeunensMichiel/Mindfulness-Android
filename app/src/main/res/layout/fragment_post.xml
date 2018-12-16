@@ -7,7 +7,7 @@
              android:orientation="vertical">
 
     <TextView
-            android:text="Uw persoonlijke geschiedenis"
+            android:text="Uw persoonlijke tijdlijn"
             android:layout_width="0dp"
             android:layout_height="wrap_content" android:id="@+id/post_titel"
             app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
@@ -24,5 +24,24 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHorizontal_bias="0.0" app:layout_constraintVertical_bias="0.0"
             android:layout_marginBottom="8dp"/>
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" app:layout_constraintTop_toBottomOf="@id/post_titel"
+            app:layout_constraintBottom_toBottomOf="parent" android:gravity="center" android:id="@+id/emptyPostsLayout"
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
+            app:layout_constraintVertical_bias="0.3" android:visibility="gone">
+        <ImageView
+                android:src="@drawable/ic_diary"
+                android:layout_width="match_parent"
+                android:layout_height="100dp" android:id="@+id/emptyPostImage"
+                android:adjustViewBounds="true"/>
+        <TextView
+                android:text="U heeft nog geen oefening gemaakt. \nBegin met Mindfulness om hier je persoonlijke geschiedenis te zien!"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content" android:id="@+id/emptyPostText" android:textAlignment="center"
+                android:textColor="@android:color/darker_gray" android:textSize="18sp" android:layout_marginTop="32dp"/>
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

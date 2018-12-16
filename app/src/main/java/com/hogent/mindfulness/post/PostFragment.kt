@@ -20,8 +20,6 @@ import com.hogent.mindfulness.domain.ViewModels.PostViewModel
 import com.hogent.mindfulness.exercise_details.MultipleChoiceItemAdapter
 import kotlinx.android.synthetic.main.fragment_post.*
 import kotlinx.android.synthetic.main.post_view.view.*
-import org.jetbrains.anko.imageBitmap
-import java.util.*
 import java.text.SimpleDateFormat
 
 /**
@@ -40,7 +38,7 @@ class PostFragment : Fragment() {
             ViewModelProviders.of(this).get(PostViewModel::class.java)
         }?: throw Exception("Invalid activity.")
         postView.retrievePosts()
-        Log.d("POSTIE_WOSTIE", "CREATION_CHECK")
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -51,11 +49,19 @@ class PostFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("POSTIE_WOSTIE", "VIEW_CREATED_CHECK")
+        postView.posts.observe(this, Observer {
+            if (it == null || it.isEmpty()) {
+                emptyPostsLayout.visibility = View.VISIBLE
+                post_recycler_view.visibility = View.GONE
+            } else {
+                emptyPostsLayout.visibility = View.GONE
+                post_recycler_view.visibility = View.VISIBLE
+            }
+        })
+
         viewManager = LinearLayoutManager((activity as MainActivity))
         viewAdapter = PostAdapter(postView, this,(activity as MainActivity))
         post_recycler_view.apply {
-            setHasFixedSize(true)
             layoutManager = viewManager
             adapter = viewAdapter
         }
@@ -64,7 +70,7 @@ class PostFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        (activity as MainActivity).setActionBarTitle("Uw persoonlijke tijdlijn")
+        (activity as MainActivity).setActionBarTitle("Tijdlijn")
     }
 }
 

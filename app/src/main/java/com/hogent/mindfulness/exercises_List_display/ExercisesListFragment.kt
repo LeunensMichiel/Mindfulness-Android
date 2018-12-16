@@ -72,6 +72,16 @@ class ExercisesListFragment : Fragment() {
         exerciseSessiontitle.text = session.title
         sessionDescriptionExercise.text = session.description
 
+        exView.exercises.observe(this, Observer {
+            if (it == null || it.isEmpty()) {
+                emptySessionLayout.visibility = View.VISIBLE
+                rv_exercises.visibility = View.GONE
+            } else {
+                emptySessionLayout.visibility = View.GONE
+                rv_exercises.visibility = View.VISIBLE
+            }
+        })
+
         val viewAdapter = ExerciseAdapter(this, exView, userViewModel, session)
         val viewManager = LinearLayoutManager(activity)
 
