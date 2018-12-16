@@ -80,6 +80,9 @@ class PostFragment : Fragment() {
         //postService = ServiceGenerator.createService(PostApiService::class.java, (activity as MainActivity))
     }
 
+    /*
+     * In the onresume method we set the title on the top of the screen.
+     */
     override fun onResume() {
         super.onResume()
         (activity as MainActivity).setActionBarTitle("Tijdlijn")
@@ -103,14 +106,11 @@ class PostAdapter(
     private var dataSet: Array<Model.Post> = arrayOf()
 
     init {
-        Log.d("POSTIE_WOSTIES", "ADAPTER_CREATION_CHECK")
         if (viewModel.posts.value != null) {
             dataSet = viewModel.posts.value!!
         }
         viewModel.posts.observe(lifecycleOwner, Observer {
-            Log.d("POSTIE_WOSTIES", "CHECK")
             if (it != null) {
-                Log.d("POSTIE_WOSTIES", "${it}")
                 dataSet = it
                 notifyDataSetChanged()
             } else {
@@ -120,17 +120,25 @@ class PostAdapter(
         })
     }
 
-
+    /**
+     * This function loads in the item view
+     */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostAdapter.viewHolder {
         val postView = LayoutInflater.from(parent.context)
             .inflate(R.layout.post_view, parent, false) as CardView
         return viewHolder(postView)
     }
 
+    /**
+     *
+     */
     override fun getItemCount(): Int {
         return dataSet.size
     }
 
+    /**
+     * This function attaches the data to item view
+     */
     override fun onBindViewHolder(holder: PostAdapter.viewHolder, position: Int) {
         holder.postView.post_session_name.text = dataSet[position].session_name
         holder.postView.post_ex_name.text = dataSet[position].exercise_name
