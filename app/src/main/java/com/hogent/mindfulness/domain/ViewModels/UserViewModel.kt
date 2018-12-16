@@ -1,7 +1,9 @@
 package com.hogent.mindfulness.domain.ViewModels
 
+import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
+import android.content.Context
 import android.util.Log
 import com.hogent.mindfulness.data.API.UserApiService
 import com.hogent.mindfulness.data.LocalDatabase.repository.UserRepository
@@ -27,6 +29,9 @@ class UserViewModel : InjectedViewModel() {
     lateinit var userRepo: UserRepository
 
     private lateinit var subscription: Disposable
+
+    @Inject
+    lateinit var context: Context
 
     init {
         errorMessage.value = Model.loginErrorMessage()
@@ -171,6 +176,8 @@ class UserViewModel : InjectedViewModel() {
     }
 
     private fun onRetrieveUserSucces(user: Model.User?) {
+        var pref = context.getSharedPreferences("userDetails", Context.MODE_PRIVATE)
+        pref.edit().putString("authToken", user?.token).apply()
         rawUser.value = user
         userRepo.insert(user!!)
     }
