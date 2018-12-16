@@ -33,7 +33,7 @@ class MainActivityTest {
     fun mainActivityTest() {
         val appCompatButton = onView(
             allOf(
-                withId(R.id.login_form_register_btn), withText("Registreer"),
+                withId(R.id.login_form_register_btn),
                 childAtPosition(
                     allOf(
                         withId(R.id.login_form),
@@ -50,7 +50,7 @@ class MainActivityTest {
 
         val editText = onView(
             allOf(
-                withId(R.id.register_email), withText("Email"),
+                withId(R.id.register_email),
                 childAtPosition(
                     allOf(
                         withId(R.id.register_form),
@@ -68,7 +68,7 @@ class MainActivityTest {
 
         val editText2 = onView(
             allOf(
-                withId(R.id.register_firstname), withText("Voornaam"),
+                withId(R.id.register_firstname),
                 childAtPosition(
                     allOf(
                         withId(R.id.register_form),
@@ -86,7 +86,7 @@ class MainActivityTest {
 
         val editText3 = onView(
             allOf(
-                withId(R.id.register_lastname), withText("Achternaam"),
+                withId(R.id.register_lastname),
                 childAtPosition(
                     allOf(
                         withId(R.id.register_form),
@@ -104,7 +104,7 @@ class MainActivityTest {
 
         val editText4 = onView(
             allOf(
-                withId(R.id.edit_register_password), withText("Wachtwoord"),
+                withId(R.id.edit_register_password),
                 childAtPosition(
                     allOf(
                         withId(R.id.register_form),
@@ -122,7 +122,7 @@ class MainActivityTest {
 
         val editText5 = onView(
             allOf(
-                withId(R.id.edit_register_repeat_password), withText("Herhaal wachtwoord"),
+                withId(R.id.edit_register_repeat_password),
                 childAtPosition(
                     allOf(
                         withId(R.id.register_form),
