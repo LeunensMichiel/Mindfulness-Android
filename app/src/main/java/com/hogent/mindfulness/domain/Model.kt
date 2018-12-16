@@ -32,7 +32,8 @@ object Model {
 
     data class Exercise(
         val _id: String,
-        val title: String
+        val title: String,
+        var bMap:Bitmap? = null
     )
 
     data class Page(
