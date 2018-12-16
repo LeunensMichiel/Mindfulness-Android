@@ -162,6 +162,12 @@ object Model {
         val new_password: String
     )
 
+    data class OldAndNewPassword(
+        val new_password: String?,
+        val old_password: String?,
+        val token: String?
+    )
+
     data class Result(
         val result: String
     )

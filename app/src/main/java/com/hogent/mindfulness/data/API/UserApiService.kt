@@ -45,4 +45,7 @@ interface UserApiService {
 
     @POST("/API/users/change_password")
     fun changePasswordWithoutAuth(@Body changeInfo : Model.ForgotPasswordWithCode) : Observable<Model.Result>
+
+    @PUT("/API/users/change_password/{id}")
+    fun changePasswordWithAuth(@Path("id") id: String, @Body model : Model.OldAndNewPassword) : Observable<Model.OldAndNewPassword>
 }
