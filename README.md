@@ -37,7 +37,7 @@ Sessie 2 algemene cursus
 
 Groeps-qr-codes kunnen ook genereerd worden via onze [beheerderstool](https://github.com/HoGent-Projecten3/projecten3-1819-angular-groep3-mindfulness).
 
-###login gegevens super admin voor in beheerderstool:
+### Login gegevens super admin voor in beheerderstool:
 ##### Email 
 mindfulness.beheerder@outlook.com 
 ##### Wachtwoord
