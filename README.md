@@ -19,6 +19,30 @@ Surf naar deze link, en download de mindfulness APK.
 
 End with an example of getting some data out of the system or using it for a little demo
 
+## Inloggen
+
+Bij het inloggen kan er aangesloten worden bij een groep. Hiervoor is een qr-code nodig.
+
+##### Groeps qr-code
+![zomergroep_groep_qrcode](qr_codes/zomergroep_groepscode.png)
+
+##### sessie codes
+Sessie 1 algemen cursus
+
+![Sessie 1 algemenecursus](qr_codes/Sessie_1_algemenecursus.png) 
+
+Sessie 2 algemene cursus
+
+![Sessie 2 algemenecursus](qr_codes/Sessie_2_algemenecursus.png)
+
+Groeps-qr-codes kunnen ook genereerd worden via onze [beheerderstool](https://github.com/HoGent-Projecten3/projecten3-1819-angular-groep3-mindfulness).
+
+###login gegevens super admin voor in beheerderstool:
+##### Email 
+mindfulness.beheerder@outlook.com 
+##### Wachtwoord
+mindfulness_beheerder
+
 ## Tests uitvoeren
 
 Als testing library gebruikten we JUnit4 en Espresso voor e2e testing. We hebben enkel e2e testen voor de loginpagina en de registreerpagina. Om de testen te runnen ga je naar Android Studio en druk je op run tests.
